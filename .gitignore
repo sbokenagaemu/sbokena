@@ -1,0 +1,15 @@
+# env
+/.direnv/
+
+# artifacts
+/**/.cache/
+/**/build/
+/**/CMakeFiles/
+/**/.ninja_deps
+/**/.ninja_log
+/**/build.ninja
+/**/cmake_install.cmake
+/**/compile_commands.json
+/**/CMakeCache.txt
+/**/Makefile
+/**/result
