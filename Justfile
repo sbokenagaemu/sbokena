@@ -1,3 +1,5 @@
+export CC       := ""
+export CXX      := ""
 export CXXFLAGS := ""
 export LDFLAGS  := ""
 
