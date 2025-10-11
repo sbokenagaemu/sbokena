@@ -1,0 +1,12 @@
+include(FetchContent)
+
+set(GLFW_BUILD_WAYLAND ON)
+set(GLFW_BUILD_X11 ON)
+
+FetchContent_Declare(
+  raylib
+  GIT_REPOSITORY "https://github.com/raysan5/raylib"
+  GIT_TAG 5.5
+)
+
+FetchContent_MakeAvailable(raylib)

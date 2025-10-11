@@ -19,10 +19,6 @@
         pkgs.cmake
         pkgs.ninja
       ];
-
-      libs = [
-        pkgs.raylib
-      ];
     in {
       formatter = pkgs.alejandra;
 
@@ -32,7 +28,6 @@
         } {
           packages =
             build-tools
-            ++ libs
             ++ [
               llvm.bintools
               llvm.clang-tools
@@ -49,9 +44,7 @@
         main = stdenv.mkDerivation {
           src = ./.;
           name = "main";
-          nativeBuildInputs =
-            build-tools
-            ++ libs;
+          nativeBuildInputs = build-tools;
 
           installPhase = ''
             mkdir -p $out/bin
@@ -64,12 +57,10 @@
         format = stdenv.mkDerivation {
           src = ./.;
           name = "format";
-          nativeBuildInputs =
-            libs
-            ++ [
-              llvm.clang-tools
-              pkgs.fd
-            ];
+          nativeBuildInputs = [
+            llvm.clang-tools
+            pkgs.fd
+          ];
 
           buildPhase = ''
             ls -R
@@ -88,7 +79,6 @@
           name = "tidy";
           nativeBuildInputs =
             build-tools
-            ++ libs
             ++ [
               llvm.clang-tools
               pkgs.fd

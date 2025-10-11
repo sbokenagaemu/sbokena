@@ -14,7 +14,7 @@ set(SOURCES ${SOURCES_CXX} ${SOURCES_HXX})
 add_compile_options(-Wall -Wextra -Wpedantic)
 add_link_options(-fuse-ld=lld)
 
-find_package(raylib 5.5 REQUIRED)
+add_subdirectory(vendor)
 
 add_executable(main)
 target_sources(main PRIVATE ${SOURCES})
