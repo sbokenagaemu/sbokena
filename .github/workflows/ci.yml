@@ -25,18 +25,5 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - run: sudo apt-get update
-      - run: sudo apt-get install -y \
-        build-essential \
-        git \
-        lld \
-        cmake \
-        fd-find \
-        just \
-        ninja-build \
-        libglvnd-dev \
-        libx11-dev \
-        libxcursor-dev \
-        libxi-dev \
-        libxinerama-dev \
-        libxrandr-dev
+      - run: sudo apt-get install -y build-essential git lld cmake fd-find just ninja-build libglvnd-dev libx11-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev
       - run: just build -DCMAKE_BUILD_TYPE=Release
