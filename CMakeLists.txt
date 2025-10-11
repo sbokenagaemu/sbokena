@@ -11,13 +11,12 @@ file(GLOB SOURCES_CXX "src/*.cc")
 file(GLOB SOURCES_HXX "include/*.hh")
 set(SOURCES ${SOURCES_CXX} ${SOURCES_HXX})
 
-add_link_options("-fuse-ld=lld")
+add_compile_options(-Wall -Wextra -Wpedantic)
+add_link_options(-fuse-ld=lld)
+
 find_package(raylib 5.5 REQUIRED)
 
 add_executable(main)
 target_sources(main PRIVATE ${SOURCES})
 target_include_directories(main PRIVATE include)
-target_compile_options(main PRIVATE
-  -Wall -Wextra -Wpedantic
-)
 target_link_libraries(main PRIVATE raylib)
