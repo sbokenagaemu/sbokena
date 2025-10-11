@@ -52,5 +52,52 @@
           '';
         };
       };
+
+      checks = {
+        format = stdenv.mkDerivation {
+          src = ./.;
+          name = "format";
+          nativeBuildInputs =
+            libs
+            ++ [
+              llvm.clang-tools
+              pkgs.fd
+            ];
+
+          buildPhase = ''
+            ls -R
+            clang-format \
+              --dry-run -Werror \
+              $(fd '.cc') $(fd '.h')
+          '';
+
+          installPhase = ''
+            touch $out
+          '';
+        };
+
+        tidy = stdenv.mkDerivation {
+          src = ./.;
+          name = "tidy";
+          nativeBuildInputs =
+            build-tools
+            ++ libs
+            ++ [
+              llvm.clang-tools
+              pkgs.fd
+              pkgs.just
+            ];
+
+          dontUseCmakeConfigure = true;
+          buildPhase = ''
+            just build
+            just lint
+          '';
+
+          installPhase = ''
+            touch $out
+          '';
+        };
+      };
     });
 }
