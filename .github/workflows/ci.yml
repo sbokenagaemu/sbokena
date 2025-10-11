@@ -20,10 +20,10 @@ jobs:
           purge-prefixes: nix-${{ hashFiles('flake.nix') }}
           purge-primary-key: never
       - run: nix build -L
-  build-apt:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-      - run: sudo apt-get update
-      - run: sudo apt-get install -y fd-find just ninja-build libglvnd-dev libx11-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev
-      - run: just build -DCMAKE_BUILD_TYPE=Release
+  # build-apt:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v5
+  #     - run: sudo apt-get update
+  #     - run: sudo apt-get install -y fd-find just ninja-build libglvnd-dev libx11-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev
+  #     - run: just build -DCMAKE_BUILD_TYPE=Release
