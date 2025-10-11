@@ -1,0 +1,20 @@
+BasedOnStyle: LLVM
+ColumnLimit: 80
+
+# indents
+ConstructorInitializerIndentWidth: 2
+ContinuationIndentWidth: 2
+
+# no single-line constructs (mostly)
+# basically only prevent this for either
+# a) things that affect control flow
+# b) templates & require clauses
+AllowShortCaseExpressionOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+AllowShortCompoundRequirementOnASingleLine: true
+AllowShortEnumsOnASingleLine: true
+AllowShortFunctionsOnASingleLine: Empty
+AllowShortLambdasOnASingleLine: Empty
+AllowShortLoopsOnASingleLine: false
+AllowShortIfStatementsOnASingleLine: false
+BreakTemplateDeclarations: Yes
