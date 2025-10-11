@@ -113,7 +113,14 @@
             ++ libs
             ++ [llvm.clang-tools];
 
-          dontUseCmakeConfigure = true;
+          configurePhase = ''
+            export raylib_src=${raylib-src}
+          '';
+
+          cmakeFlags = [
+            "-Draylib_src=${raylib-src}"
+          ];
+
           buildPhase = ''
             just build
             just lint
