@@ -57,8 +57,8 @@
       packages = rec {
         default = main;
 
-        # TODO: this does not build with llvm.stdenv
-        main = stdenv.mkDerivation {
+        # this does not build with llvm.stdenv :shrug:
+        main = pkgs.stdenv.mkDerivation {
           src = ./.;
           name = "main";
           nativeBuildInputs =
