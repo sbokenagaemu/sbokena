@@ -9,7 +9,7 @@ clean:
   git clean -xdf
 
 fmt:
-  clang-format -i $(fd .cpp) $(fd .hpp)
+  clang-format -i $(fd .cc) $(fd .h)
 
 lint:
-  clang-tidy -p build/ $(fd .cpp) $(fd .hpp)
+  clang-tidy -p build/ $(fd .cc) $(fd .h)
