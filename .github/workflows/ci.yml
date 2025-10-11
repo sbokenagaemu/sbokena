@@ -17,7 +17,7 @@ jobs:
           restore-prefixes-first-match: nix-${{ hashFiles('flake.nix') }}
           gc-max-store-size: 1G
           purge: true
-          purge-prefixes: nix-${{ hashFiles("flake.nix") }}
+          purge-prefixes: nix-${{ hashFiles('flake.nix') }}
           purge-primary-key: never
       - run: nix build -L
   build-apt:
