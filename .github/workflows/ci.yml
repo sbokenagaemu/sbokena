@@ -24,19 +24,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-      - run: >
-          sudo apt install -y
-            build-essential
-            git
-            lld
-            cmake
-            fd-find
-            just
-            ninja-build
-            libglvnd-dev
-            libx11-dev
-            libxcursor-dev
-            libxi-dev
-            libxinerama-dev
-            libxrandr-dev
+      - run: sudo apt install -y \
+          build-essential \
+          git \
+          lld \
+          cmake \
+          fd-find \
+          just \
+          ninja-build \
+          libglvnd-dev \
+          libx11-dev \
+          libxcursor-dev \
+          libxi-dev \
+          libxinerama-dev \
+          libxrandr-dev
       - run: just build -DCMAKE_BUILD_TYPE=Release
