@@ -11,20 +11,26 @@
   }:
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = import nixpkgs {inherit system;};
-
       llvm = pkgs.llvmPackages_latest;
       xorg = pkgs.xorg;
+
+      raylib-src = builtins.fetchGit {
+        url = "https://github.com/raysan5/raylib";
+        rev = "c1ab645ca298a2801097931d1079b10ff7eb9df8";
+      };
 
       stdenv = llvm.stdenv;
 
       build-tools = [
         llvm.lld
         pkgs.cmake
+        pkgs.fd
+        pkgs.just
         pkgs.ninja
       ];
 
       libs = [
-        pkgs.raylib
+        pkgs.libGL
         xorg.libX11
         xorg.libXcursor
         xorg.libXi
@@ -45,8 +51,6 @@
               llvm.bintools
               llvm.clang-tools
               llvm.lldb
-              pkgs.fd
-              pkgs.just
             ];
         };
 
@@ -61,9 +65,22 @@
             build-tools
             ++ libs;
 
+          configurePhase = ''
+            export raylib_src=${raylib-src}
+          '';
+
+          cmakeFlags = [
+            "-Draylib_src=${raylib-src}"
+          ];
+
+          buildPhase = ''
+            just build
+          '';
+
           installPhase = ''
-            mkdir -p $out/bin
-            cp -r $name $out/bin
+            runHook preInstall
+            install -Dm 755 build/$name $out/bin/$name
+            runHook postInstall
           '';
         };
       };
@@ -74,7 +91,6 @@
           name = "format";
           nativeBuildInputs = [
             llvm.clang-tools
-            pkgs.fd
           ];
 
           buildPhase = ''
@@ -95,11 +111,7 @@
           nativeBuildInputs =
             build-tools
             ++ libs
-            ++ [
-              llvm.clang-tools
-              pkgs.fd
-              pkgs.just
-            ];
+            ++ [llvm.clang-tools];
 
           dontUseCmakeConfigure = true;
           buildPhase = ''
