@@ -11,6 +11,8 @@ file(GLOB SOURCES_CXX "src/*.cc")
 file(GLOB SOURCES_HXX "include/*.hh")
 set(SOURCES ${SOURCES_CXX} ${SOURCES_HXX})
 
+add_link_options("-fuse-ld=lld")
+
 add_executable(main)
 target_sources(main PRIVATE ${SOURCES})
 target_include_directories(main PRIVATE include)

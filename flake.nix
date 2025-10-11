@@ -15,6 +15,7 @@
       stdenv = llvm.stdenv;
 
       build-tools = [
+        llvm.lld
         pkgs.cmake
         pkgs.ninja
       ];
