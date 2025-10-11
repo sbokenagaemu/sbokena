@@ -24,6 +24,7 @@
       ];
 
       libs = [
+        pkgs.raylib
         xorg.libX11
         xorg.libXcursor
         xorg.libXi
