@@ -11,13 +11,24 @@
   }:
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = import nixpkgs {inherit system;};
+
       llvm = pkgs.llvmPackages_latest;
+      xorg = pkgs.xorg;
+
       stdenv = llvm.stdenv;
 
       build-tools = [
         llvm.lld
         pkgs.cmake
         pkgs.ninja
+      ];
+
+      libs = [
+        xorg.libX11
+        xorg.libXcursor
+        xorg.libXi
+        xorg.libXinerama
+        xorg.libXrandr
       ];
     in {
       formatter = pkgs.alejandra;
@@ -28,6 +39,7 @@
         } {
           packages =
             build-tools
+            ++ libs
             ++ [
               llvm.bintools
               llvm.clang-tools
@@ -44,7 +56,9 @@
         main = stdenv.mkDerivation {
           src = ./.;
           name = "main";
-          nativeBuildInputs = build-tools;
+          nativeBuildInputs =
+            build-tools
+            ++ libs;
 
           installPhase = ''
             mkdir -p $out/bin
@@ -79,6 +93,7 @@
           name = "tidy";
           nativeBuildInputs =
             build-tools
+            ++ libs
             ++ [
               llvm.clang-tools
               pkgs.fd
