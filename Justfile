@@ -3,12 +3,11 @@ export CXX      := ""
 export CXXFLAGS := ""
 export LDFLAGS  := ""
 
-build *args:
-  just cmake {{args}}
+build *args: (cmake args)
   ninja -C build
 
 cmake *args:
-  cmake -G Ninja -B build -S .
+  cmake -G Ninja -B build -S . {{args}}
 
 clean:
   git clean -xdf
