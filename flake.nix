@@ -2,15 +2,21 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    nixgl = {
+      url = "github:nix-community/nixGL";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
     self,
     nixpkgs,
     flake-utils,
+    nixgl,
   }:
     flake-utils.lib.eachDefaultSystem (system: let
-      pkgs = import nixpkgs {inherit system;};
+      overlays = [nixgl.overlay];
+      pkgs = import nixpkgs {inherit system overlays;};
       llvm = pkgs.llvmPackages_latest;
       xorg = pkgs.xorg;
 
@@ -51,6 +57,7 @@
               llvm.bintools
               llvm.clang-tools
               llvm.lldb
+              pkgs.nixgl.nixGLIntel
             ];
         };
 
