@@ -14,26 +14,42 @@
       llvm = pkgs.llvmPackages_latest;
       stdenv = llvm.stdenv;
 
-      # only tools needed to build for nix
-      # for dev tools, see devShells
-      buildTools = with pkgs; [
-        llvm.clang
-        cmake
-        ninja
+      build-tools = [
+        pkgs.cmake
+        pkgs.ninja
       ];
     in {
       formatter = pkgs.alejandra;
 
-      devShells.default = pkgs.mkShell.override {inherit stdenv;} {
-        buildInputs =
-          buildTools
-          ++ (with pkgs; [
-            llvm.bintools
-            llvm.clang-tools
-            llvm.lldb
-            fd
-            just
-          ]);
+      devShells.default =
+        pkgs.mkShell.override {
+          inherit stdenv;
+        } {
+          packages =
+            build-tools
+            ++ [
+              llvm.bintools
+              llvm.clang-tools
+              llvm.lldb
+              pkgs.fd
+              pkgs.just
+            ];
+        };
+
+      packages = rec {
+        default = main;
+
+        # TODO: this does not build with llvm.stdenv
+        main = stdenv.mkDerivation {
+          src = ./.;
+          name = "main";
+          nativeBuildInputs = build-tools;
+
+          installPhase = ''
+            mkdir -p $out/bin
+            cp -r $name $out/bin
+          '';
+        };
       };
     });
 }
