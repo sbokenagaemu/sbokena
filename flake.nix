@@ -17,7 +17,7 @@
     flake-utils.lib.eachDefaultSystem (system: let
       overlays = [nixgl.overlay];
       pkgs = import nixpkgs {inherit system overlays;};
-      llvm = pkgs.llvmPackages_latest;
+      llvm = pkgs.llvmPackages;
       xorg = pkgs.xorg;
 
       raylib-src = builtins.fetchGit {
