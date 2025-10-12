@@ -41,7 +41,7 @@
           llvm.bintools
 
           # fixes clang-scan-deps for ninja
-          # https://github.com/NixOS/nixpkgs/issues/273875
+          # https://github.com/nixos/nixpkgs/issues/273875
           # (thank you, @opna2608:matrix.org)
           llvm.clang-tools
 
@@ -49,10 +49,19 @@
           pkgs.fd
           pkgs.just
           pkgs.ninja
+
+          # build-time deps
+          pkgs.pkg-config
+          pkgs.wayland-scanner
         ];
 
         libs = [
+          # raylib deps
           pkgs.libGL
+          # raylib deps - wayland
+          pkgs.libxkbcommon
+          pkgs.wayland
+          # raylib deps - x11
           xorg.libX11
           xorg.libXcursor
           xorg.libXi
@@ -73,6 +82,8 @@
                 llvm.lldb
                 pkgs.nixgl.nixGLIntel
               ];
+
+            LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath libs;
           };
 
         packages = rec {
@@ -81,9 +92,8 @@
           main = stdenv.mkDerivation {
             src = ./.;
             name = "main";
-            nativeBuildInputs =
-              build-tools
-              ++ libs;
+            nativeBuildInputs = build-tools;
+            buildInputs = libs;
 
             configurePhase = ''
               export raylib_src=${raylib-src}
@@ -130,9 +140,8 @@
           tidy = stdenv.mkDerivation {
             src = ./.;
             name = "tidy";
-            nativeBuildInputs =
-              build-tools
-              ++ libs;
+            nativeBuildInputs = build-tools;
+            buildInputs = libs;
 
             configurePhase = ''
               export raylib_src=${raylib-src}

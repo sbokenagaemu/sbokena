@@ -14,6 +14,8 @@ set(SOURCES ${SOURCES_CXX} ${SOURCES_HXX})
 add_compile_options(-Wall -Wextra -Wpedantic)
 add_link_options(-fuse-ld=lld)
 
+# raylib wayland needs this
+set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 add_subdirectory(vendor)
 
 add_executable(main)

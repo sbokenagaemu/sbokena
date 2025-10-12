@@ -15,10 +15,10 @@ nix run --impure github:nix-community/nixGL -- result/bin/main
 
 install the required dependencies for your distribution:
 
-| Distribution | Command                                                                                                                                                  |
-| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Arch Linux   | `sudo pacman -S base-devel lld cmake fd just ninja libglvnd libx11 libxcursor libxi libxinerama libxrandr`                                               |
-| Ubuntu       | `sudo apt install build-essential git lld cmake fd-find just ninja-build libglvnd-dev libx11-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev` |
+| Distribution | Command                                                                                                                                                                                                    |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Arch Linux   | `sudo pacman -S base-devel lld cmake fd just ninja libglvnd wayland libxkbcommon wayland-protocols libx11 libxcursor libxi libxinerama libxrandr`                                                          |
+| Ubuntu       | `sudo apt install build-essential git lld cmake fd-find just ninja-build libglvnd-dev libwayland-dev libxkbcommon-dev wayland-protocols libx11-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev` |
 
 and build the game:
 

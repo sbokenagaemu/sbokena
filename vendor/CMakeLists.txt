@@ -1,7 +1,6 @@
 include(FetchContent)
 
 set(GLFW_BUILD_WAYLAND ON)
-set(GLFW_BUILD_X11 ON)
 
 if (DEFINED ENV{raylib_src})
   FetchContent_Declare(
@@ -29,5 +28,4 @@ else ()
   )
 endif ()
 
-FetchContent_MakeAvailable(raylib)
-FetchContent_MakeAvailable(raylib_cpp)
+FetchContent_MakeAvailable(raylib raylib_cpp)
