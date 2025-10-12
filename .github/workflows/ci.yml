@@ -19,7 +19,8 @@ jobs:
           purge: true
           purge-prefixes: nix-${{ hashFiles('flake.nix') }}
           purge-primary-key: never
-      - run: nix build -L
+      - run: nix flake check
+      - run: nix build
   # build-apt:
   #   runs-on: ubuntu-latest
   #   steps:
