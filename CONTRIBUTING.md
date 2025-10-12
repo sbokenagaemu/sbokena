@@ -43,6 +43,24 @@ DrawText(msg, msg_x, msg_y, msg_color);
 
 ## practices
 
+### tag your commits & keep them small
+
+every commit message should be tagged with the primary part of code that
+changed in that commit. this also implies that each commit should only really
+affect one part of the codebase.
+
+example commit messages:
+
+```
+build: add package <some_package>
+docs: add <topic> to <file>
+ci: fix <something>
+```
+
+in the case that a commit must affect multiple parts of the codebase at once,
+use the `general:` tag. (i know i didn't really follow this myself, but please
+try to.)
+
 ### don't push directly, use pull requests
 
 this is common practice, it allows people to do things independently without
