@@ -51,6 +51,7 @@
           pkgs.ninja
 
           # build-time deps
+          pkgs.libffi
           pkgs.pkg-config
           pkgs.wayland-scanner
         ];
