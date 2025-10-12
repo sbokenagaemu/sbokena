@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 4.0)
-project(sbokena
-        VERSION 0.1.0
-        HOMEPAGE_URL https://github.com/sbokenagaemu/sbokena
-        LANGUAGES CXX)
+project(
+  sbokena
+  VERSION 0.1.0
+  HOMEPAGE_URL https://github.com/sbokenagaemu/sbokena
+  LANGUAGES CXX
+)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
