@@ -38,13 +38,13 @@ nix develop
 to generate a `compile_commands.json` database for use with `clangd`:
 
 ```sh
-just CC="clang" CXX="clang++" cmake
+just cmake
 ```
 
 to build the game:
 
 ```sh
-just CC="clang" CXX="clang++" build
+just build
 ```
 
 to run the game:
