@@ -1,36 +1,39 @@
-#include "raylib.h"
 #include <print>
+#include <string>
+
+#include "Color.hpp"
+#include "Font.hpp"
+#include "Window.hpp"
+#include "raylib.h"
 
 int main() {
   std::println("hello, world!");
-  std::println("raylib version {}", RAYLIB_VERSION);
 
   const int window_width = 800;
   const int window_height = 600;
-  const char *window_title = "main";
+  const std::string window_title = "main";
 
-  InitWindow(window_width, window_height, window_title);
-  SetTargetFPS(60);
+  raylib::Window window = {
+    window_width,
+    window_height,
+    window_title,
+  };
 
-  while (!WindowShouldClose()) {
-    BeginDrawing();
-    ClearBackground(RAYWHITE);
+  window.SetTargetFPS(60);
 
-    // clang-format off
-    const char *msg = "hello, raylib!";
-    const Vector2 size = MeasureTextEx(GetFontDefault(), msg, 20, 0);
-    DrawText(
-      msg,
-      (window_width - size.x) / 2,
-      (window_height - size.y) / 2, 20,
-      DARKGRAY
-    );
-    // clang-format on
+  const raylib::Font font;
 
-    EndDrawing();
+  while (!window.ShouldClose()) {
+    window.BeginDrawing();
+    window.ClearBackground(raylib::Color::RayWhite());
+
+    const std::string msg = "hello, raylib!";
+    const raylib::Vector2 size = font.MeasureText(msg, 20, 1);
+    const raylib::Vector2 pos = (window.GetSize() - size) / 2;
+    font.DrawText(msg, pos, 20, 1, raylib::Color::DarkGray());
+
+    window.EndDrawing();
   }
-
-  CloseWindow();
 
   return 0;
 }

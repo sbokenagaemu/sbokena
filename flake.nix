@@ -27,6 +27,10 @@
         url = "https://github.com/raysan5/raylib";
         rev = "c1ab645ca298a2801097931d1079b10ff7eb9df8";
       };
+      raylib-cpp-src = builtins.fetchGit {
+        url = "https://github.com/RobLoach/raylib-cpp";
+        rev = "6d9d02cd242e8a4f78b6f971afcf992fb7a417dd";
+      };
 
       stdenv = llvm.stdenv;
 
@@ -77,10 +81,12 @@
 
           configurePhase = ''
             export raylib_src=${raylib-src}
+            export raylib_cpp_src=${raylib-cpp-src}
           '';
 
           cmakeFlags = [
             "-Draylib_src=${raylib-src}"
+            "-Draylib_cpp_src=${raylib-cpp-src}"
           ];
 
           buildPhase = ''
@@ -125,10 +131,12 @@
 
           configurePhase = ''
             export raylib_src=${raylib-src}
+            export raylib_cpp_src=${raylib-cpp-src}
           '';
 
           cmakeFlags = [
             "-Draylib_src=${raylib-src}"
+            "-Draylib_cpp_src=${raylib-cpp-src}"
           ];
 
           buildPhase = ''

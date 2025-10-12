@@ -16,4 +16,18 @@ else ()
   )
 endif ()
 
+if (DEFINED ENV{raylib_cpp_src})
+  FetchContent_Declare(
+    raylib_cpp
+    SOURCE_DIR "$ENV{raylib_cpp_src}"
+  )
+else ()
+  FetchContent_Declare(
+    raylib_cpp
+    GIT_REPOSITORY "https://github.com/RobLoach/raylib-cpp"
+    GIT_TAG v5.5.0
+  )
+endif ()
+
 FetchContent_MakeAvailable(raylib)
+FetchContent_MakeAvailable(raylib_cpp)
