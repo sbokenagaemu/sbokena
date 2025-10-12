@@ -4,7 +4,7 @@ export CXXFLAGS := ""
 export LDFLAGS  := ""
 
 build *args: (cmake args)
-  ninja -C build
+  cmake --build build
 
 cmake *args:
   cmake -G Ninja -B build -S . {{args}}
