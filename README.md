@@ -50,5 +50,9 @@ just build
 to run the game:
 
 ```sh
+# if your GPU has a Mesa driver
 nixGLIntel result/bin/main
+
+# if your GPU doesn't have a Mesa driver (e.g. proprietary NVIDIA graphics)
+nix run --impure github:nix-community/nixGL -- result/bin/main
 ```
