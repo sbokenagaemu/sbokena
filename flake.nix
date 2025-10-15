@@ -127,8 +127,8 @@
 
         checks = {
           format = stdenv.mkDerivation {
-            src = ./.;
             name = "format";
+            src = ./.;
             nativeBuildInputs = [
               llvm.clang-tools
             ];
@@ -146,8 +146,8 @@
           };
 
           tidy = stdenv.mkDerivation {
-            src = ./.;
             name = "tidy";
+            src = ./.;
             nativeBuildInputs = build-tools;
             buildInputs = libs;
 
@@ -166,6 +166,34 @@
             buildPhase = ''
               just cmake
               just lint
+            '';
+
+            installPhase = ''
+              touch $out
+            '';
+          };
+
+          test = stdenv.mkDerivation {
+            name = "test";
+            src = ./.;
+            nativeBuildInputs = build-tools;
+            buildInputs = libs;
+
+            configurePhase = ''
+              export googletest_src=${googletest-src}
+              export raylib_src=${raylib-src}
+              export raylib_cpp_src=${raylib-cpp-src}
+            '';
+
+            cmakeFlags = [
+              "-Dgoogletest_src=${googletest-src}"
+              "-Draylib_src=${raylib-src}"
+              "-Draylib_cpp_src=${raylib-cpp-src}"
+            ];
+
+            buildPhase = ''
+              just build
+              just test
             '';
 
             installPhase = ''
