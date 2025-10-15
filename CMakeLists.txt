@@ -20,3 +20,4 @@ add_subdirectory(vendor)
 
 # internal modules
 add_subdirectory(common)
+add_subdirectory(tests)
