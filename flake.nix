@@ -26,7 +26,7 @@
 
         googletest-src = builtins.fetchGit {
           url = "https://github.com/google/googletest";
-          ref = "1.17.0";
+          ref = "v1.17.0";
           rev = "52eb8108c5bdec04579160ae17225d66034bd723";
         };
         raylib-src = builtins.fetchGit {
