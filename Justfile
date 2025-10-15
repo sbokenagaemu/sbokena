@@ -17,3 +17,6 @@ fmt:
 
 lint:
   clang-tidy -p build/ $(fd -E build/ .cc)
+
+test:
+  cd build/tests && ctest

@@ -1,5 +1,18 @@
 include(FetchContent)
 
+if (DEFINED ENV{googletest_src})
+  FetchContent_Declare(
+    googletest
+    SOURCE_DIR "$ENV{googletest_src}"
+  )
+else ()
+  FetchContent_Declare(
+    googletest
+    GIT_REPOSITORY "https://github.com/google/googletest"
+    GIT_TAG v1.17.0
+  )
+endif ()
+
 set(GLFW_BUILD_WAYLAND ON)
 
 if (DEFINED ENV{raylib_src})
@@ -28,4 +41,8 @@ else ()
   )
 endif ()
 
-FetchContent_MakeAvailable(raylib raylib_cpp)
+FetchContent_MakeAvailable(
+  googletest
+  raylib
+  raylib_cpp
+)

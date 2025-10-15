@@ -24,6 +24,11 @@
         llvm = pkgs.llvmPackages;
         xorg = pkgs.xorg;
 
+        googletest-src = builtins.fetchGit {
+          url = "https://github.com/google/googletest";
+          ref = "1.17.0";
+          rev = "52eb8108c5bdec04579160ae17225d66034bd723";
+        };
         raylib-src = builtins.fetchGit {
           url = "https://github.com/raysan5/raylib";
           rev = "c1ab645ca298a2801097931d1079b10ff7eb9df8";
@@ -97,11 +102,13 @@
             buildInputs = libs;
 
             configurePhase = ''
+              export googletest_src=${googletest-src}
               export raylib_src=${raylib-src}
               export raylib_cpp_src=${raylib-cpp-src}
             '';
 
             cmakeFlags = [
+              "-Dgoogletest_src=${googletest-src}"
               "-Draylib_src=${raylib-src}"
               "-Draylib_cpp_src=${raylib-cpp-src}"
             ];
@@ -145,11 +152,13 @@
             buildInputs = libs;
 
             configurePhase = ''
+              export googletest_src=${googletest-src}
               export raylib_src=${raylib-src}
               export raylib_cpp_src=${raylib-cpp-src}
             '';
 
             cmakeFlags = [
+              "-Dgoogletest_src=${googletest-src}"
               "-Draylib_src=${raylib-src}"
               "-Draylib_cpp_src=${raylib-cpp-src}"
             ];
