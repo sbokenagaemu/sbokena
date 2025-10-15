@@ -134,7 +134,6 @@
             ];
 
             buildPhase = ''
-              ls -R
               clang-format \
                 --dry-run -Werror \
                 $(fd '.cc') $(fd '.h')
