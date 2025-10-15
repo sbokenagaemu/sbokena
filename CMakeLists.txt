@@ -18,3 +18,5 @@ add_link_options(-fuse-ld=lld)
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 add_subdirectory(vendor)
 
+# internal modules
+add_subdirectory(common)
