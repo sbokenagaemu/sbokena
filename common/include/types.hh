@@ -1,11 +1,12 @@
-// short aliases for standard library types.
+// common types & aliases.
 
 #pragma once
 
 #include <cmath>
+#include <concepts>
 #include <cstdint>
 
-namespace sbokena::utils {
+namespace sbokena::types {
 
 using i8 = std::int8_t;
 using i16 = std::int16_t;
@@ -22,4 +23,37 @@ using usize = std::size_t;
 using f32 = std::float_t;
 using f64 = std::double_t;
 
-} // namespace sbokena::utils
+// a 2D cardinal direction.
+enum struct Direction : u8 { Up, Down, Left, Right };
+
+// a position in a 2D grid.
+template <std::integral T>
+struct Position {
+  T x;
+  T y;
+
+  [[nodiscard("transposed() does not modify `this`")]]
+  constexpr Position transposed() const;
+};
+
+template <std::integral T>
+constexpr Position<T> &operator+=(Position<T> &, const Position<T> &) noexcept;
+
+template <std::integral T>
+constexpr Position<T> &operator-=(Position<T> &, const Position<T> &) noexcept;
+
+template <std::integral T>
+[[nodiscard("operator+() does not modify `this`")]]
+constexpr Position<T> operator+(const Position<T> &,
+                                const Position<T> &) noexcept;
+
+template <std::integral T>
+[[nodiscard("operator-() does not modify `this`")]]
+constexpr Position<T> operator-(const Position<T> &,
+                                const Position<T> &) noexcept;
+
+template <std::signed_integral T>
+[[nodiscard("operator-() does not modify `this`")]]
+constexpr Position<T> operator-(const Position<T> &) noexcept;
+
+} // namespace sbokena::types
