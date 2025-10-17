@@ -33,7 +33,7 @@ struct Position {
   T y;
 
   [[nodiscard("transposed() does not modify `this`")]]
-  constexpr Position transposed() const;
+  constexpr Position transposed() const noexcept;
 };
 
 template <std::integral T>

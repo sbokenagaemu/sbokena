@@ -5,7 +5,7 @@
 namespace sbokena::types {
 
 template <std::integral T>
-constexpr Position<T> Position<T>::transposed() const {
+constexpr Position<T> Position<T>::transposed() const noexcept {
   return {y, x};
 }
 
