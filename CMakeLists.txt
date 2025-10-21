@@ -12,6 +12,15 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# enable LTO/IPO in release builds
+include(CheckIPOSupported)
+check_ipo_supported(RESULT ipo_supported)
+if (ipo_supported)
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEDREL ON)
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO ON)
+endif ()
+
 add_compile_options(
   # enable sanitizers in debug
   "$<$<CONFIG:Debug>:-fsanitize=address,undefined>"
