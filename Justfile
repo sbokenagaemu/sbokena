@@ -14,11 +14,11 @@ cmake *args:
 clean:
   git clean -xdf
 
-fmt:
-  clang-format -i $(fd -E build/ .cc) $(fd -E build/ .hh)
+fmt *args:
+  clang-format -i {{args}} $(fd -E build/ .cc) $(fd -E build/ .hh)
 
-lint:
-  clang-tidy -p build/ $(fd -E build/ .cc)
+lint *args:
+  clang-tidy -p build/ {{args}} $(fd -E build/ .cc)
 
-test:
-  cd build/tests && ctest
+test *args:
+  cd build/tests && ctest {{args}}
