@@ -12,7 +12,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_link_options(-fuse-ld=lld)
+add_compile_options(
+  # enable sanitizers in debug
+  "$<$<CONFIG:Debug>:-fsanitize=address,undefined>"
+)
+add_link_options(
+  # LLD my beloved
+  -fuse-ld=lld
+
+  # enable sanitizers in debug
+  "$<$<CONFIG:Debug>:-fsanitize=address,undefined>"
+)
 
 # raylib wayland needs this
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
