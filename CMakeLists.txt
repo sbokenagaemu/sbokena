@@ -16,20 +16,22 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 include(CheckIPOSupported)
 check_ipo_supported(RESULT ipo_supported)
 if (ipo_supported)
-  message("Building with LTO/IPO...")
   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_MINSIZEREL ON)
   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO ON)
 endif ()
 
-# enable sanitizers in debug
-if (CMAKE_BUILD_TYPE STREQUAL Debug)
-  message("Building with sanitizers...")
-  add_compile_options(-fsanitize=address,undefined)
-  add_link_options(-fsanitize=address,undefined)
-endif ()
+add_compile_options(
+  # enable sanitizers in debug
+  "$<$<CONFIG:Debug>:-fsanitize=address,undefined>"
+)
+add_link_options(
+  # LLD my beloved
+  -fuse-ld=lld
 
-add_link_options(-fuse-ld=lld)
+  # enable sanitizers in debug
+  "$<$<CONFIG:Debug>:-fsanitize=address,undefined>"
+)
 
 # raylib LTO/IPO needs this
 set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
