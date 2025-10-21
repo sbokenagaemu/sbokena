@@ -34,6 +34,8 @@ add_link_options(
   "$<$<CONFIG:Debug>:-fsanitize=address,undefined>"
 )
 
+# raylib LTO/IPO needs this
+set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
 # raylib wayland needs this
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 add_subdirectory(vendor)
