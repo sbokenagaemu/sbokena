@@ -32,6 +32,7 @@ struct Position {
   T x;
   T y;
 
+  // this position with x and y swapped.
   [[nodiscard("transposed() does not modify `this`")]]
   constexpr Position transposed() const noexcept;
 };
