@@ -4,6 +4,8 @@
 
 namespace sbokena::types {
 
+Directions::Directions() noexcept : flags_{0} {}
+
 Directions::Directions(const Direction &dir) noexcept
   : flags_{static_cast<u8>(dir)} {}
 

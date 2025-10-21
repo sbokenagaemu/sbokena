@@ -34,6 +34,8 @@ enum struct Direction : u8 {
 // a set of 2D directions.
 class Directions {
 public:
+  // construct an empty directions set.
+  Directions() noexcept;
   // construct a directions set from a direction.
   Directions(const Direction &) noexcept;
   // construct a directions set from a raw flag value.
