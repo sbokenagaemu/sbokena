@@ -1,7 +1,9 @@
-export CC       := ""
-export CXX      := ""
-export CXXFLAGS := ""
-export LDFLAGS  := ""
+export CC               := ""
+export CXX              := ""
+export CXXFLAGS         := ""
+export LDFLAGS          := ""
+export CMAKE_BUILD_TYPE := env("CMAKE_BUILD_TYPE", "Debug")
+
 default:
   just --list
 
