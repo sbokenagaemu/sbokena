@@ -17,11 +17,11 @@ bool Directions::contains(const Direction &dir) const noexcept {
 }
 
 bool Directions::contains_all(const Directions &dirs) const noexcept {
-  return (flags_ & dirs.flags_) == dirs.flags_;
+  return !dirs.flags_ || (flags_ & dirs.flags_) == dirs.flags_;
 }
 
 bool Directions::contains_any(const Directions &dirs) const noexcept {
-  return flags_ & dirs.flags_;
+  return !dirs.flags_ || (flags_ & dirs.flags_);
 }
 
 bool Directions::empty() const noexcept {
