@@ -11,12 +11,14 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_compile_options(-Wall -Wextra -Wpedantic)
 add_link_options(-fuse-ld=lld)
 
 # raylib wayland needs this
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 add_subdirectory(vendor)
+
+# only add pedantic diagnostics for our own code
+add_compile_options(-Wall -Wextra -Wpedantic)
 
 # internal modules
 add_subdirectory(common)
