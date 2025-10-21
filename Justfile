@@ -2,6 +2,8 @@ export CC       := ""
 export CXX      := ""
 export CXXFLAGS := ""
 export LDFLAGS  := ""
+default:
+  just --list
 
 build *args: (cmake args)
   cmake --build build
