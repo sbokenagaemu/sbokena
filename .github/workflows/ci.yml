@@ -3,6 +3,7 @@ name: ci
 on:
   - push
   - pull_request
+  - merge_group
   - workflow_dispatch
 
 jobs:
