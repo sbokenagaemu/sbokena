@@ -45,3 +45,4 @@ add_compile_options(-Wall -Wextra -Wpedantic)
 # internal modules
 add_subdirectory(common)
 add_subdirectory(tests)
+add_subdirectory(editor)
