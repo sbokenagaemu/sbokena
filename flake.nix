@@ -23,8 +23,10 @@
       system: let
         overlays = [nixgl.overlay];
         pkgs = import nixpkgs {inherit system overlays;};
+        inherit (pkgs) xorg;
+
         llvm = pkgs.llvmPackages;
-        xorg = pkgs.xorg;
+        inherit (llvm) stdenv;
 
         googletest-src = builtins.fetchGit {
           url = "https://github.com/google/googletest";
@@ -39,8 +41,6 @@
           url = "https://github.com/RobLoach/raylib-cpp";
           rev = "6d9d02cd242e8a4f78b6f971afcf992fb7a417dd";
         };
-
-        stdenv = llvm.stdenv;
 
         build-tools = [
           # use this instead of llvm.lld
