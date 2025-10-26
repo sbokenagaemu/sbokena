@@ -21,7 +21,14 @@ jobs:
           purge-prefixes: nix-${{ hashFiles('flake.nix') }}
           purge-primary-key: never
       - run: nix flake check -L
-      # - run: nix build -L
+      - run: nix build -L
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sbokena
+          path: result
+          if-no-files-found: error
+          compression-level: 9
+
   # build-apt:
   #   runs-on: ubuntu-latest
   #   steps:
