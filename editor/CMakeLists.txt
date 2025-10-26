@@ -4,6 +4,6 @@ set(SOURCES ${SOURCES_CXX} ${SOURCES_HXX})
 
 add_executable(editor)
 target_sources(editor PRIVATE ${SOURCES})
-target_include_directories(editor PUBLIC include)
+target_include_directories(editor PRIVATE include)
 target_link_libraries(editor PRIVATE raylib raylib_cpp)
 target_link_libraries(editor PRIVATE common)
