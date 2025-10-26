@@ -76,7 +76,7 @@
           xorg.libXinerama
           xorg.libXrandr
         ];
-      in {
+      in rec {
         formatter = pkgs.alejandra;
 
         devShells.default =
@@ -123,6 +123,13 @@
               install -Dm 755 build/editor/editor $out/bin/editor
               runHook postInstall
             '';
+          };
+        };
+
+        apps = {
+          editor = {
+            type = "app";
+            program = "${packages.sbokena}/bin/editor";
           };
         };
 
