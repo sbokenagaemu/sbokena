@@ -120,7 +120,7 @@
 
             installPhase = ''
               runHook preInstall
-              install -Dm 755 build/editor $out/bin/editor
+              install -Dm 755 build/editor/editor $out/bin/editor
               runHook postInstall
             '';
           };
