@@ -115,7 +115,7 @@
             ];
 
             buildPhase = ''
-              just build
+              just build -DCMAKE_BUILD_TYPE=Release
             '';
 
             installPhase = ''
