@@ -94,38 +94,37 @@
             LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath libs;
           };
 
-        # packages = rec {
-        #   default = main;
-        #
-        #   main = stdenv.mkDerivation {
-        #     src = ./.;
-        #     name = "main";
-        #     nativeBuildInputs = build-tools;
-        #     buildInputs = libs;
-        #
-        #     configurePhase = ''
-        #       export googletest_src=${googletest-src}
-        #       export raylib_src=${raylib-src}
-        #       export raylib_cpp_src=${raylib-cpp-src}
-        #     '';
-        #
-        #     cmakeFlags = [
-        #       "-Dgoogletest_src=${googletest-src}"
-        #       "-Draylib_src=${raylib-src}"
-        #       "-Draylib_cpp_src=${raylib-cpp-src}"
-        #     ];
-        #
-        #     buildPhase = ''
-        #       just build
-        #     '';
-        #
-        #     installPhase = ''
-        #       runHook preInstall
-        #       install -Dm 755 build/$name $out/bin/$name
-        #       runHook postInstall
-        #     '';
-        #   };
-        # };
+        packages = rec {
+          default = sbokena;
+          sbokena = stdenv.mkDerivation {
+            src = ./.;
+            name = "sbokena";
+            nativeBuildInputs = build-tools;
+            buildInputs = libs;
+
+            configurePhase = ''
+              export googletest_src=${googletest-src}
+              export raylib_src=${raylib-src}
+              export raylib_cpp_src=${raylib-cpp-src}
+            '';
+
+            cmakeFlags = [
+              "-Dgoogletest_src=${googletest-src}"
+              "-Draylib_src=${raylib-src}"
+              "-Draylib_cpp_src=${raylib-cpp-src}"
+            ];
+
+            buildPhase = ''
+              just build
+            '';
+
+            installPhase = ''
+              runHook preInstall
+              install -Dm 755 build/editor $out/bin/editor
+              runHook postInstall
+            '';
+          };
+        };
 
         checks = {
           format = stdenv.mkDerivation {
