@@ -49,7 +49,7 @@ if (DEFINED ENV{raygui_src})
   else ()
     FetchContent_Declare(
       raygui
-      GIT_REPOSITORY "https://github.com/raysan5/raygui.git"
+      GIT_REPOSITORY "https://github.com/raysan5/raygui"
       GIT_TAG 4.0
     )
 endif ()
