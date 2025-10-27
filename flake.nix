@@ -41,6 +41,10 @@
           url = "https://github.com/RobLoach/raylib-cpp";
           rev = "6d9d02cd242e8a4f78b6f971afcf992fb7a417dd";
         };
+        raygui-src = builtins.fetchGit {
+          url = "https://github.com/raysan5/raygui";
+          rev = "947ef5799da4d06cf49b3c8f7987929eb7c99b9c";
+        };
 
         build-tools = [
           # use this instead of llvm.lld
@@ -106,12 +110,14 @@
               export googletest_src=${googletest-src}
               export raylib_src=${raylib-src}
               export raylib_cpp_src=${raylib-cpp-src}
+              export raygui_src=${raygui-src}
             '';
 
             cmakeFlags = [
               "-Dgoogletest_src=${googletest-src}"
               "-Draylib_src=${raylib-src}"
               "-Draylib_cpp_src=${raylib-cpp-src}"
+              "-Draygui_src=${raygui-src}"
             ];
 
             buildPhase = ''
@@ -162,12 +168,14 @@
               export googletest_src=${googletest-src}
               export raylib_src=${raylib-src}
               export raylib_cpp_src=${raylib-cpp-src}
+              export raygui_src=${raygui-src}
             '';
 
             cmakeFlags = [
               "-Dgoogletest_src=${googletest-src}"
               "-Draylib_src=${raylib-src}"
               "-Draylib_cpp_src=${raylib-cpp-src}"
+              "-Draygui_src=${raygui-src}"
             ];
 
             buildPhase = ''
