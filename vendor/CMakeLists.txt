@@ -41,8 +41,22 @@ else ()
   )
 endif ()
 
+if (DEFINED ENV{raygui_src})
+  FetchContent_Declare(
+    raygui
+    SOURCE_DIR "$ENV{raygui_src}"
+  )
+  else ()
+    FetchContent_Declare(
+      raygui
+      GIT_REPOSITORY "https://github.com/raysan5/raygui.git"
+      GIT_TAG 4.0
+    )
+endif ()
+
 FetchContent_MakeAvailable(
   googletest
   raylib
   raylib_cpp
+  raygui
 )
