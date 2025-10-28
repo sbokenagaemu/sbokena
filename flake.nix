@@ -43,7 +43,7 @@
         };
         raygui-src = builtins.fetchGit {
           url = "https://github.com/raysan5/raygui";
-          rev = "947ef5799da4d06cf49b3c8f7987929eb7c99b9c";
+          rev = "25c8c65a6e5f0f4d4b564a0343861898c6f2778b";
         };
 
         build-tools = [
