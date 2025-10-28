@@ -198,12 +198,14 @@
               export googletest_src=${googletest-src}
               export raylib_src=${raylib-src}
               export raylib_cpp_src=${raylib-cpp-src}
+              export raygui_src=${raygui-src}
             '';
 
             cmakeFlags = [
               "-Dgoogletest_src=${googletest-src}"
               "-Draylib_src=${raylib-src}"
               "-Draylib_cpp_src=${raylib-cpp-src}"
+              "-Draygui_src=${raygui-src}"
             ];
 
             buildPhase = ''
