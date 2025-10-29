@@ -50,4 +50,5 @@ add_compile_options(-Wall -Wextra -Wpedantic)
 # internal modules
 add_subdirectory(common)
 add_subdirectory(editor)
+add_subdirectory(game)
 add_subdirectory(tests)
