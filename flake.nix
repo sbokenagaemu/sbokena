@@ -127,6 +127,7 @@
             installPhase = ''
               runHook preInstall
               install -Dm 755 build/editor/editor $out/bin/editor
+              install -Dm 755 build/game/game $out/bin/game
               runHook postInstall
             '';
           };
@@ -136,6 +137,11 @@
           editor = {
             type = "app";
             program = "${packages.sbokena}/bin/editor";
+          };
+
+          game = {
+            type = "app";
+            program = "${packages.sbokena}/bin/game";
           };
         };
 
