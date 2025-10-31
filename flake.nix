@@ -28,6 +28,7 @@
         llvm = pkgs.llvmPackages;
         inherit (llvm) stdenv;
 
+        # vendored dependencies
         googletest-src = builtins.fetchGit {
           url = "https://github.com/google/googletest";
           ref = "v1.17.0";
@@ -80,6 +81,31 @@
           xorg.libXinerama
           xorg.libXrandr
         ];
+
+        # pre-configured derivation builder
+        # replaces stdenv.mkDerivation
+        mkDerivation = let
+          base = {
+            src = ./.;
+            nativeBuildInputs = build-tools;
+            buildInputs = libs;
+
+            configurePhase = ''
+              export googletest_src=${googletest-src}
+              export raylib_src=${raylib-src}
+              export raygui_src=${raygui-src}
+              export raylib_cpp_src=${raylib-cpp-src}
+            '';
+
+            cmakeFlags = [
+              "-Dgoogletest_src=${googletest-src}"
+              "-Draylib_src=${raylib-src}"
+              "-Draygui_src=${raygui-src}"
+              "-Draylib_cpp_src=${raylib-cpp-src}"
+            ];
+          };
+        in
+          opts: stdenv.mkDerivation (base // opts);
       in rec {
         formatter = pkgs.alejandra;
 
@@ -100,25 +126,8 @@
 
         packages = rec {
           default = sbokena;
-          sbokena = stdenv.mkDerivation {
-            src = ./.;
+          sbokena = mkDerivation {
             name = "sbokena";
-            nativeBuildInputs = build-tools;
-            buildInputs = libs;
-
-            configurePhase = ''
-              export googletest_src=${googletest-src}
-              export raylib_src=${raylib-src}
-              export raylib_cpp_src=${raylib-cpp-src}
-              export raygui_src=${raygui-src}
-            '';
-
-            cmakeFlags = [
-              "-Dgoogletest_src=${googletest-src}"
-              "-Draylib_src=${raylib-src}"
-              "-Draylib_cpp_src=${raylib-cpp-src}"
-              "-Draygui_src=${raygui-src}"
-            ];
 
             buildPhase = ''
               just build -DCMAKE_BUILD_TYPE=Release
@@ -140,12 +149,8 @@
         };
 
         checks = {
-          format = stdenv.mkDerivation {
+          format = mkDerivation {
             name = "format";
-            src = ./.;
-            nativeBuildInputs = [
-              llvm.clang-tools
-            ];
 
             buildPhase = ''
               clang-format \
@@ -158,25 +163,8 @@
             '';
           };
 
-          tidy = stdenv.mkDerivation {
+          tidy = mkDerivation {
             name = "tidy";
-            src = ./.;
-            nativeBuildInputs = build-tools;
-            buildInputs = libs;
-
-            configurePhase = ''
-              export googletest_src=${googletest-src}
-              export raylib_src=${raylib-src}
-              export raylib_cpp_src=${raylib-cpp-src}
-              export raygui_src=${raygui-src}
-            '';
-
-            cmakeFlags = [
-              "-Dgoogletest_src=${googletest-src}"
-              "-Draylib_src=${raylib-src}"
-              "-Draylib_cpp_src=${raylib-cpp-src}"
-              "-Draygui_src=${raygui-src}"
-            ];
 
             buildPhase = ''
               just cmake
@@ -188,25 +176,8 @@
             '';
           };
 
-          test = stdenv.mkDerivation {
+          test = mkDerivation {
             name = "test";
-            src = ./.;
-            nativeBuildInputs = build-tools;
-            buildInputs = libs;
-
-            configurePhase = ''
-              export googletest_src=${googletest-src}
-              export raylib_src=${raylib-src}
-              export raylib_cpp_src=${raylib-cpp-src}
-              export raygui_src=${raygui-src}
-            '';
-
-            cmakeFlags = [
-              "-Dgoogletest_src=${googletest-src}"
-              "-Draylib_src=${raylib-src}"
-              "-Draylib_cpp_src=${raylib-cpp-src}"
-              "-Draygui_src=${raygui-src}"
-            ];
 
             buildPhase = ''
               just build
