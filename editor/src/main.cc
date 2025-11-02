@@ -15,6 +15,8 @@
 #define tile_picker_padding 10
 #define tile_picker_box_size 160
 #define tile_picker_space_inbetween 5
+#define view_control_button_width 120
+#define view_control_button_height 50
 
 int main() {
   raylib::Window window(width, height, "Window");
@@ -72,6 +74,13 @@ int main() {
     if (GuiButton({tile_picker_width + taskbar_button_size, 0,
                    taskbar_button_size, taskbar_button_size},
                   "Redo")) {
+      // TODO
+    }
+
+    // Zoom in button (?)
+    if (GuiButton({tile_picker_padding, height - view_control_button_height,
+                   view_control_button_width, view_control_button_height},
+                  "Zoom in")) {
       // TODO
     }
 
