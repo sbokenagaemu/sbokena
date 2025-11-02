@@ -46,6 +46,13 @@ int main() {
       // TODO
     }
 
+    // Reset button
+    if (GuiButton({width - (4 * taskbar_button_size), 0, taskbar_button_size,
+                   taskbar_button_size},
+                  "Reset")) {
+      // TODO
+    }
+
     // TILES
 
     window.EndDrawing();
