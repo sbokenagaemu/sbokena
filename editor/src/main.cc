@@ -32,6 +32,13 @@ int main() {
       exit = true;
     }
 
+    // Download button
+    if (GuiButton({width - (2 * taskbar_button_size), 0, taskbar_button_size,
+                   taskbar_button_size},
+                  "Download")) {
+      // TODO
+    }
+
     // TILES
 
     window.EndDrawing();
