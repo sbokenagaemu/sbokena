@@ -13,6 +13,19 @@ else ()
   )
 endif ()
 
+if (DEFINED ENV{nlohmann_json_src})
+  FetchContent_Declare(
+    nlohmann_json
+    SOURCE_DIR "$ENV{nlohmann_json_src}"
+  )
+else ()
+  FetchContent_Declare(
+    nlohmann_json
+    GIT_REPOSITORY "https://github.com/nlohmann/json"
+    GIT_TAG v3.12.0
+  )
+endif ()
+
 set(GLFW_BUILD_WAYLAND ON)
 
 if (DEFINED ENV{raylib_src})
@@ -58,6 +71,7 @@ endif ()
 
 FetchContent_MakeAvailable(
   googletest
+  nlohmann_json
   raylib
   raylib_cpp
   raygui

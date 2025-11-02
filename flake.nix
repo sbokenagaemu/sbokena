@@ -46,6 +46,10 @@
           url = "https://github.com/raysan5/raygui";
           rev = "25c8c65a6e5f0f4d4b564a0343861898c6f2778b";
         };
+        nlohmann-json-src = builtins.fetchGit {
+          url = "https://github.com/nlohmann/json";
+          rev = "55f93686c01528224f448c19128836e7df245f72";
+        };
 
         build-tools = [
           # use this instead of llvm.lld
@@ -95,6 +99,7 @@
               export raylib_src=${raylib-src}
               export raygui_src=${raygui-src}
               export raylib_cpp_src=${raylib-cpp-src}
+              export nlohmann_json_src=${nlohmann-json-src}
             '';
 
             cmakeFlags = [
@@ -102,6 +107,7 @@
               "-Draylib_src=${raylib-src}"
               "-Draygui_src=${raygui-src}"
               "-Draylib_cpp_src=${raylib-cpp-src}"
+              "-Dnlohmann_json_src=${nlohmann-json-src}"
             ];
           };
         in
