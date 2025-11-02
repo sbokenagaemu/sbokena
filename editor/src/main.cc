@@ -15,6 +15,7 @@
 #define tile_picker_padding 10
 #define tile_picker_box_size 160
 #define tile_picker_space_inbetween 5
+#define view_control_padding 30
 #define view_control_button_width 120
 #define view_control_button_height 50
 
@@ -81,6 +82,15 @@ int main() {
     if (GuiButton({tile_picker_padding, height - view_control_button_height,
                    view_control_button_width, view_control_button_height},
                   "Zoom in")) {
+      // TODO
+    }
+
+    // Rotate button
+    if (GuiButton({(tile_picker_padding + view_control_padding) +
+                     view_control_button_width,
+                   height - view_control_button_height,
+                   view_control_button_width, view_control_button_height},
+                  "Rotate")) {
       // TODO
     }
 
