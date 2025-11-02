@@ -12,11 +12,19 @@
 #define width 1800
 #define height 1000
 #define taskbar_button_size 40
+#define tile_picker_padding 10
+#define tile_picker_box_size 160
+#define tile_picker_space_inbetween 5
 
 int main() {
   raylib::Window window(width, height, "Window");
   window.SetTargetFPS(60);
   bool exit = false;
+
+  // The width of the tile picker section
+  float tile_picker_width =
+    ((2 * tile_picker_space_inbetween) + (2 * tile_picker_box_size) +
+     (2 * tile_picker_padding));
 
   while (!window.ShouldClose() && !exit) {
     window.BeginDrawing();
@@ -50,6 +58,13 @@ int main() {
     if (GuiButton({width - (4 * taskbar_button_size), 0, taskbar_button_size,
                    taskbar_button_size},
                   "Reset")) {
+      // TODO
+    }
+
+    // Undo button (?)
+    if (GuiButton(
+          {tile_picker_width, 0, taskbar_button_size, taskbar_button_size},
+          "Undo")) {
       // TODO
     }
 
