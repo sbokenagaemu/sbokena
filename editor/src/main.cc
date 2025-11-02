@@ -68,6 +68,13 @@ int main() {
       // TODO
     }
 
+    // Redo button (?)
+    if (GuiButton({tile_picker_width + taskbar_button_size, 0,
+                   taskbar_button_size, taskbar_button_size},
+                  "Redo")) {
+      // TODO
+    }
+
     // TILES
 
     window.EndDrawing();
