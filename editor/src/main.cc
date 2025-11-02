@@ -94,6 +94,15 @@ int main() {
       // TODO
     }
 
+    // Zoom out button (?)
+    if (GuiButton({(tile_picker_padding + 2 * view_control_padding) +
+                     (2 * view_control_button_width),
+                   height - view_control_button_height,
+                   view_control_button_width, view_control_button_height},
+                  "Zoom in")) {
+      // TODO
+    }
+
     // TILES
 
     window.EndDrawing();
