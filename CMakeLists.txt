@@ -26,22 +26,14 @@ if (ipo_supported)
   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO ON)
 endif ()
 
-add_compile_options(
-  # enable sanitizers in debug
-  "$<$<CONFIG:Debug>:-fsanitize=address,undefined>"
-)
-add_link_options(
-  # LLD my beloved
-  -fuse-ld=lld
-
-  # enable sanitizers in debug
-  "$<$<CONFIG:Debug>:-fsanitize=address,undefined>"
-)
+# enable LLD for all targets
+add_link_options(-fuse-ld=lld)
 
 # raylib LTO/IPO needs this
 set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
 # raylib wayland needs this
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+# external dependencies
 add_subdirectory(vendor)
 
 # only add pedantic diagnostics for our own code
@@ -51,4 +43,8 @@ add_compile_options(-Wall -Wextra -Wpedantic)
 add_subdirectory(common)
 add_subdirectory(editor)
 add_subdirectory(game)
+
+# enable asan and ubsan for tests
+add_compile_options("$<$<CONFIG:Debug>:-fsanitize=address,undefined>")
+add_link_options("$<$<CONFIG:Debug>:-fsanitize=address,undefined>")
 add_subdirectory(tests)
