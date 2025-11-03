@@ -1,206 +1,56 @@
 {
-  description = "just a silly little Sokoban-style game.";
-
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    flake-utils.url = "github:numtide/flake-utils";
-    nixgl = {
-      url = "github:nix-community/nixGL";
-      inputs = {
-        nixpkgs.follows = "nixpkgs";
-        flake-utils.follows = "flake-utils";
-      };
-    };
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    flake-utils,
-    nixgl,
-  }:
-    flake-utils.lib.eachDefaultSystem (
-      system: let
-        overlays = [nixgl.overlay];
-        pkgs = import nixpkgs {inherit system overlays;};
-        inherit (pkgs) xorg;
+  outputs = inputs @ {flake-parts, ...}:
+    flake-parts.lib.mkFlake {inherit inputs;} {
+      systems = ["x86_64-linux"];
 
-        llvm = pkgs.llvmPackages;
-        inherit (llvm) stdenv;
+      perSystem = {
+        self',
+        pkgs,
+        ...
+      }: {
+        # Nix formatter, run with `nix fmt`
+        formatter = pkgs.writeShellScriptBin "nix-fmt" ''
+          ${pkgs.alejandra}/bin/alejandra -q .
+        '';
 
-        # vendored dependencies
-        googletest-src = builtins.fetchGit {
-          url = "https://github.com/google/googletest";
-          ref = "v1.17.0";
-          rev = "52eb8108c5bdec04579160ae17225d66034bd723";
-        };
-        raylib-src = builtins.fetchGit {
-          url = "https://github.com/raysan5/raylib";
-          rev = "c1ab645ca298a2801097931d1079b10ff7eb9df8";
-        };
-        raylib-cpp-src = builtins.fetchGit {
-          url = "https://github.com/RobLoach/raylib-cpp";
-          rev = "6d9d02cd242e8a4f78b6f971afcf992fb7a417dd";
-        };
-        raygui-src = builtins.fetchGit {
-          url = "https://github.com/raysan5/raygui";
-          rev = "25c8c65a6e5f0f4d4b564a0343861898c6f2778b";
-        };
-        nlohmann-json-src = builtins.fetchGit {
-          url = "https://github.com/nlohmann/json";
-          rev = "55f93686c01528224f448c19128836e7df245f72";
-        };
-
-        build-tools = [
-          # use this instead of llvm.lld
-          # https://matklad.github.io/2022/03/14/rpath-or-why-lld-doesnt-work-on-nixos.html
-          llvm.bintools
-
-          # fixes clang-scan-deps for ninja
-          # https://github.com/nixos/nixpkgs/issues/273875
-          # (thank you, @opna2608:matrix.org)
-          llvm.clang-tools
-
-          pkgs.cmake
-          pkgs.fd
-          pkgs.just
-          pkgs.ninja
-
-          # build-time deps
-          pkgs.libffi
-          pkgs.pkg-config
-          pkgs.wayland-scanner
-        ];
-
-        libs = [
-          # raylib deps
-          pkgs.libGL
-          # raylib deps - wayland
-          pkgs.libxkbcommon
-          pkgs.wayland
-          # raylib deps - x11
-          xorg.libX11
-          xorg.libXcursor
-          xorg.libXi
-          xorg.libXinerama
-          xorg.libXrandr
-        ];
-
-        # pre-configured derivation builder
-        # replaces stdenv.mkDerivation
-        mkDerivation = let
-          base = {
-            src = ./.;
-            nativeBuildInputs = build-tools;
-            buildInputs = libs;
-
-            configurePhase = ''
-              export googletest_src=${googletest-src}
-              export raylib_src=${raylib-src}
-              export raygui_src=${raygui-src}
-              export raylib_cpp_src=${raylib-cpp-src}
-              export nlohmann_json_src=${nlohmann-json-src}
-            '';
-
-            cmakeFlags = [
-              "-Dgoogletest_src=${googletest-src}"
-              "-Draylib_src=${raylib-src}"
-              "-Draygui_src=${raygui-src}"
-              "-Draylib_cpp_src=${raylib-cpp-src}"
-              "-Dnlohmann_json_src=${nlohmann-json-src}"
-            ];
-          };
-        in
-          opts: stdenv.mkDerivation (base // opts);
-      in rec {
-        formatter = pkgs.alejandra;
-
+        # default dev shell, activated by `nix develop`
+        # manually or by `direnv` automatically
         devShells.default =
-          pkgs.mkShell.override {
-            inherit stdenv;
-          } {
-            packages =
-              build-tools
-              ++ libs
-              ++ [
-                llvm.lldb
-                pkgs.nixgl.nixGLIntel
-              ];
+          pkgs.callPackage
+          ./nix/sbokena.nix
+          {};
 
-            LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath libs;
-          };
-
-        packages = rec {
+        # buildable packages, by `nix build .#<name>`
+        # also includes checks specific to the package
+        packages = let
+          sbokena =
+            pkgs.callPackage
+            ./nix/sbokena.nix
+            {};
+        in {
+          inherit sbokena;
           default = sbokena;
-          sbokena = mkDerivation {
-            name = "sbokena";
 
-            buildPhase = ''
-              just build -DCMAKE_BUILD_TYPE=Release
-            '';
-
-            installPhase = ''
-              runHook preInstall
-              install -Dm 755 build/editor/editor $out/bin/editor
-              install -Dm 755 build/game/game $out/bin/game
-              runHook postInstall
-            '';
-          };
+          sbokena-wayland =
+            sbokena.override
+            {enableX11 = false;};
+          sbokena-x11 =
+            sbokena.override
+            {enableWayland = false;};
         };
 
-        apps = {
-          editor = {
-            type = "app";
-            program = "${packages.sbokena}/bin/editor";
-          };
-
-          game = {
-            type = "app";
-            program = "${packages.sbokena}/bin/game";
-          };
-        };
-
+        # miscellaneous checks, run with `nix flake check`
         checks = {
-          format = mkDerivation {
-            name = "format";
-
-            buildPhase = ''
-              clang-format \
-                --dry-run -Werror \
-                $(fd '.cc') $(fd '.h')
-            '';
-
-            installPhase = ''
-              touch $out
-            '';
-          };
-
-          tidy = mkDerivation {
-            name = "tidy";
-
-            buildPhase = ''
-              just cmake
-              just lint
-            '';
-
-            installPhase = ''
-              touch $out
-            '';
-          };
-
-          test = mkDerivation {
-            name = "test";
-
-            buildPhase = ''
-              just build
-              just test
-            '';
-
-            installPhase = ''
-              touch $out
-            '';
-          };
+          format =
+            pkgs.callPackage
+            ./nix/checks/format.nix
+            {};
         };
-      }
-    );
+      };
+    };
 }
