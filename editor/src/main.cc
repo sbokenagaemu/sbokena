@@ -11,16 +11,16 @@ using namespace sbokena::types;
 
 // several resolution presets can be implemented via changing the values, while
 // retaining the ratio
-#define width 1800
-#define height 1000
-#define taskbar_button_size 40
-#define tile_picker_padding 10
-#define tile_picker_box_size 160
-#define tile_picker_box_padding 25
-#define tile_picker_space_inbetween 50
-#define view_control_padding 30
-#define view_control_button_width 120
-#define view_control_button_height 50
+constexpr u32 width = 1800;
+constexpr u32 height = 1000;
+constexpr u32 taskbar_button_size = 40;
+constexpr u32 tile_picker_padding = 10;
+constexpr u32 tile_picker_box_size = 160;
+constexpr u32 tile_picker_box_padding = 25;
+constexpr u32 tile_picker_space_inbetween = 50;
+constexpr u32 view_control_padding = 30;
+constexpr u32 view_control_button_width = 120;
+constexpr u32 view_control_button_height = 50;
 
 int main() {
   raylib::Window window(width, height, "Window");
