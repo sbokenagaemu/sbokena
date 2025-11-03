@@ -26,8 +26,6 @@ else ()
   )
 endif ()
 
-set(GLFW_BUILD_WAYLAND ON)
-
 if (DEFINED ENV{raylib_src})
   FetchContent_Declare(
     raylib
