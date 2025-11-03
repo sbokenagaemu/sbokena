@@ -145,4 +145,5 @@ int main() {
 
     window.EndDrawing();
   }
+  return 0;
 }
