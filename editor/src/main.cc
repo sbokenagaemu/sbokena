@@ -41,97 +41,103 @@ int main() {
     window.ClearBackground(raylib::Color::Gray());
 
     // tile_picker_vertical_1
-    DrawRectangleRec({0, 0, tile_picker_padding, height},
-                     raylib::Color::Black());
+    const Rectangle tile_picker_vertical_1 = {0, 0, tile_picker_padding,
+                                              height};
+    DrawRectangleRec(tile_picker_vertical_1, raylib::Color::Black());
 
     // tile_picker_vertical_2
-    DrawRectangleRec(
-      {tile_picker_width - tile_picker_padding, 0, tile_picker_padding, height},
-      raylib::Color::Black());
+    const Rectangle tile_picker_vertical_2 = {
+      tile_picker_width - tile_picker_padding, 0, tile_picker_padding, height};
+    DrawRectangleRec(tile_picker_vertical_2, raylib::Color::Black());
 
     // taskbar_line
-    DrawRectangleRec(
-      {tile_picker_width, taskbar_button_size, width - tile_picker_width, 5},
-      raylib::Color::Black());
+    const Rectangle taskbar_line = {tile_picker_width, taskbar_button_size,
+                                    width - tile_picker_width, 5};
+    DrawRectangleRec(taskbar_line, raylib::Color::Black());
 
     // view_control_line_1
-    DrawRectangleRec({tile_picker_padding + view_control_button_width,
-                      height - view_control_button_height, view_control_padding,
-                      view_control_button_height},
-                     raylib::Color::Black());
+    const Rectangle view_control_line_1 = {
+      tile_picker_padding + view_control_button_width,
+      height - view_control_button_height, view_control_padding,
+      view_control_button_height};
+    DrawRectangleRec(view_control_line_1, raylib::Color::Black());
 
     // view_control_line_2
-    DrawRectangleRec({tile_picker_padding + view_control_padding +
-                        (2 * view_control_button_width),
-                      height - view_control_button_height, view_control_padding,
-                      view_control_button_height},
-                     raylib::Color::Black());
+    const Rectangle view_control_line_2 = {
+      tile_picker_padding + view_control_padding +
+        (2 * view_control_button_width),
+      height - view_control_button_height, view_control_padding,
+      view_control_button_height};
+    DrawRectangleRec(view_control_line_2, raylib::Color::Black());
 
     // BUTTONS
     // Exit button
-    if (GuiButton({width - taskbar_button_size, 0, taskbar_button_size,
-                   taskbar_button_size},
-                  "Exit")) {
+    const Rectangle exit_button = {width - taskbar_button_size, 0,
+                                   taskbar_button_size, taskbar_button_size};
+    if (GuiButton(exit_button, "Exit")) {
       exit = true;
     }
 
     // Download button
-    if (GuiButton({width - (2 * taskbar_button_size), 0, taskbar_button_size,
-                   taskbar_button_size},
-                  "Download")) {
+    const Rectangle download_button = {width - (2 * taskbar_button_size), 0,
+                                       taskbar_button_size,
+                                       taskbar_button_size};
+    if (GuiButton(download_button, "Download")) {
       // TODO
     }
 
     // Import button
-    if (GuiButton({width - (3 * taskbar_button_size), 0, taskbar_button_size,
-                   taskbar_button_size},
-                  "Import")) {
+    const Rectangle import_button = {width - (3 * taskbar_button_size), 0,
+                                     taskbar_button_size, taskbar_button_size};
+    if (GuiButton(import_button, "Import")) {
       // TODO
     }
 
     // Reset button
-    if (GuiButton({width - (4 * taskbar_button_size), 0, taskbar_button_size,
-                   taskbar_button_size},
-                  "Reset")) {
+    const Rectangle reset_button = {width - (4 * taskbar_button_size), 0,
+                                    taskbar_button_size, taskbar_button_size};
+    if (GuiButton(reset_button, "Reset")) {
       // TODO
     }
 
     // Undo button (?)
-    if (GuiButton(
-          {tile_picker_width, 0, taskbar_button_size, taskbar_button_size},
-          "Undo")) {
+    const Rectangle undo_button = {tile_picker_width, 0, taskbar_button_size,
+                                   taskbar_button_size};
+    if (GuiButton(undo_button, "Undo")) {
       // TODO
     }
 
     // Redo button (?)
-    if (GuiButton({tile_picker_width + taskbar_button_size, 0,
-                   taskbar_button_size, taskbar_button_size},
-                  "Redo")) {
+    const Rectangle redo_button = {tile_picker_width + taskbar_button_size, 0,
+                                   taskbar_button_size, taskbar_button_size};
+    if (GuiButton(redo_button, "Redo")) {
       // TODO
     }
 
     // Zoom in button (?)
-    if (GuiButton({tile_picker_padding, height - view_control_button_height,
-                   view_control_button_width, view_control_button_height},
-                  "Zoom in")) {
+    const Rectangle zoom_in_button = {
+      tile_picker_padding, height - view_control_button_height,
+      view_control_button_width, view_control_button_height};
+    if (GuiButton(zoom_in_button, "Zoom in")) {
       // TODO
     }
 
     // Rotate button
-    if (GuiButton({(tile_picker_padding + view_control_padding) +
-                     view_control_button_width,
-                   height - view_control_button_height,
-                   view_control_button_width, view_control_button_height},
-                  "Rotate")) {
+    const Rectangle rotate_button = {
+      (tile_picker_padding + view_control_padding) + view_control_button_width,
+      height - view_control_button_height, view_control_button_width,
+      view_control_button_height};
+    if (GuiButton(rotate_button, "Rotate")) {
       // TODO
     }
 
     // Zoom out button (?)
-    if (GuiButton({(tile_picker_padding + 2 * view_control_padding) +
-                     (2 * view_control_button_width),
-                   height - view_control_button_height,
-                   view_control_button_width, view_control_button_height},
-                  "Zoom in")) {
+    const Rectangle zoom_out_button = {
+      (tile_picker_padding + 2 * view_control_padding) +
+        (2 * view_control_button_width),
+      height - view_control_button_height, view_control_button_width,
+      view_control_button_height};
+    if (GuiButton(zoom_out_button, "Zoom in")) {
       // TODO
     }
 
