@@ -18,8 +18,8 @@ clean:
 fmt *args:
   clang-format -i {{args}} $(fd -E build/ .cc) $(fd -E build/ .hh)
 
-lint *args:
+lint *args: (cmake args)
   clang-tidy -p build/ {{args}} $(fd -E build/ .cc)
 
-test *args:
-  cd build/tests && ctest {{args}}
+test *args: (build args)
+  ctest --test-dir build/tests {{args}}
