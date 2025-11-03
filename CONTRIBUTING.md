@@ -119,35 +119,24 @@ dependency named `foo`, located at `https://github.com/bar/foo` to the project:
    target_link_libraries(binary PRIVATE foo)
    ```
 
-3. fetch it in `flake.nix`:
+3. fetch it in `nix/sbokena.nix`:
 
    ```nix
-   foo-src = builtins.fetchGit {
-     url = "https://github.com/bar/foo";
-     rev = "<commit hash of foo's current release tag>";
+   vendoredSources = {
+     # ...other libraries
+     foo-src = builtins.fetchGit {
+       url = "<link to the Git repository>";
+       rev = "<Git commit hash of the release tag>";
+     };
    };
    ```
 
-4. add it to the appropriate packages' `configurePhase` and `cmakeFlags`,
-   as well as the corresponding `checks.tidy-*` derivation:
+4. check that everything still works:
 
-   ```nix
-   configurePhase = ''
-     # ...other packages
-     export foo_src=${foo-src}
-   '';
-
-   cmakeFlags = [
-     # ...other packages
-     "-Dfoo_src=${foo-src}"
-   ];
+   ```sh
+   nix build -L # build it with Nix
+   nix flake check -L # check if your formatting is right
+   just clean build # build it without Nix
    ```
-
-check that everything still builds correctly:
-
-```sh
-nix build -L # build it with Nix
-just clean build # built it normally
-```
 
 and now you can use the dependency in your code.
