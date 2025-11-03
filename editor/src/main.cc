@@ -5,6 +5,9 @@
 #include <Window.hpp>
 #include <raygui.h>
 #include <raylib.h>
+#include <types.hh>
+
+using namespace sbokena::types;
 
 // several resolution presets can be implemented via changing the values, while
 // retaining the ratio
