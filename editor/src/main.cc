@@ -1,9 +1,8 @@
 #ifndef RAYGUI_IMPLEMENTATION
 #define RAYGUI_IMPLEMENTATION
-#include "Window.hpp"
 #endif
 
-#include <nlohmann/json.hpp>
+#include <Window.hpp>
 #include <raygui.h>
 #include <raylib.h>
 
