@@ -28,7 +28,7 @@ int main() {
   bool exit = false;
 
   // The width of the tile picker section
-  float tile_picker_width =
+  const f32 tile_picker_width =
     ((2 * tile_picker_space_inbetween) + (2 * tile_picker_box_size) +
      (2 * tile_picker_padding));
 
