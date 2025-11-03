@@ -86,6 +86,22 @@ thus, it's preferable to
 
 and so on.
 
+### testing
+
+we use `ctest` for testing.
+
+before making a PR, run the tests locally on your machine first
+(both with and without Nix, if possible):
+
+```sh
+# test with Nix
+nix flake check -L
+nix build -L # some tests are run after building
+
+# test without Nix
+just test
+```
+
 ### dependencies
 
 we rely on CMake and Nix to manage dependencies. thus, in practice, to add a
