@@ -1,5 +1,6 @@
 #ifndef RAYGUI_IMPLEMENTATION
 #define RAYGUI_IMPLEMENTATION
+#include "Color.hpp"
 #endif
 
 #include <Window.hpp>
@@ -37,33 +38,34 @@ int main() {
 
     // DECORATIVE ELEMENTS
     // Clear gray background
-    window.ClearBackground(GRAY);
+    window.ClearBackground(raylib::Color::Gray());
 
     // tile_picker_vertical_1
-    DrawRectangleRec({0, 0, tile_picker_padding, height}, BLACK);
+    DrawRectangleRec({0, 0, tile_picker_padding, height},
+                     raylib::Color::Black());
 
     // tile_picker_vertical_2
     DrawRectangleRec(
       {tile_picker_width - tile_picker_padding, 0, tile_picker_padding, height},
-      BLACK);
+      raylib::Color::Black());
 
     // taskbar_line
     DrawRectangleRec(
       {tile_picker_width, taskbar_button_size, width - tile_picker_width, 5},
-      BLACK);
+      raylib::Color::Black());
 
     // view_control_line_1
     DrawRectangleRec({tile_picker_padding + view_control_button_width,
                       height - view_control_button_height, view_control_padding,
                       view_control_button_height},
-                     BLACK);
+                     raylib::Color::Black());
 
     // view_control_line_2
     DrawRectangleRec({tile_picker_padding + view_control_padding +
                         (2 * view_control_button_width),
                       height - view_control_button_height, view_control_padding,
                       view_control_button_height},
-                     BLACK);
+                     raylib::Color::Black());
 
     // BUTTONS
     // Exit button
