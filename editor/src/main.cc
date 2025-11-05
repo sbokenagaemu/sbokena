@@ -1,12 +1,13 @@
 #ifndef RAYGUI_IMPLEMENTATION
 #define RAYGUI_IMPLEMENTATION
-#include "Color.hpp"
 #endif
 
+#include <Color.hpp>
 #include <Window.hpp>
 #include <raygui.h>
 #include <raylib.h>
-#include <types.hh>
+
+#include "types.hh"
 
 using namespace sbokena::types;
 
