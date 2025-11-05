@@ -22,7 +22,7 @@
         # manually or by `direnv` automatically
         devShells.default =
           pkgs.callPackage
-          ./nix/sbokena.nix
+          ./nix/devShell.nix
           {};
 
         # buildable packages, by `nix build .#<name>`
