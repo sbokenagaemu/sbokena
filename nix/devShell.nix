@@ -1,13 +1,13 @@
 {pkgs, ...}: let
   llvm = pkgs.llvmPackages;
-  inherit (llvm) stdenv;
 
   sbokena =
     pkgs.callPackage
     ./sbokena.nix
     {};
 in
-  pkgs.mkShell {inherit stdenv;} {
+  pkgs.mkShell.override
+  {inherit (llvm) stdenv;} {
     inputsFrom = [sbokena];
     packages = [llvm.lldb];
 
