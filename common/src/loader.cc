@@ -3,21 +3,32 @@
 #include <iostream>
 
 #include "loader.hh"
+#include "raylib.h"
 
 namespace fs = std::filesystem;
 
-int load_textures(std::string_view path) {
-  fs::path textureDir = path;
-  std::cout << "Absolute: " << fs::absolute(textureDir) << "\n";
+bool isValidFolder(fs::path dir) {
+  return (!fs::exists(dir) || !fs::is_directory(dir));
+}
 
-  if (!fs::exists(textureDir)) {
-    throw std::format_error("Error: folder not found.");
-    return 0;
+std::vector<Image> TextureID::GetTextures(int id) {
+  return themes_[id];
+}
+
+TextureID::TextureID() {
+  load_textures();
+}
+
+void TextureID::load_textures() {
+  fs::path textureDir = "common/res";
+
+  if (!isValidFolder(textureDir)) {
+    return;
   }
 
   int theme_count = 0;
   for (const auto &entry : fs::directory_iterator(textureDir)) {
     theme_count++;
   }
-  return theme_count;
+  TextureID::theme_count_ = theme_count;
 }
