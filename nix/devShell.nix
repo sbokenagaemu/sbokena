@@ -9,7 +9,10 @@ in
   pkgs.mkShell.override
   {inherit (llvm) stdenv;} {
     inputsFrom = [sbokena];
-    packages = [llvm.lldb];
 
+    packages = [
+      llvm.lldb
+      pkgs.just
+    ];
     inherit (sbokena) LD_LIBRARY_PATH;
   }
