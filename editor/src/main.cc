@@ -25,8 +25,8 @@ constexpr u32 view_control_button_width = 120;
 constexpr u32 view_control_button_height = 50;
 
 int main() {
-  raylib::Window window(width, height, "Window");
-  window.SetTargetFPS(60);
+  raylib::Window window(width, height, "Window",
+                        FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE);
   bool exit = false;
 
   // The width of the tile picker section
