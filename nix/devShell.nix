@@ -14,5 +14,10 @@ in
       llvm.lldb
       pkgs.just
     ];
+
+    shellHook = ''
+      just cmake
+    '';
+
     inherit (sbokena) LD_LIBRARY_PATH;
   }
