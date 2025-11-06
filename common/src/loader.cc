@@ -8,7 +8,7 @@
 namespace fs = std::filesystem;
 
 bool isValidFolder(fs::path dir) {
-  return (!fs::exists(dir) || !fs::is_directory(dir));
+  return (!(!fs::exists(dir) || !fs::is_directory(dir)));
 }
 
 // this function checks whether the given folder is an acceptable theme pack
@@ -28,10 +28,10 @@ bool isValidTheme(fs::path dir) {
 
   // checks for 4 directional crate textures
   fs::path dirCrate = dirDirectional / "dir_crates";
-  if (!fs::exists(dirCrate / "dir_create_up.png") ||
-      !fs::exists(dirCrate / "dir_create_right.png") ||
-      !fs::exists(dirCrate / "dir_create_down.png") ||
-      !fs::exists(dirCrate / "dir_create_left.png")) {
+  if (!fs::exists(dirCrate / "dir_crate_up.png") ||
+      !fs::exists(dirCrate / "dir_crate_right.png") ||
+      !fs::exists(dirCrate / "dir_crate_down.png") ||
+      !fs::exists(dirCrate / "dir_crate_left.png")) {
     return false;
   }
 
@@ -53,15 +53,15 @@ bool isValidTheme(fs::path dir) {
   }
 
   // checks for other necessary textures
-  fs::path dirOthers = dirDirectional / "other";
-  if (!fs::exists(dirOthers / "crate.png") ||
+  fs::path dirOthers = dir / "other";
+  if (!fs::exists(dirOthers / "button.png") ||
+      !fs::exists(dirOthers / "crate.png") ||
       !fs::exists(dirOthers / "door_closed.png") ||
       !fs::exists(dirOthers / "door_open.png") ||
       !fs::exists(dirOthers / "player.png") ||
+      !fs::exists(dirOthers / "roof.png") ||
       !fs::exists(dirOthers / "tile.png") ||
-      !fs::exists(dirOthers / "wall.png") ||
-      !fs::exists(dirOthers / "button.png") ||
-      !fs::exists(dirOthers / "roof.png")) {
+      !fs::exists(dirOthers / "wall.png")) {
     return false;
   }
 
@@ -77,15 +77,20 @@ TextureID::TextureID() {
 }
 
 void TextureID::load_textures() {
-  fs::path textureDir = "common/res";
+  fs::path textureDir = std::filesystem::current_path() / "common/res";
+  std::cout << textureDir << std::endl;
 
   if (!isValidFolder(textureDir)) {
+    TextureID::theme_count_ = 0;
     return;
   }
 
   int theme_count = 0;
   for (const auto &entry : fs::directory_iterator(textureDir)) {
-    theme_count++;
+    std::cout << entry << std::endl;
+    if (isValidTheme(entry)) {
+      theme_count++;
+    }
   }
   TextureID::theme_count_ = theme_count;
 }
