@@ -68,10 +68,6 @@
     ];
 
   kebabToSnake = lib.replaceString "-" "_";
-  boolToSwitch = cond:
-    if cond
-    then "1"
-    else "0";
 in
   stdenv.mkDerivation {
     name = "sbokena";
@@ -82,8 +78,8 @@ in
 
     cmakeFlags = [
       "-DCMAKE_BUILD_TYPE=Release"
-      "-DGLFW_BUILD_WAYLAND=${boolToSwitch enableWayland}"
-      "-DGLFW_BUILD_X11=${boolToSwitch enableX11}"
+      (lib.cmakeBool "GLFW_BUILD_WAYLAND" enableWayland)
+      (lib.cmakeBool "GLFW_BUILD_X11" enableX11)
     ];
 
     configurePhase = let
