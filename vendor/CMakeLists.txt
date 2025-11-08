@@ -26,10 +26,10 @@ else ()
   )
 endif ()
 
-if (NOT GLFW_BUILD_WAYLAND)
+if (NOT DEFINED GLFW_BUILD_WAYLAND)
   set(GLFW_BUILD_WAYLAND 1)
 endif ()
-if (NOT GLFW_BUILD_X11)
+if (NOT DEFINED GLFW_BUILD_X11)
   set(GLFW_BUILD_X11 1)
 endif ()
 
