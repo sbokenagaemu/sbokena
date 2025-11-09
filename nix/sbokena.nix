@@ -108,8 +108,10 @@ in
 
     installPhase = ''
       runHook preInstall
-      install -dm755 $out
-      cp -r build/* $out
+      install -Dm755 \
+        build/editor/editor \
+        build/game/game \
+        -t $out/bin
       runHook postInstall
     '';
 
