@@ -92,6 +92,18 @@ template <std::integral T>
 [[nodiscard("operator-() does not modify `this`")]]
 Position<T> operator-(const Position<T> &, const Position<T> &) noexcept;
 
+template <std::integral T>
+constexpr bool operator==(const Position<T> &lhs,
+                          const Position<T> &rhs) noexcept {
+  return lhs.x == rhs.x && lhs.y == rhs.y;
+}
+
+template <std::integral T>
+constexpr bool operator!=(const Position<T> &lhs,
+                          const Position<T> &rhs) noexcept {
+  return !(lhs == rhs);
+}
+
 template <std::signed_integral T>
 [[nodiscard("operator-() does not modify `this`")]]
 Position<T> operator-(const Position<T> &) noexcept;
