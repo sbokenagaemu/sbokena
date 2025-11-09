@@ -13,6 +13,7 @@ TEST(common, directions) {
   const Directions none;
   const Directions all = Up | Down | Left | Right;
 
+  ASSERT_TRUE(none.empty());
   ASSERT_FALSE(none.contains(Direction::Up));
   ASSERT_FALSE(none.contains_all(all));
   ASSERT_FALSE(none.contains_any(all));
@@ -24,6 +25,7 @@ TEST(common, directions) {
   const Directions left = Left;
   const Directions vert = Up | Down;
   const Directions hor = Left | Right;
+  const Directions up = (vert | hor) & Up;
   ASSERT_FALSE(none.contains_all(left));
   ASSERT_FALSE(none.contains_any(left));
   ASSERT_TRUE(all.contains_all(left));
@@ -34,6 +36,7 @@ TEST(common, directions) {
   ASSERT_TRUE(hor.contains_any(left));
   ASSERT_FALSE(left.contains_all(hor));
   ASSERT_TRUE(left.contains_any(hor));
+  ASSERT_EQ(up, Up);
 }
 
 } // namespace sbokena::types
