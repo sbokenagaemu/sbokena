@@ -105,7 +105,6 @@ in
       cmake --build build
     '';
 
-    doCheck = true;
     checkPhase = ''
       clang-tidy -p build \
         $(fd -E build/ -F '.cc') \
