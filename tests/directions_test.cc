@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include "types.hh"
+#include "direction.hh"
 
-namespace sbokena::types {
+namespace sbokena::direction {
 
 TEST(common, directions) {
   using Direction::Down;
@@ -39,4 +39,4 @@ TEST(common, directions) {
   ASSERT_EQ(up, Up);
 }
 
-} // namespace sbokena::types
+} // namespace sbokena::direction
