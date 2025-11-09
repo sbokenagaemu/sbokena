@@ -38,23 +38,28 @@
     [
       llvm.bintools
       llvm.clang-tools
-
       pkgs.cmake
       pkgs.fd
       pkgs.ninja
     ]
     # optional dependencies for Wayland builds
     ++ lib.optionals enableWayland [
-      pkgs.libffi
       pkgs.pkg-config
       pkgs.wayland-scanner
     ];
+
+  # check-time dependencies
+  nativeCheckInputs = [
+    llvm.clang-tools
+    pkgs.cmake
+  ];
 
   # run-time dependencies
   buildInputs =
     [pkgs.libGL]
     # optional dependencies for Wayland builds
     ++ lib.optionals enableWayland [
+      pkgs.libffi
       pkgs.libxkbcommon
       pkgs.wayland
     ]
@@ -78,8 +83,10 @@ in
   stdenv.mkDerivation {
     name = "sbokena";
     src = ../.;
+    strictDeps = true;
 
     inherit nativeBuildInputs;
+    inherit nativeCheckInputs;
     inherit buildInputs;
 
     cmakeFlags =
