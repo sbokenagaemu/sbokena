@@ -25,47 +25,128 @@ using f64 = std::double_t;
 
 // a 2D cardinal direction.
 enum struct Direction : u8 {
-  Up = 0b0001,
-  Down = 0b0010,
-  Left = 0b0100,
+  // clang-format off
+  Up    = 0b0001,
+  Down  = 0b0010,
+  Left  = 0b0100,
   Right = 0b1000,
+  // clang-format on
 };
 
-// a set of 2D directions.
+// a set of `Direction`.
 class Directions {
 public:
-  // construct an empty directions set.
-  Directions() noexcept;
-  // construct a directions set from a direction.
-  Directions(const Direction &) noexcept;
-  // construct a directions set from a raw flag value.
+  // construct an empty direction set.
+  constexpr Directions() noexcept : flags_{0} {}
+
+  // construct a direction set from a direction.
+  constexpr Directions(const Direction &dir) noexcept
+    : flags_{static_cast<u8>(dir)} {}
+
+  // construct a direction set from a raw flag value.
   // this zeroes the upper bits of the value.
-  Directions(u8 flags) noexcept;
+  constexpr Directions(u8 flags) noexcept : flags_{flags} {}
 
   // does this set contain some cardinal direction?
-  bool contains(const Direction &) const noexcept;
+  constexpr bool contains(const Direction &dir) const noexcept {
+    return flags_ & static_cast<u8>(dir);
+  }
 
   // does this set contain all of these directions?
-  bool contains_all(const Directions &) const noexcept;
+  constexpr bool contains_all(const Directions &dirs) const noexcept {
+    return dirs.empty() || (*this & dirs) == dirs;
+  }
 
   // does this set contain any of these directions?
-  bool contains_any(const Directions &) const noexcept;
+  constexpr bool contains_any(const Directions &dirs) const noexcept {
+    return dirs.empty() || (*this & dirs);
+  }
 
   // is this set empty?
-  bool empty() const noexcept;
+  constexpr bool empty() const noexcept {
+    return !flags_;
+  }
+
+  // is this set not empty?
+  constexpr operator bool() const noexcept {
+    return !empty();
+  }
 
   // return the raw flag value.
-  u8 flags() const noexcept;
+  constexpr u8 flags() const noexcept {
+    return flags_;
+  }
+
+  // equality compare 2 direction sets.
+  [[nodiscard("operator== does not modify arguments")]]
+  constexpr bool operator==(const Directions &dirs) const noexcept {
+    return flags_ == dirs.flags_;
+  }
+
+  // inequality compare 2 direction sets.
+  [[nodiscard("operator!= does not modify arguments")]]
+  constexpr bool operator!=(const Directions &dirs) const noexcept {
+    return !(*this == dirs);
+  }
+
+  // the union of this direction set with a direction.
+  [[nodiscard("operator| does not modify arguments")]]
+  constexpr Directions operator|(const Direction &dir) const noexcept {
+    return {static_cast<u8>(flags_ | static_cast<u8>(dir))};
+  }
+
+  // the intersection of this direction set with a direction.
+  [[nodiscard("operator& does not modify arguments")]]
+  constexpr Directions operator&(const Direction &dir) const noexcept {
+    return {static_cast<u8>(flags_ & static_cast<u8>(dir))};
+  }
+
+  // the union of 2 direction sets.
+  [[nodiscard("operator| does not modify arguments")]]
+  constexpr Directions operator|(const Directions &dirs) const noexcept {
+    return {static_cast<u8>(flags_ | dirs.flags_)};
+  }
+
+  // the intersection of 2 direction sets.
+  [[nodiscard("operator& does not modify arguments")]]
+  constexpr Directions operator&(const Directions &dirs) const noexcept {
+    return {static_cast<u8>(flags_ & dirs.flags_)};
+  }
+
+  // add a direction to this direction set.
+  constexpr Directions &operator|=(const Direction &dir) noexcept {
+    *this = *this | dir;
+    return *this;
+  }
+
+  // union another direction set to this one.
+  constexpr Directions &operator|=(const Directions &dirs) noexcept {
+    *this = *this | dirs;
+    return *this;
+  }
+
+  // intersect a direction with this direction set.
+  constexpr Directions &operator&=(const Direction &dir) noexcept {
+    *this = *this & dir;
+    return *this;
+  }
+
+  // intersect another direction set to this one.
+  constexpr Directions &operator&=(const Directions &dirs) noexcept {
+    *this = *this & dirs;
+    return *this;
+  }
 
 private:
   u8 flags_ = 0b0000;
 };
 
-Directions operator|(const Direction &, const Direction &) noexcept;
-Directions operator|(const Directions &, const Direction &) noexcept;
-Directions operator|(const Directions &, const Directions &) noexcept;
-Directions &operator|=(Directions &, const Direction &) noexcept;
-Directions &operator|=(Directions &, const Directions &) noexcept;
+// union 2 directions together into a set.
+[[nodiscard("operator| does not modify arguments")]]
+constexpr Directions operator|(const Direction &lhs,
+                               const Direction &rhs) noexcept {
+  return {static_cast<u8>(static_cast<u8>(lhs) | static_cast<u8>(rhs))};
+}
 
 // a position in a 2D grid.
 template <std::integral T>
@@ -74,26 +155,42 @@ struct Position {
   T y;
 
   // this position with x and y swapped.
-  [[nodiscard("transposed() does not modify `this`")]]
-  Position transposed() const noexcept;
+  [[nodiscard("tposed does not modify `this`")]]
+  constexpr Position tposed() const {
+    return {y, x};
+  }
+
+  // negate this position element-wise.
+  [[nodiscard("operator- does not modify `this`")]]
+  constexpr Position operator-() noexcept {
+    return {-x, -y};
+  }
+
+  // add 2 positions element-wise.
+  [[nodiscard("operator+ does not modify `this`")]]
+  constexpr Position operator+(const Position<T> &rhs) noexcept {
+    return {x + rhs.x, y + rhs.y};
+  }
+
+  // subtract 2 positions element-wise.
+  [[nodiscard("operator- does not modify `this`")]]
+  constexpr Position operator-(const Position<T> &rhs) noexcept {
+    return {x - rhs.x, y - rhs.y};
+  }
+
+  // add another position element-wise.
+  constexpr Position &operator+=(const Position<T> &rhs) noexcept {
+    x += rhs.x;
+    y += rhs.y;
+    return *this;
+  }
+
+  // subtract another position element-wise.
+  constexpr Position &operator-=(const Position<T> &rhs) noexcept {
+    x -= rhs.x;
+    y -= rhs.y;
+    return *this;
+  }
 };
-
-template <std::integral T>
-Position<T> &operator+=(Position<T> &, const Position<T> &) noexcept;
-
-template <std::integral T>
-Position<T> &operator-=(Position<T> &, const Position<T> &) noexcept;
-
-template <std::integral T>
-[[nodiscard("operator+() does not modify `this`")]]
-Position<T> operator+(const Position<T> &, const Position<T> &) noexcept;
-
-template <std::integral T>
-[[nodiscard("operator-() does not modify `this`")]]
-Position<T> operator-(const Position<T> &, const Position<T> &) noexcept;
-
-template <std::signed_integral T>
-[[nodiscard("operator-() does not modify `this`")]]
-Position<T> operator-(const Position<T> &) noexcept;
 
 } // namespace sbokena::types
