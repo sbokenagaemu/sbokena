@@ -149,7 +149,7 @@ constexpr Directions operator|(const Direction &lhs,
 }
 
 // a position in a 2D grid.
-template <std::integral T>
+template <std::integral T = u32>
 struct Position {
   T x;
   T y;
