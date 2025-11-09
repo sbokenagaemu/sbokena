@@ -45,11 +45,20 @@
         };
 
         # miscellaneous checks, run with `nix flake check`
-        checks = {
+        checks = let
+          sbokena =
+            pkgs.callPackage
+            ./nix/sbokena.nix
+            {};
+        in {
           format =
             pkgs.callPackage
             ./nix/checks/format.nix
             {};
+
+          sbokena =
+            sbokena.overrideAttrs
+            {doCheck = true;};
         };
       };
     };
