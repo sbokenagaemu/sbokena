@@ -74,8 +74,8 @@ struct Position {
   T y;
 
   // this position with x and y swapped.
-  [[nodiscard("transposed() does not modify `this`")]]
-  Position transposed() const noexcept;
+  [[nodiscard("tposed() does not modify `this`")]]
+  Position tposed() const noexcept;
 };
 
 template <std::integral T>

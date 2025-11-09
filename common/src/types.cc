@@ -55,7 +55,7 @@ Directions &operator|=(Directions &lhs, const Directions &rhs) noexcept {
 }
 
 template <std::integral T>
-Position<T> Position<T>::transposed() const noexcept {
+Position<T> Position<T>::tposed() const noexcept {
   return {y, x};
 }
 
