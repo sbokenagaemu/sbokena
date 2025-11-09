@@ -10,6 +10,8 @@ namespace sbokena::utils {
 //
 // This is intended to be used as an unnamed variable `Deferred _{fn}` in most
 // cases, or as a named variable `Deferred df{fn}` where cancellation is needed.
+//
+// See detailed usage examples in `tests/deferred_test.cc`.
 template <std::invocable F>
 class Deferred {
 public:
