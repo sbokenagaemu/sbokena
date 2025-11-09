@@ -1,0 +1,8 @@
+builds:
+  exclude:
+    - "devShells.*"
+  include:
+    - "packages.x86_64-linux.*"
+    - "packages.aarch64-linux.*"
+    - "checks.x86_64-linux.*"
+    - "checks.aarch64-linux.*"
