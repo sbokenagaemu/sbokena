@@ -1,9 +1,9 @@
 include(FetchContent)
 
-if (DEFINED ENV{googletest_src})
+if (DEFINED GOOGLETEST_SRC)
   FetchContent_Declare(
     googletest
-    SOURCE_DIR "$ENV{googletest_src}"
+    SOURCE_DIR ${GOOGLETEST_SRC}
   )
 else ()
   FetchContent_Declare(
@@ -13,10 +13,10 @@ else ()
   )
 endif ()
 
-if (DEFINED ENV{nlohmann_json_src})
+if (DEFINED NLOHMANN_JSON_SRC)
   FetchContent_Declare(
     nlohmann_json
-    SOURCE_DIR "$ENV{nlohmann_json_src}"
+    SOURCE_DIR ${NLOHMANN_JSON_SRC}
   )
 else ()
   FetchContent_Declare(
@@ -33,10 +33,10 @@ if (NOT DEFINED GLFW_BUILD_X11)
   set(GLFW_BUILD_X11 1)
 endif ()
 
-if (DEFINED ENV{raylib_src})
+if (DEFINED RAYLIB_SRC)
   FetchContent_Declare(
     raylib
-    SOURCE_DIR "$ENV{raylib_src}"
+    SOURCE_DIR ${RAYLIB_SRC}
   )
 else ()
   FetchContent_Declare(
@@ -46,10 +46,10 @@ else ()
   )
 endif ()
 
-if (DEFINED ENV{raylib_cpp_src})
+if (DEFINED RAYLIB_CPP_SRC)
   FetchContent_Declare(
     raylib_cpp
-    SOURCE_DIR "$ENV{raylib_cpp_src}"
+    SOURCE_DIR ${RAYLIB_CPP_SRC}
   )
 else ()
   FetchContent_Declare(
@@ -59,10 +59,10 @@ else ()
   )
 endif ()
 
-if (DEFINED ENV{raygui_src})
+if (DEFINED RAYGUI_SRC)
   FetchContent_Declare(
     raygui
-    SOURCE_DIR "$ENV{raygui_src}"
+    SOURCE_DIR ${RAYGUI_SRC}
     SOURCE_SUBDIR projects/CMake
   )
 else ()

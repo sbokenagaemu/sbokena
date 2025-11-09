@@ -67,7 +67,13 @@
       pkgs.xorg.libXrandr
     ];
 
-  kebabToSnake = lib.replaceString "-" "_";
+  # convert a vendoredSources entry into a CMake
+  # definition (-D{name}={path})
+  sourceToDef = name: path:
+    lib.cmakeFeature (lib.pipe name [
+      (lib.replaceString "-" "_")
+      lib.toUpper
+    ]) "${path}";
 in
   stdenv.mkDerivation {
     name = "sbokena";
@@ -76,23 +82,17 @@ in
     inherit nativeBuildInputs;
     inherit buildInputs;
 
-    cmakeFlags = [
-      "-DCMAKE_BUILD_TYPE=Release"
-      (lib.cmakeBool "GLFW_BUILD_WAYLAND" enableWayland)
-      (lib.cmakeBool "GLFW_BUILD_X11" enableX11)
-    ];
+    cmakeFlags =
+      [
+        "-DCMAKE_BUILD_TYPE=Release"
+        (lib.cmakeBool "GLFW_BUILD_WAYLAND" enableWayland)
+        (lib.cmakeBool "GLFW_BUILD_X11" enableX11)
+      ]
+      ++ lib.mapAttrsToList sourceToDef vendoredSources;
 
-    configurePhase = let
-      exports =
-        lib.mapAttrsToList
-        (name: path: "export ${kebabToSnake name}=${path}")
-        vendoredSources;
-      cmakeConfigure = ''
-        cmake -G Ninja -B build $cmakeFlags .
-      '';
-    in
-      lib.concatStringsSep "\n"
-      (exports ++ [cmakeConfigure]);
+    configurePhase = ''
+      cmake -G Ninja -B build -S . $cmakeFlags
+    '';
 
     buildPhase = ''
       cmake --build build
