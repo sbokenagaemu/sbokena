@@ -49,19 +49,18 @@
 
         # miscellaneous checks, run with `nix flake check`
         checks = let
-          sbokena =
+          sbokena-debug =
             pkgs.callPackage
             ./nix/sbokena.nix
-            {};
+            {buildRelease = false;};
         in {
           format =
             pkgs.callPackage
             ./nix/checks/format.nix
             {};
 
-          sbokena =
-            sbokena.overrideAttrs
-            {doCheck = true;};
+          sbokena = sbokena-debug
+            .overrideAttrs {doCheck = true;};
         };
       };
     };

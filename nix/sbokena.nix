@@ -1,6 +1,7 @@
 {
   pkgs,
   lib,
+  buildRelease ? true,
   enableWayland ? true,
   enableX11 ? true,
   ...
@@ -91,7 +92,11 @@ in
 
     cmakeFlags =
       [
-        "-DCMAKE_BUILD_TYPE=Release"
+        (lib.cmakeFeature "CMAKE_BUILD_TYPE" (
+          if buildRelease
+          then "Release"
+          else "Debug"
+        ))
         (lib.cmakeBool "GLFW_BUILD_WAYLAND" enableWayland)
         (lib.cmakeBool "GLFW_BUILD_X11" enableX11)
       ]
