@@ -1,8 +1,8 @@
 builds:
   include:
     - "packages.*.sbokena"
-    - "checks.*"
+    - "checks.*.*"
   exclude:
-    - "devShells.*"
+    - "devShells.*.*"
     - "packages.*.sbokena-wayland"
     - "packages.*.sbokena-x11"
