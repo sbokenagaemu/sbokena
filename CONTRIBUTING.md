@@ -112,10 +112,10 @@ dependency named `foo`, located at `https://github.com/bar/foo` to the project:
 1. add an entry for it in `vendor/CMakeLists.txt`:
 
    ```cmake
-   if (DEFINED ENV{foo_src})
+   if (DEFINED $FOO_SRC)
      FetchContent_Declare(
        foo
-       SOURCE_DIR "$ENV{foo_src}"
+       SOURCE_DIR ${FOO_SRC}
      )
    else ()
      FetchContent_Declare(
