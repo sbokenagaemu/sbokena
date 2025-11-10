@@ -6,6 +6,9 @@ project(
   LANGUAGES CXX
 )
 
+# disable dev warnings
+set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS ON)
+
 # C++ standard & editor support
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
