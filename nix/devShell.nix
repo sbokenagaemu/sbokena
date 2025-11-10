@@ -26,5 +26,5 @@ in
       just cmake
     '';
 
-    inherit (sbokena) LD_LIBRARY_PATH;
+    inherit (sbokena.passthru) env;
   }

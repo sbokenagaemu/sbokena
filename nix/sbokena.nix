@@ -155,6 +155,9 @@ in
       runHook postInstall
     '';
 
-    # export `LD_LIBRARY_PATH` for the dev shell
-    LD_LIBRARY_PATH = lib.makeLibraryPath buildInputs;
+    # set env-vars for the build
+    inherit env;
+
+    # passthru env-vars for shell
+    passthru.env = env;
   }
