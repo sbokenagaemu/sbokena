@@ -84,13 +84,33 @@
       xorg.libXrandr
     ];
 
-  # convert a vendoredSources entry into a CMake
-  # definition (-D{name}={path})
-  sourceToDef = name: path:
-    lib.cmakeFeature (lib.pipe name [
-      (lib.replaceString "-" "_")
-      lib.toUpper
-    ]) "${path}";
+  # kebab-case -> SCREAMING_CASE
+  toScreaming = lib.flip lib.pipe [
+    (lib.replaceString "-" "_")
+    lib.toUpper
+  ];
+
+  # convert a vendoredSources entry into a
+  # env-var name-value pair
+  sourceToEnv = name: path:
+    lib.nameValuePair
+    (toScreaming name)
+    "${path}";
+
+  # vendoredSources as env-vars
+  vendoredSources' =
+    lib.mapAttrs'
+    sourceToEnv
+    vendoredSources;
+
+  # env-vars for the build
+  env =
+    vendoredSources'
+    // {
+      LD_LIBRARY_PATH =
+        lib.makeLibraryPath
+        buildInputs;
+    };
 in
   clangStdenv.mkDerivation {
     name = "sbokena";
@@ -101,17 +121,15 @@ in
     inherit nativeCheckInputs;
     inherit buildInputs;
 
-    cmakeFlags =
-      [
-        (lib.cmakeFeature "CMAKE_BUILD_TYPE" (
-          if buildRelease
-          then "Release"
-          else "Debug"
-        ))
-        (lib.cmakeBool "GLFW_BUILD_WAYLAND" enableWayland)
-        (lib.cmakeBool "GLFW_BUILD_X11" enableX11)
-      ]
-      ++ lib.mapAttrsToList sourceToDef vendoredSources;
+    cmakeFlags = [
+      (lib.cmakeFeature "CMAKE_BUILD_TYPE" (
+        if buildRelease
+        then "Release"
+        else "Debug"
+      ))
+      (lib.cmakeBool "GLFW_BUILD_WAYLAND" enableWayland)
+      (lib.cmakeBool "GLFW_BUILD_X11" enableX11)
+    ];
 
     configurePhase = ''
       cmake -G Ninja -B build -S . $cmakeFlags
