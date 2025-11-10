@@ -1,5 +1,9 @@
-{pkgs, ...}:
-pkgs.stdenvNoCC.mkDerivation {
+{
+  pkgs,
+  stdenvNoCC,
+  ...
+}:
+stdenvNoCC.mkDerivation {
   name = "format";
   src = ../../.;
 
