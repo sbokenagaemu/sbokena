@@ -16,8 +16,8 @@ pkgs.stdenvNoCC.mkDerivation {
     alejandra -c .
     clang-format \
       --dry-run -Werror \
-      $(fd -F '.cc') \
-      $(fd -F '.h')
+      $(fd -E build -F '.cc') \
+      $(fd -E build -F '.hh')
   '';
 
   installPhase = ''
