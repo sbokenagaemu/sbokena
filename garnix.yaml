@@ -1,8 +1,7 @@
 builds:
   include:
-    - "packages.*.sbokena"
-    - "checks.*.*"
-  exclude:
-    - "devShells.*.*"
-    - "packages.*.sbokena-wayland"
-    - "packages.*.sbokena-x11"
+    # only check formatting once
+    - checks.x86_64-linux.format
+    # run test suite on all systems
+    # checks OK -> packages OK
+    - checks.*.sbokena
