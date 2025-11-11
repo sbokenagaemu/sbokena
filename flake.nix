@@ -15,7 +15,12 @@
         self',
         pkgs,
         ...
-      }: {
+      }: let
+        sbokena =
+          pkgs.callPackage
+          ./nix/sbokena.nix
+          {};
+      in {
         # Nix formatter, run with `nix fmt`
         formatter = pkgs.writeShellScriptBin "nix-fmt" ''
           ${pkgs.alejandra}/bin/alejandra -q .
@@ -30,36 +35,25 @@
 
         # buildable packages, by `nix build .#<name>`
         # also includes checks specific to the package
-        packages = let
-          sbokena =
-            pkgs.callPackage
-            ./nix/sbokena.nix
-            {};
-        in {
+        packages = {
           inherit sbokena;
           default = sbokena;
 
-          sbokena-wayland =
-            sbokena.override
-            {enableX11 = false;};
-          sbokena-x11 =
-            sbokena.override
-            {enableWayland = false;};
+          sbokena-wayland = sbokena
+            .override {enableX11 = false;};
+          sbokena-x11 = sbokena
+            .override {enableWayland = false;};
         };
 
         # miscellaneous checks, run with `nix flake check`
-        checks = let
-          sbokena-debug =
-            pkgs.callPackage
-            ./nix/sbokena.nix
-            {buildRelease = false;};
-        in {
+        checks = {
           format =
             pkgs.callPackage
             ./nix/checks/format.nix
             {};
 
-          sbokena = sbokena-debug
+          sbokena = (sbokena
+            .override {buildRelease = false;})
             .overrideAttrs {doCheck = true;};
         };
       };
