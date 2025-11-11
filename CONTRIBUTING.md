@@ -116,13 +116,15 @@ dependency named `foo`, located at `https://github.com/bar/foo` to the project:
      FetchContent_Declare(
        foo
        SOURCE_DIR ${FOO_SRC}
+       SYSTEM
      )
    else ()
      FetchContent_Declare(
        foo
        GIT_REPOSITORY "https://github.com/bar/foo"
        GIT_TAG "<foo's current release tag>"
-
+       SYSTEM
+     )
    endif ()
 
    FetchContent_MakeAvailable(foo)
