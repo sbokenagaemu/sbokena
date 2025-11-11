@@ -1,14 +1,25 @@
 {
-  pkgs,
-  lib,
+  # config options
   buildRelease ? true,
   enableWayland ? true,
   enableX11 ? true,
+  # nixpkgs
+  lib,
+  clangStdenv,
+  llvmPackages,
+  xorg,
+  # dependencies
+  cmake,
+  fd,
+  libffi,
+  libGL,
+  libxkbcommon,
+  ninja,
+  pkg-config,
+  wayland,
+  wayland-scanner,
   ...
 }: let
-  llvm = pkgs.llvmPackages;
-  inherit (llvm) stdenv;
-
   # sources of vendored external libraries
   vendoredSources = {
     googletest-src = builtins.fetchGit {
@@ -37,40 +48,40 @@
   # build-time dependencies
   nativeBuildInputs =
     [
-      llvm.bintools
-      llvm.clang-tools
-      pkgs.cmake
-      pkgs.fd
-      pkgs.ninja
+      llvmPackages.bintools
+      llvmPackages.clang-tools
+      cmake
+      fd
+      ninja
     ]
     # optional dependencies for Wayland builds
     ++ lib.optionals enableWayland [
-      pkgs.pkg-config
-      pkgs.wayland-scanner
+      pkg-config
+      wayland-scanner
     ];
 
   # check-time dependencies
   nativeCheckInputs = [
-    llvm.clang-tools
-    pkgs.cmake
+    llvmPackages.clang-tools
+    cmake
   ];
 
   # run-time dependencies
   buildInputs =
-    [pkgs.libGL]
+    [libGL]
     # optional dependencies for Wayland builds
     ++ lib.optionals enableWayland [
-      pkgs.libffi
-      pkgs.libxkbcommon
-      pkgs.wayland
+      libffi
+      libxkbcommon
+      wayland
     ]
     # optional dependencies for X11 builds
     ++ lib.optionals enableX11 [
-      pkgs.xorg.libX11
-      pkgs.xorg.libXcursor
-      pkgs.xorg.libXi
-      pkgs.xorg.libXinerama
-      pkgs.xorg.libXrandr
+      xorg.libX11
+      xorg.libXcursor
+      xorg.libXi
+      xorg.libXinerama
+      xorg.libXrandr
     ];
 
   # convert a vendoredSources entry into a CMake
@@ -81,7 +92,7 @@
       lib.toUpper
     ]) "${path}";
 in
-  stdenv.mkDerivation {
+  clangStdenv.mkDerivation {
     name = "sbokena";
     src = ../.;
     strictDeps = true;

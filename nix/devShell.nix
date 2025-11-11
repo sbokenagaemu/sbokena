@@ -1,18 +1,25 @@
-{pkgs, ...}: let
-  llvm = pkgs.llvmPackages;
-
+{
+  # nixpkgs
+  callPackage,
+  mkShell,
+  clangStdenv,
+  llvmPackages,
+  # dependencies
+  just,
+  ...
+}: let
   sbokena =
-    pkgs.callPackage
+    callPackage
     ./sbokena.nix
     {};
 in
-  pkgs.mkShell.override
-  {inherit (llvm) stdenv;} {
+  mkShell.override
+  {stdenv = clangStdenv;} {
     inputsFrom = [sbokena];
 
     packages = [
-      llvm.lldb
-      pkgs.just
+      llvmPackages.lldb
+      just
     ];
 
     shellHook = ''

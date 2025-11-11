@@ -1,6 +1,10 @@
 {
-  pkgs,
+  # nixpkgs
   stdenvNoCC,
+  llvmPackages,
+  # dependencies
+  alejandra,
+  fd,
   ...
 }:
 stdenvNoCC.mkDerivation {
@@ -8,9 +12,9 @@ stdenvNoCC.mkDerivation {
   src = ../../.;
 
   nativeBuildInputs = [
-    pkgs.alejandra
-    pkgs.fd
-    pkgs.llvmPackages.clang-tools
+    llvmPackages.clang-tools
+    alejandra
+    fd
   ];
 
   dontBuild = true;
