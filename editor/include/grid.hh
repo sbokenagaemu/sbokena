@@ -9,6 +9,11 @@
 
 using namespace sbokena::types;
 
+// returns the vector that the mouse followed
+raylib::Vector2 mouse_position_difference(raylib::Vector2 pastMousePos) {
+  return Vector2Subtract(GetMousePosition(), pastMousePos);
+}
+
 class Grid {
 public:
   Grid();
