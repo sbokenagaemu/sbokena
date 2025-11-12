@@ -7,6 +7,7 @@
 #include <raygui.h>
 #include <raylib.h>
 
+#include "loader.hh"
 #include "types.hh"
 
 using namespace sbokena::types;
