@@ -78,28 +78,27 @@ std::vector<std::string> valid_textures() {
 
 Theme::Theme(std::string name) : name_{name} {
   fs::path dir = std::filesystem::current_path() / "common/res" / name;
-  std::array<raylib::Texture, 17> theme = {};
 
-  theme[0] = raylib::Texture(dir / "roof.png");
-  theme[1] = raylib::Texture(dir / "wall.png");
-  theme[2] = raylib::Texture(dir / "tile.png");
-  theme[3] = raylib::Texture(dir / "player.png");
-  theme[4] = raylib::Texture(dir / "box.png");
-  theme[5] = raylib::Texture(dir / "button.png");
-  theme[6] = raylib::Texture(dir / "door_open.png");
-  theme[7] = raylib::Texture(dir / "door_closed.png");
+  textures_[0] = raylib::Texture(dir / "roof.png");
+  textures_[1] = raylib::Texture(dir / "wall.png");
+  textures_[2] = raylib::Texture(dir / "tile.png");
+  textures_[3] = raylib::Texture(dir / "player.png");
+  textures_[4] = raylib::Texture(dir / "box.png");
+  textures_[5] = raylib::Texture(dir / "button.png");
+  textures_[6] = raylib::Texture(dir / "door_open.png");
+  textures_[7] = raylib::Texture(dir / "door_closed.png");
 
   fs::path dirFloors = dir / "directionals" / "dir_floors";
-  theme[8] = raylib::Texture(dirFloors / "dir_floor_up.png");
-  theme[9] = raylib::Texture(dirFloors / "dir_floor_right.png");
-  theme[10] = raylib::Texture(dirFloors / "dir_floor_down.png");
-  theme[11] = raylib::Texture(dirFloors / "dir_floor_left.png");
+  textures_[8] = raylib::Texture(dirFloors / "dir_floor_up.png");
+  textures_[9] = raylib::Texture(dirFloors / "dir_floor_right.png");
+  textures_[10] = raylib::Texture(dirFloors / "dir_floor_down.png");
+  textures_[11] = raylib::Texture(dirFloors / "dir_floor_left.png");
 
   fs::path dirBox = dir / "directionals" / "dir_boxes";
-  theme[12] = raylib::Texture(dirBox / "dir_box_up.png");
-  theme[13] = raylib::Texture(dirBox / "dir_box_right.png");
-  theme[14] = raylib::Texture(dirBox / "dir_box_down.png");
-  theme[15] = raylib::Texture(dirBox / "dir_box_left.png");
+  textures_[12] = raylib::Texture(dirBox / "dir_box_up.png");
+  textures_[13] = raylib::Texture(dirBox / "dir_box_right.png");
+  textures_[14] = raylib::Texture(dirBox / "dir_box_down.png");
+  textures_[15] = raylib::Texture(dirBox / "dir_box_left.png");
 
-  theme[16] = raylib::Texture(dir / "portal.png");
+  textures_[16] = raylib::Texture(dir / "portal.png");
 };
