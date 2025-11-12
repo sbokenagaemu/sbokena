@@ -18,42 +18,39 @@ bool is_valid_theme(fs::path dir) {
     return false;
   }
 
+  // clang-format off
   // checks for the 2 subdirectories: dir_floors and dir_boxes
-  fs::path dirDirectional = dir / "directionals";
-  if ((!is_valid_folder(dirDirectional / "dir_floors")) ||
-      (!is_valid_folder(dirDirectional / "dir_boxes"))) {
+  fs::path dir_directional = dir / "directionals";
+  if ( !is_valid_folder(dir_directional / "dir_floors") 
+    || !is_valid_folder(dir_directional / "dir_boxes"))
     return false;
-  }
 
   // checks for 4 directional box textures
-  fs::path dirbox = dirDirectional / "dir_boxes";
-  if (!fs::exists(dirbox / "dir_box_up.png") ||
-      !fs::exists(dirbox / "dir_box_right.png") ||
-      !fs::exists(dirbox / "dir_box_down.png") ||
-      !fs::exists(dirbox / "dir_box_left.png")) {
+  fs::path dir_box = dir_directional / "dir_boxes";
+  if ( !fs::exists(dir_box / "dir_box_up.png")
+    || !fs::exists(dir_box / "dir_box_right.png")
+    || !fs::exists(dir_box / "dir_box_down.png")
+    || !fs::exists(dir_box / "dir_box_left.png"))
     return false;
-  }
 
   // checks for 4 directional floor textures
-  fs::path dirFloors = dirDirectional / "dir_floors";
-  if (!fs::exists(dirFloors / "dir_floor_up.png") ||
-      !fs::exists(dirFloors / "dir_floor_right.png") ||
-      !fs::exists(dirFloors / "dir_floor_down.png") ||
-      !fs::exists(dirFloors / "dir_floor_left.png")) {
+  fs::path dir_floor = dir_directional / "dir_floors";
+  if ( !fs::exists(dir_floor / "dir_floor_up.png")
+    || !fs::exists(dir_floor / "dir_floor_right.png")
+    || !fs::exists(dir_floor / "dir_floor_down.png")
+    || !fs::exists(dir_floor / "dir_floor_left.png"))
     return false;
-  }
 
   // checks for other necessary textures
-  // clang-format off
   if (!fs::exists(dir / "button.png")
-    ||!fs::exists(dir / "box.png")
-    ||!fs::exists(dir / "door_closed.png")
-    ||!fs::exists(dir / "door_open.png")
-    ||!fs::exists(dir / "player.png")
-    ||!fs::exists(dir / "roof.png")
-    ||!fs::exists(dir / "tile.png")
-    ||!fs::exists(dir / "wall.png")
-    ||!fs::exists(dir / "portal.png"))
+    || !fs::exists(dir / "box.png")
+    || !fs::exists(dir / "door_closed.png")
+    || !fs::exists(dir / "door_open.png")
+    || !fs::exists(dir / "player.png")
+    || !fs::exists(dir / "roof.png")
+    || !fs::exists(dir / "tile.png")
+    || !fs::exists(dir / "wall.png")
+    || !fs::exists(dir / "portal.png"))
     return false;
   // clang-format on
 
@@ -61,18 +58,17 @@ bool is_valid_theme(fs::path dir) {
 }
 
 std::vector<std::string> valid_textures() {
-  fs::path textureDir = std::filesystem::current_path() / "common/res";
+  fs::path texture_dir = std::filesystem::current_path() / "common/res";
   std::vector<std::string> names = {};
 
-  if (!is_valid_folder(textureDir)) {
+  if (!is_valid_folder(texture_dir)) {
     return names;
   }
 
-  for (const auto &entry : fs::directory_iterator(textureDir)) {
-    if (is_valid_theme(entry)) {
+  for (const auto &entry : fs::directory_iterator(texture_dir))
+    if (is_valid_theme(entry))
       names.push_back(entry.path().filename());
-    }
-  }
+
   return names;
 }
 
@@ -88,17 +84,17 @@ Theme::Theme(std::string name) : name_{name} {
   textures_[6] = raylib::Texture(dir / "door_open.png");
   textures_[7] = raylib::Texture(dir / "door_closed.png");
 
-  fs::path dirFloors = dir / "directionals" / "dir_floors";
-  textures_[8] = raylib::Texture(dirFloors / "dir_floor_up.png");
-  textures_[9] = raylib::Texture(dirFloors / "dir_floor_right.png");
-  textures_[10] = raylib::Texture(dirFloors / "dir_floor_down.png");
-  textures_[11] = raylib::Texture(dirFloors / "dir_floor_left.png");
+  fs::path dir_floor = dir / "directionals" / "dir_floors";
+  textures_[8] = raylib::Texture(dir_floor / "dir_floor_up.png");
+  textures_[9] = raylib::Texture(dir_floor / "dir_floor_right.png");
+  textures_[10] = raylib::Texture(dir_floor / "dir_floor_down.png");
+  textures_[11] = raylib::Texture(dir_floor / "dir_floor_left.png");
 
-  fs::path dirBox = dir / "directionals" / "dir_boxes";
-  textures_[12] = raylib::Texture(dirBox / "dir_box_up.png");
-  textures_[13] = raylib::Texture(dirBox / "dir_box_right.png");
-  textures_[14] = raylib::Texture(dirBox / "dir_box_down.png");
-  textures_[15] = raylib::Texture(dirBox / "dir_box_left.png");
+  fs::path dir_box = dir / "directionals" / "dir_boxes";
+  textures_[12] = raylib::Texture(dir_box / "dir_box_up.png");
+  textures_[13] = raylib::Texture(dir_box / "dir_box_right.png");
+  textures_[14] = raylib::Texture(dir_box / "dir_box_down.png");
+  textures_[15] = raylib::Texture(dir_box / "dir_box_left.png");
 
   textures_[16] = raylib::Texture(dir / "portal.png");
 };
