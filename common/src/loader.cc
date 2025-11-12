@@ -1,37 +1,36 @@
 #include <filesystem>
-#include <format>
-#include <iostream>
 
+#include <raylib.h>
+
+#include "Texture.hpp"
 #include "loader.hh"
-#include "raylib.h"
 
 namespace fs = std::filesystem;
 
-bool isValidFolder(fs::path dir) {
+static bool is_valid_folder(fs::path dir) {
   return (!(!fs::exists(dir) || !fs::is_directory(dir)));
 }
 
 // this function checks whether the given folder is an acceptable theme pack
-bool isValidTheme(fs::path dir) {
+bool is_valid_theme(fs::path dir) {
   // checks for the 3 main folders: directionals, other and portals
-  if ((!isValidFolder(dir / "directionals")) ||
-      (!isValidFolder(dir / "other")) || (!isValidFolder(dir / "portals"))) {
+  if ((!is_valid_folder(dir / "directionals"))) {
     return false;
   }
 
-  // checks for the 2 subdirectories: dir_floors and dir_crates
+  // checks for the 2 subdirectories: dir_floors and dir_boxes
   fs::path dirDirectional = dir / "directionals";
-  if ((!isValidFolder(dirDirectional / "dir_floors")) ||
-      (!isValidFolder(dirDirectional / "dir_crates"))) {
+  if ((!is_valid_folder(dirDirectional / "dir_floors")) ||
+      (!is_valid_folder(dirDirectional / "dir_boxes"))) {
     return false;
   }
 
-  // checks for 4 directional crate textures
-  fs::path dirCrate = dirDirectional / "dir_crates";
-  if (!fs::exists(dirCrate / "dir_crate_up.png") ||
-      !fs::exists(dirCrate / "dir_crate_right.png") ||
-      !fs::exists(dirCrate / "dir_crate_down.png") ||
-      !fs::exists(dirCrate / "dir_crate_left.png")) {
+  // checks for 4 directional box textures
+  fs::path dirbox = dirDirectional / "dir_boxes";
+  if (!fs::exists(dirbox / "dir_box_up.png") ||
+      !fs::exists(dirbox / "dir_box_right.png") ||
+      !fs::exists(dirbox / "dir_box_down.png") ||
+      !fs::exists(dirbox / "dir_box_left.png")) {
     return false;
   }
 
@@ -44,53 +43,63 @@ bool isValidTheme(fs::path dir) {
     return false;
   }
 
-  // checks for 3 portal textures
-  fs::path dirPortals = dir / "portals";
-  if (!fs::exists(dirPortals / "portal_1.png") ||
-      !fs::exists(dirPortals / "portal_2.png") ||
-      !fs::exists(dirPortals / "portal_3.png")) {
-    return false;
-  }
-
   // checks for other necessary textures
-  fs::path dirOthers = dir / "other";
-  if (!fs::exists(dirOthers / "button.png") ||
-      !fs::exists(dirOthers / "crate.png") ||
-      !fs::exists(dirOthers / "door_closed.png") ||
-      !fs::exists(dirOthers / "door_open.png") ||
-      !fs::exists(dirOthers / "player.png") ||
-      !fs::exists(dirOthers / "roof.png") ||
-      !fs::exists(dirOthers / "tile.png") ||
-      !fs::exists(dirOthers / "wall.png")) {
+  // clang-format off
+  if (!fs::exists(dir / "button.png")
+    ||!fs::exists(dir / "box.png")
+    ||!fs::exists(dir / "door_closed.png")
+    ||!fs::exists(dir / "door_open.png")
+    ||!fs::exists(dir / "player.png")
+    ||!fs::exists(dir / "roof.png")
+    ||!fs::exists(dir / "tile.png")
+    ||!fs::exists(dir / "wall.png")
+    ||!fs::exists(dir / "portal.png"))
     return false;
-  }
+  // clang-format on
 
   return true;
 }
 
-std::vector<Image> TextureID::GetTextures(int id) {
-  return themes_[id];
-}
-
-TextureID::TextureID() {
-  load_textures();
-}
-
-void TextureID::load_textures() {
+std::vector<std::string> valid_textures() {
   fs::path textureDir = std::filesystem::current_path() / "common/res";
-  std::cout << textureDir << std::endl;
+  std::vector<std::string> names = {};
 
-  if (!isValidFolder(textureDir)) {
-    TextureID::theme_count_ = 0;
-    return;
+  if (!is_valid_folder(textureDir)) {
+    return names;
   }
 
-  int theme_count = 0;
   for (const auto &entry : fs::directory_iterator(textureDir)) {
-    std::cout << entry << std::endl;
-    if (isValidTheme(entry)) {
-      theme_count++;
+    if (is_valid_theme(entry)) {
+      names.push_back(entry.path().filename());
     }
   }
-  TextureID::theme_count_ = theme_count;
+  return names;
 }
+
+Theme::Theme(std::string name) : name_{name} {
+  fs::path dir = std::filesystem::current_path() / "common/res" / name;
+  std::array<raylib::Texture, 17> theme = {};
+
+  theme[0] = raylib::Texture(dir / "roof.png");
+  theme[1] = raylib::Texture(dir / "wall.png");
+  theme[2] = raylib::Texture(dir / "tile.png");
+  theme[3] = raylib::Texture(dir / "player.png");
+  theme[4] = raylib::Texture(dir / "box.png");
+  theme[5] = raylib::Texture(dir / "button.png");
+  theme[6] = raylib::Texture(dir / "door_open.png");
+  theme[7] = raylib::Texture(dir / "door_closed.png");
+
+  fs::path dirFloors = dir / "directionals" / "dir_floors";
+  theme[8] = raylib::Texture(dirFloors / "dir_floor_up.png");
+  theme[9] = raylib::Texture(dirFloors / "dir_floor_right.png");
+  theme[10] = raylib::Texture(dirFloors / "dir_floor_down.png");
+  theme[11] = raylib::Texture(dirFloors / "dir_floor_left.png");
+
+  fs::path dirBox = dir / "directionals" / "dir_boxes";
+  theme[12] = raylib::Texture(dirBox / "dir_box_up.png");
+  theme[13] = raylib::Texture(dirBox / "dir_box_right.png");
+  theme[14] = raylib::Texture(dirBox / "dir_box_down.png");
+  theme[15] = raylib::Texture(dirBox / "dir_box_left.png");
+
+  theme[16] = raylib::Texture(dir / "portal.png");
+};
