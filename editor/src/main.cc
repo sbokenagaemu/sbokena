@@ -26,6 +26,14 @@ constexpr u32 view_control_button_width = 120;
 constexpr u32 view_control_button_height = 50;
 
 int main() {
+
+  std::vector<std::string> theme_names = valid_textures();
+  std::vector<Theme> themes;
+
+  for (const auto &name : theme_names) {
+    themes.push_back(Theme(name));
+  }
+
   raylib::Window window(width, height, "Window",
                         FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE);
   bool exit = false;
