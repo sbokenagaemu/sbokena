@@ -59,7 +59,7 @@ struct Position {
 
   // check if different from another position.
   constexpr bool operator!=(const Position<T> &rhs) const noexcept {
-    return (x != rhs.x) || (y != rhs.y);
+    return !(*this == rhs);
   }
 
   // check if x of this position is less than that of the compared position.
@@ -77,11 +77,7 @@ struct Position {
   // compare x values first, if equal then compare y values.
   // used for sorting in std::map.
   constexpr bool operator>(const Position<T> &rhs) const noexcept {
-    if (x > rhs.x)
-      return true;
-    if (x < rhs.x)
-      return false;
-    return (y > rhs.y);
+    return !(*this < rhs);
   }
 };
 
