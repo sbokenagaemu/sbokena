@@ -51,6 +51,38 @@ struct Position {
     y -= rhs.y;
     return *this;
   }
+
+  // check if equal to another position.
+  constexpr bool operator==(const Position<T> &rhs) noexcept {
+    return (x == rhs.x) && (y == rhs.y);
+  }
+
+  // check if different from another position.
+  constexpr bool operator!=(const Position<T> &rhs) noexcept {
+    return (x != rhs.x) || (y != rhs.y);
+  }
+
+  // check if x of this position is less than that of the compared position.
+  // compare x values first, if equal then compare y values.
+  // used for sorting in std::map.
+  constexpr bool operator<(const Position<T> &rhs) noexcept {
+    if (x < rhs.x)
+      return true;
+    if (x > rhs.x)
+      return false;
+    return (y < rhs.y);
+  }
+
+  // check if x of this position is more than that of the compared position.
+  // compare x values first, if equal then compare y values.
+  // used for sorting in std::map.
+  constexpr bool operator>(const Position<T> &rhs) noexcept {
+    if (x > rhs.x)
+      return true;
+    if (x < rhs.x)
+      return false;
+    return (y > rhs.y);
+  }
 };
 
 } // namespace sbokena::position
