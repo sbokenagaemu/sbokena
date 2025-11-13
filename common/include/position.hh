@@ -53,19 +53,19 @@ struct Position {
   }
 
   // check if equal to another position.
-  constexpr bool operator==(const Position<T> &rhs) noexcept {
+  constexpr bool operator==(const Position<T> &rhs) const noexcept {
     return (x == rhs.x) && (y == rhs.y);
   }
 
   // check if different from another position.
-  constexpr bool operator!=(const Position<T> &rhs) noexcept {
+  constexpr bool operator!=(const Position<T> &rhs) const noexcept {
     return (x != rhs.x) || (y != rhs.y);
   }
 
   // check if x of this position is less than that of the compared position.
   // compare x values first, if equal then compare y values.
   // used for sorting in std::map.
-  constexpr bool operator<(const Position<T> &rhs) noexcept {
+  constexpr bool operator<(const Position<T> &rhs) const noexcept {
     if (x < rhs.x)
       return true;
     if (x > rhs.x)
@@ -76,7 +76,7 @@ struct Position {
   // check if x of this position is more than that of the compared position.
   // compare x values first, if equal then compare y values.
   // used for sorting in std::map.
-  constexpr bool operator>(const Position<T> &rhs) noexcept {
+  constexpr bool operator>(const Position<T> &rhs) const noexcept {
     if (x > rhs.x)
       return true;
     if (x < rhs.x)
