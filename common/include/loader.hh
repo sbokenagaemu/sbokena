@@ -38,7 +38,7 @@ private:
   static constexpr TileID WALL = 1;
   static constexpr TileID FLOOR = 2;
   static constexpr TileID PLAYER = 3;
-  static constexpr TileID CRATE = 4;
+  static constexpr TileID BOX = 4;
   static constexpr TileID BUTTON = 5;
   static constexpr TileID DOOR_OPEN = 6;
   static constexpr TileID DOOR_CLOSED = 7;
@@ -46,10 +46,10 @@ private:
   static constexpr TileID DIR_FLOOR_RIGHT = 9;
   static constexpr TileID DIR_FLOOR_DOWN = 10;
   static constexpr TileID DIR_FLOOR_LEFT = 11;
-  static constexpr TileID DIR_CRATE_UP = 12;
-  static constexpr TileID DIR_CRATE_RIGHT = 13;
-  static constexpr TileID DIR_CRATE_DOWN = 14;
-  static constexpr TileID DIR_CRATE_LEFT = 15;
+  static constexpr TileID DIR_BOX_UP = 12;
+  static constexpr TileID DIR_BOX_RIGHT = 13;
+  static constexpr TileID DIR_BOX_DOWN = 14;
+  static constexpr TileID DIR_BOX_LEFT = 15;
   static constexpr TileID PORTAL = 16;
 
   const std::string name_;
