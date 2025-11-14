@@ -52,25 +52,19 @@ struct Position {
     return *this;
   }
 
-  // check if equal to another position.
+  // equality compare this position to another.
   constexpr bool operator==(const Position<T> &rhs) const noexcept {
     return (x == rhs.x) && (y == rhs.y);
   }
 
-  // check if different from another position.
+  // inequality compare this position to another.
   constexpr bool operator!=(const Position<T> &rhs) const noexcept {
     return !(*this == rhs);
   }
 
-  // check if x of this position is less than that of the compared position.
-  // compare x values first, if equal then compare y values.
-  // used for sorting in std::map.
+  // lexicographical less-than compare this position to another.
   constexpr bool operator<(const Position<T> &rhs) const noexcept {
-    if (x < rhs.x)
-      return true;
-    if (x > rhs.x)
-      return false;
-    return (y < rhs.y);
+    return x < rhs.x || (x == rhs.x && y < rhs.y);
   }
 };
 
