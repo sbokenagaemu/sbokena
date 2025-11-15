@@ -6,8 +6,9 @@ set(SOURCES ${SOURCES_CXX})
 add_executable(tests)
 target_sources(tests PRIVATE ${SOURCES})
 target_link_libraries(tests PRIVATE
-  common
   GTest::gtest_main
+  nlohmann_json::nlohmann_json
+  common
 )
 
 include(GoogleTest)
