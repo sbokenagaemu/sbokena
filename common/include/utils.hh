@@ -3,6 +3,7 @@
 #pragma once
 
 #include <optional>
+#include <variant>
 
 namespace sbokena::utils {
 
@@ -31,5 +32,27 @@ public:
 private:
   std::optional<F> fn;
 };
+
+// "the overload trick"
+// used with `std::visit` called on a `std::variant` to run one of several
+// functions on its alternatives.
+template <typename... Ts>
+struct overload : Ts... {
+  using Ts::operator()...;
+};
+
+// get the index of a type in a `std::variant`, or its size if the type is not
+// one of its members.
+template <typename V, typename T, size_t I = 0>
+static constexpr size_t index_of() {
+  using V_I = std::variant_alternative_t<I, V>;
+
+  if constexpr (I >= std::variant_size_v<V>)
+    return std::variant_size_v<V>;
+  else if constexpr (std::is_same_v<V_I, T>)
+    return I;
+  else
+    return index_of<V, T, I + 1>();
+}
 
 } // namespace sbokena::utils
