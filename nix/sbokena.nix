@@ -1,28 +1,27 @@
 {
   # config options
-  buildRelease ? true
-, enableWayland ? true
-, enableX11 ? true
-, # nixpkgs
-  lib
-, clangStdenv
-, llvmPackages
-, xorg
-, # dependencies
-  cmake
-, fd
-, libffi
-, libGL
-, libxkbcommon
-, ninja
-, pkg-config
-, wayland
-, wayland-scanner
-, stdenv
-, pkgs
-, ...
-}:
-let
+  buildRelease ? true,
+  enableWayland ? true,
+  enableX11 ? true,
+  # nixpkgs
+  lib,
+  clangStdenv,
+  llvmPackages,
+  xorg,
+  # dependencies
+  cmake,
+  fd,
+  libffi,
+  libGL,
+  libxkbcommon,
+  ninja,
+  pkg-config,
+  wayland,
+  wayland-scanner,
+  stdenv,
+  pkgs,
+  ...
+}: let
   # sources of vendored external libraries
   vendoredSources = {
     googletest-src = builtins.fetchGit {
@@ -109,14 +108,14 @@ let
   # env-var name-value pair
   sourceToEnv = name: path:
     lib.nameValuePair
-      (toScreaming name)
-      "${path}";
+    (toScreaming name)
+    "${path}";
 
   # vendoredSources as env-vars
   vendoredSources' =
     lib.mapAttrs'
-      sourceToEnv
-      vendoredSources;
+    sourceToEnv
+    vendoredSources;
 
   # env-vars for the build
   env =
@@ -124,56 +123,58 @@ let
     // {
       LD_LIBRARY_PATH =
         lib.makeLibraryPath
-          buildInputs;
+        buildInputs;
     };
 in
-clangStdenv.mkDerivation {
-  name = "sbokena";
-  src = ../.;
-  strictDeps = true;
+  clangStdenv.mkDerivation {
+    name = "sbokena";
+    src = ../.;
+    strictDeps = true;
 
-  inherit nativeBuildInputs;
-  inherit nativeCheckInputs;
-  inherit buildInputs;
+    inherit nativeBuildInputs;
+    inherit nativeCheckInputs;
+    inherit buildInputs;
 
-  cmakeFlags = [
-    (lib.cmakeFeature "CMAKE_BUILD_TYPE" (
-      if buildRelease
-      then "Release"
-      else "Debug"
-    ))
-  ] ++ lib.optionals stdenv.isLinux [
-    (lib.cmakeBool "GLFW_BUILD_WAYLAND" enableWayland)
-    (lib.cmakeBool "GLFW_BUILD_X11" enableX11)
-  ];
+    cmakeFlags =
+      [
+        (lib.cmakeFeature "CMAKE_BUILD_TYPE" (
+          if buildRelease
+          then "Release"
+          else "Debug"
+        ))
+      ]
+      ++ lib.optionals stdenv.isLinux [
+        (lib.cmakeBool "GLFW_BUILD_WAYLAND" enableWayland)
+        (lib.cmakeBool "GLFW_BUILD_X11" enableX11)
+      ];
 
-  configurePhase = ''
-    cmake -G Ninja -B build -S . $cmakeFlags
-  '';
+    configurePhase = ''
+      cmake -G Ninja -B build -S . $cmakeFlags
+    '';
 
-  buildPhase = ''
-    cmake --build build
-  '';
+    buildPhase = ''
+      cmake --build build
+    '';
 
-  checkPhase = ''
-    clang-tidy -p build \
-      $(fd -E build/ -F '.cc') \
-      $(fd -E build/ -F '.hh')
-    ctest --test-dir build/tests
-  '';
+    checkPhase = ''
+      clang-tidy -p build \
+        $(fd -E build/ -F '.cc') \
+        $(fd -E build/ -F '.hh')
+      ctest --test-dir build/tests
+    '';
 
-  installPhase = ''
-    runHook preInstall
-    install -Dm755 \
-      build/editor/editor \
-      build/game/game \
-      -t $out/bin
-    runHook postInstall
-  '';
+    installPhase = ''
+      runHook preInstall
+      install -Dm755 \
+        build/editor/editor \
+        build/game/game \
+        -t $out/bin
+      runHook postInstall
+    '';
 
-  # set env-vars for the build
-  inherit env;
+    # set env-vars for the build
+    inherit env;
 
-  # passthru env-vars for shell
-  passthru.env = env;
-}
+    # passthru env-vars for shell
+    passthru.env = env;
+  }
