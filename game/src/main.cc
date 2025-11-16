@@ -1,18 +1,17 @@
 #ifndef RAYGUI_IMPLEMENTATION
 #define RAYGUI_IMPLEMENTATION
-#include "position.hh"
 #endif
 
 #include <string>
 
 #include <raygui.h>
 #include <raylib.h>
+#include <raymath.h>
 
 #include "types.hh"
 #include "utils.hh"
 
 using namespace sbokena::types;
-using namespace sbokena::position;
 using namespace sbokena::utils;
 
 // Minimum window size
@@ -35,20 +34,21 @@ int main() {
 
     const usize window_width = GetScreenWidth();
     const usize window_height = GetScreenHeight();
+    Vector2 window_size = {static_cast<f32>(window_width),
+                           static_cast<f32>(window_height)};
 
     // Size and position of title
     Vector2 title_size = MeasureTextEx(GuiGetFont(), "sbokena", 60, 10);
     Vector2 title_pos = {window_width / 2 - title_size.x / 2,
-                         static_cast<float>(window_height / 4)};
+                         static_cast<f32>(window_height / 5)};
 
     // Size and position of the view containing buttons
     Vector2 view_size = {180, 300};
-    Vector2 view_pos = {window_width / 2 - view_size.x / 2,
-                        window_height / 2 - view_size.y / 2 + 100};
+    Vector2 view_pos = (window_size - view_size) / 2 + Vector2{0, 100};
     // Size of buttons
     Vector2 btn_size = {180, 90};
 
-    Rectangle exit_btn = {static_cast<float>(window_width) - 20, 0, 20, 20};
+    Rectangle exit_btn = {static_cast<f32>(window_width) - 20, 0, 20, 20};
     Rectangle start_btn = {view_pos.x, view_pos.y, btn_size.x, btn_size.y};
     Rectangle custom_btn = {view_pos.x, view_pos.y + btn_size.y + 10,
                             btn_size.x, btn_size.y};
