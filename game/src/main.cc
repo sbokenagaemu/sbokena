@@ -26,6 +26,9 @@ int main() {
   SetWindowMinSize(INIT_WIDTH, INIT_HEIGHT);
   Deferred _{CloseWindow};
 
+  GuiSetStyle(DEFAULT, TEXT_SIZE, 30);
+  GuiSetStyle(DEFAULT, TEXT_SPACING, 4);
+
   while (!WindowShouldClose()) {
     BeginDrawing();
     Deferred _{EndDrawing};
@@ -34,7 +37,7 @@ int main() {
     const usize window_height = GetScreenHeight();
 
     // Size and position of title
-    Vector2 title_size = MeasureTextEx(GuiGetFont(), "Sbokena", 60, 10);
+    Vector2 title_size = MeasureTextEx(GuiGetFont(), "sbokena", 60, 10);
     Vector2 title_pos = {window_width / 2 - title_size.x / 2,
                          static_cast<float>(window_height / 4)};
 
@@ -55,12 +58,12 @@ int main() {
     ClearBackground(VIOLET);
 
     // Title
-    DrawTextEx(GuiGetFont(), "Sbokena", title_pos, 60, 10, RED);
+    DrawTextEx(GuiGetFont(), "sbokena", title_pos, 60, 10, RED);
 
     // Start, Custom and Setting button
-    GuiButton(start_btn, "Start game");
-    GuiButton(custom_btn, "Custom");
-    GuiButton(setting_btn, "Setting");
+    GuiButton(start_btn, "play");
+    GuiButton(custom_btn, "custom");
+    GuiButton(setting_btn, "settings");
 
     // Exit button
     bool state = GuiButton(exit_btn, GuiIconText(ICON_CROSS_SMALL, NULL));
