@@ -9,6 +9,7 @@ target_link_libraries(game
   PRIVATE
     nlohmann_json::nlohmann_json
     raylib
+    raygui
     raylib_cpp
     common
 )
