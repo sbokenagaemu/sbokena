@@ -5,6 +5,13 @@ project(
   HOMEPAGE_URL https://github.com/sbokenagaemu/sbokena
   LANGUAGES CXX
 )
+if (APPLE)
+  # macOS only
+  # Request OpenGL 4.1 Core Profile (macOS maximum)
+  add_compile_definitions(MACOS_COCOA_BACKEND)
+  set(GLFW_USE_COCOA TRUE)
+  set(GLFW_USE_METAL FALSE)  # optional, only if using OpenGL, not Metal
+endif()
 
 # disable dev warnings
 set(CMAKE_SUPPRESS_DEVELOPER_WARNINGS ON)
@@ -32,6 +39,19 @@ endif ()
 # enable LLD for all targets
 add_link_options(-fuse-ld=lld)
 
+# Only Linux should include Wayland/X11
+if(UNIX AND NOT APPLE)
+  set(ENABLE_WAYLAND TRUE)
+  set(ENABLE_X11 TRUE)
+endif()
+
+if (APPLE)
+  find_library(COCOA_LIBRARY Cocoa REQUIRED)
+  find_library(OpenGL_LIBRARY OpenGL REQUIRED)
+  find_library(IOKIT_LIBRARY IOKit REQUIRED)
+  find_library(COREVIDEO_LIBRARY CoreVideo REQUIRED)
+endif()
+
 # raylib LTO/IPO needs this
 set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
 # raylib wayland needs this
@@ -46,6 +66,10 @@ add_compile_options(-Wall -Wextra -Wpedantic)
 add_subdirectory(common)
 add_subdirectory(editor)
 add_subdirectory(game)
+
+if (APPLE)
+  target_link_libraries(game PRIVATE ${COCOA_LIBRARY} ${OpenGL_LIBRARY} ${IOKIT_LIBRARY} ${COREVIDEO_LIBRARY})
+endif()
 
 # enable asan and ubsan for tests
 add_compile_options("$<$<CONFIG:Debug>:-fsanitize=address,undefined>")

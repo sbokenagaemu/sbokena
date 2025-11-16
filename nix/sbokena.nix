@@ -18,6 +18,8 @@
   pkg-config,
   wayland,
   wayland-scanner,
+  stdenv,
+  pkgs,
   ...
 }: let
   # sources of vendored external libraries
@@ -45,6 +47,9 @@
     };
   };
 
+  enableWayland = stdenv.isLinux;
+  enableX11 = stdenv.isLinux;
+
   # build-time dependencies
   nativeBuildInputs =
     [
@@ -68,20 +73,29 @@
 
   # run-time dependencies
   buildInputs =
-    [libGL]
+    lib.optionals stdenv.isLinux [
+      libGL
+    ]
     # optional dependencies for Wayland builds
-    ++ lib.optionals enableWayland [
+    ++ lib.optionals stdenv.isLinux (lib.optionals enableWayland [
       libffi
       libxkbcommon
       wayland
-    ]
+    ])
     # optional dependencies for X11 builds
-    ++ lib.optionals enableX11 [
+    ++ lib.optionals stdenv.isLinux (lib.optionals enableX11 [
       xorg.libX11
       xorg.libXcursor
       xorg.libXi
       xorg.libXinerama
       xorg.libXrandr
+    ])
+    # optional dependencies for macOS — use the default SDK provided by nixpkgs
+    # The legacy darwin.apple_sdk.frameworks.* stubs were removed; the default
+    # SDK is normally sufficient. If you later need a specific SDK version,
+    # use pkgs.apple-sdk_<version> (e.g. pkgs.apple-sdk_15) or override apple.sdk.
+    ++ lib.optionals stdenv.isDarwin [
+      # leave empty for now; rely on the default SDK
     ];
 
   # kebab-case -> SCREAMING_CASE
@@ -121,15 +135,18 @@ in
     inherit nativeCheckInputs;
     inherit buildInputs;
 
-    cmakeFlags = [
-      (lib.cmakeFeature "CMAKE_BUILD_TYPE" (
-        if buildRelease
-        then "Release"
-        else "Debug"
-      ))
-      (lib.cmakeBool "GLFW_BUILD_WAYLAND" enableWayland)
-      (lib.cmakeBool "GLFW_BUILD_X11" enableX11)
-    ];
+    cmakeFlags =
+      [
+        (lib.cmakeFeature "CMAKE_BUILD_TYPE" (
+          if buildRelease
+          then "Release"
+          else "Debug"
+        ))
+      ]
+      ++ lib.optionals stdenv.isLinux [
+        (lib.cmakeBool "GLFW_BUILD_WAYLAND" enableWayland)
+        (lib.cmakeBool "GLFW_BUILD_X11" enableX11)
+      ];
 
     configurePhase = ''
       cmake -G Ninja -B build -S . $cmakeFlags
