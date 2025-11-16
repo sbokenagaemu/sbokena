@@ -3,8 +3,8 @@
 #pragma once
 
 #include <cmath>
+#include <cstddef> // for size_t
 #include <cstdint>
-#include <cstddef>  // for size_t
 
 namespace sbokena::types {
 
@@ -19,9 +19,9 @@ using u32 = std::uint32_t;
 using u64 = std::uint64_t;
 
 #if defined(__APPLE__)
-using usize = size_t;  // macOS: global namespace
+using usize = size_t; // macOS: global namespace
 #else
-using usize = std::size_t;  // Linux/other platforms
+using usize = std::size_t; // Linux/other platforms
 #endif
 
 using f32 = std::float_t;
