@@ -45,6 +45,16 @@
     };
   };
 
+  inherit (clangStdenv) isLinux;
+  select = pred: t: f:
+    if pred
+    then t
+    else f;
+
+  # only enable Wayland and X11 on Linux
+  enableWayland' = select isLinux enableWayland false;
+  enableX11' = select isLinux enableX11 false;
+
   # build-time dependencies
   nativeBuildInputs =
     [
@@ -55,7 +65,7 @@
       ninja
     ]
     # optional dependencies for Wayland builds
-    ++ lib.optionals enableWayland [
+    ++ lib.optionals enableWayland' [
       pkg-config
       wayland-scanner
     ];
@@ -68,15 +78,15 @@
 
   # run-time dependencies
   buildInputs =
-    [libGL]
+    lib.optionals isLinux [libGL]
     # optional dependencies for Wayland builds
-    ++ lib.optionals enableWayland [
+    ++ lib.optionals enableWayland' [
       libffi
       libxkbcommon
       wayland
     ]
     # optional dependencies for X11 builds
-    ++ lib.optionals enableX11 [
+    ++ lib.optionals enableX11' [
       xorg.libX11
       xorg.libXcursor
       xorg.libXi
@@ -121,15 +131,16 @@ in
     inherit nativeCheckInputs;
     inherit buildInputs;
 
-    cmakeFlags = [
-      (lib.cmakeFeature "CMAKE_BUILD_TYPE" (
-        if buildRelease
-        then "Release"
-        else "Debug"
-      ))
-      (lib.cmakeBool "GLFW_BUILD_WAYLAND" enableWayland)
-      (lib.cmakeBool "GLFW_BUILD_X11" enableX11)
-    ];
+    cmakeFlags =
+      [
+        (lib.cmakeFeature "CMAKE_BUILD_TYPE" (
+          select buildRelease "Release" "Debug"
+        ))
+      ]
+      ++ lib.optionals isLinux [
+        (lib.cmakeBool "GLFW_BUILD_WAYLAND" enableWayland')
+        (lib.cmakeBool "GLFW_BUILD_X11" enableX11')
+      ];
 
     configurePhase = ''
       cmake -G Ninja -B build -S . $cmakeFlags

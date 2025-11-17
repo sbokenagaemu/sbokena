@@ -15,6 +15,12 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
+# macOS version requirements
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  # `std::to_chars` is in 13.3 and up
+  set(CMAKE_OSX_DEPLOYMENT_TARGET 13.3)
+endif ()
+
 # set default build type
 if (NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Debug)
