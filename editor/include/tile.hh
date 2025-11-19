@@ -1,4 +1,4 @@
-// A class implementing the tiles in the grid inside the editor. The tile
+// A file implementing the tiles in the grid inside the editor. The tile
 // contains its absolute/relative position within the grid (still contested),
 // the list of objects above it (for example, the character or the box above the
 // floor), and its sprite image.
@@ -6,11 +6,9 @@
 #pragma once
 
 #include "direction.hh"
-#include "position.hh"
 #include "types.hh"
 
 using namespace sbokena::types;
-using namespace sbokena::position;
 using namespace sbokena::direction;
 
 // An enum containing types of tiles.
@@ -24,12 +22,12 @@ enum class TileType {
   Button,
 };
 
-// An abstract class contaning common fields and functions that all tiles share.
+// A class containing common fields and functions that all tiles share.
 class Tile {
 public:
   // construct a new tile, contains no object by default
-  explicit Tile(TileType type, u32 id, Position<> pos)
-    : type(type), id(id), pos(pos), obj_id(0x00) {}
+  // obj_id = 0x00 -> no id linked (id indexing starts at 0x01)
+  explicit Tile(TileType type, u32 id) : type(type), id(id), obj_id(0x00) {}
 
   // default destructor
   virtual ~Tile() = default;
@@ -44,11 +42,6 @@ public:
     return id;
   }
 
-  // tile's pos
-  Position<> get_pos() const {
-    return pos;
-  }
-
   // if there is an object on the tile
   virtual bool contains_obj() const {
     return (obj_id != 0x00);
@@ -60,7 +53,7 @@ public:
   }
 
   // object goes on tile
-  virtual void set_obj_id(u32 &new_id) {
+  virtual void set_obj_id(const u32 &new_id) {
     obj_id = new_id;
   }
 
@@ -72,20 +65,15 @@ public:
 private:
   TileType type;
   u32 id;
-  Position<> pos;
   u32 obj_id;
+  // TODO: an image related id
 };
-
-// Foward declarations.
-class Portal;
-class Door;
-class Button;
 
 // The default type for a tile. Does not and cannot contain any object.
 class Wall : public Tile {
 public:
   // construct a new wall
-  explicit Wall(u32 id, Position<> pos) : Tile(TileType::Wall, id, pos) {}
+  explicit Wall(u32 id) : Tile(TileType::Wall, id) {}
 
   // does not contain object
   bool contains_obj() const override {
@@ -98,7 +86,7 @@ public:
   }
 
   // object cannot be on wall
-  void set_obj_id(u32 &) override {}
+  void set_obj_id(const u32 &) override {}
 
   // does not have object to remove to begin with
   void remove_obj_id() override {}
@@ -108,7 +96,7 @@ public:
 class Floor : public Tile {
 public:
   // construct a new floor
-  Floor(u32 id, Position<> pos) : Tile(TileType::Floor, id, pos) {}
+  Floor(u32 id) : Tile(TileType::Floor, id) {}
 };
 
 // Similar to floor but only lets object move through one specified way.
@@ -116,8 +104,7 @@ class OneDir : public Tile {
 public:
   // construct a new one direction floor
   // by default the direction is up
-  OneDir(u32 id, Position<> pos)
-    : Tile(TileType::OneDir, id, pos), dir(Direction::Up) {}
+  OneDir(u32 id) : Tile(TileType::OneDir, id), dir(Direction::Up) {}
 
   // to which only direction to move on this tile
   Direction get_dir() const {
@@ -129,7 +116,7 @@ public:
     dir = newdir;
   }
 
-  // rotate clockwise
+  // rotates clockwise
   void rotate() {
     switch (dir) {
     case Direction::Up:
@@ -154,117 +141,98 @@ private:
 // If the player arrives into this tile, the level is completed.
 class Goal : public Tile {
 public:
-  Goal(u32 id, Position<> pos) : Tile(TileType::Goal, id, pos) {}
+  Goal(u32 id) : Tile(TileType::Goal, id) {}
 };
 
-// Must be linked to another portal to be valid.
 // Can teleport objects to the linked portal.
 class Portal : public Tile {
 public:
-  // construct a new portal, by default isn't linked to another portal
-  Portal(u32 id, Position<> pos)
-    : Tile(TileType::Portal, id, pos), linked_id(0x00) {}
+  // construct a new portal, by default by default is unlinked to another
+  // portal.
+  Portal(u32 id) : Tile(TileType::Portal, id), linked(false) {}
 
-  // the linked portal
-  u32 get_linked() const {
-    return linked_id;
+  // flags the portal as linked.
+  void link() {
+    linked = true;
   }
 
-  // link a portal
-  void set_linked(u32 &new_id) {
-    linked_id = new_id;
+  // flags the portal as unlinked.
+  void unlink() {
+    linked = false;
   }
 
-  // unlink a portal
-  void remove_linked() {
-    linked_id = 0x00;
-  }
-
-  // valid when linked to another portal
-  bool is_valid() const {
-    return (linked_id != 0x00);
+  // whether the portal is linked or not.
+  bool is_linked() const {
+    return linked;
   }
 
 private:
-  u32 linked_id;
+  bool linked;
 };
 
-// Must be linked to another button to be valid.
-// Opens when a the linked button is pressed.
+// Opens when the linked button is pressed.
 class Door : public Tile {
 public:
-  // construct a new door, by default isn't linked to another button
-  Door(u32 id, Position<> pos)
-    : Tile(TileType::Door, id, pos), button_id(0x00), opened(false) {}
+  // construct a new door, by default isn't linked to another button and isn't
+  // opened.
+  Door(u32 id) : Tile(TileType::Door, id), linked(false), opened(false) {}
 
-  // the linked button
-  u32 get_linked() const {
-    return button_id;
+  // flags the door as linked.
+  void link() {
+    linked = true;
   }
 
-  // link a button
-  void set_linked(u32 &new_id) {
-    button_id = new_id;
+  // flags the door as unlinked.
+  void unlink() {
+    linked = false;
   }
 
-  // unlink a button
-  void remove_linked() {
-    button_id = 0x00;
+  // whether the door is linked or not.
+  bool is_linked() const {
+    return linked;
   }
 
-  // valid when linked to another button
-  bool is_valid() const {
-    return (button_id != 0x00);
-  }
-
-  // open the door
+  // opens the door.
   void open() {
     opened = true;
   }
 
-  // close the door
+  // closes the door.
   void close() {
     opened = false;
   }
 
-  // is the door opened or closed
+  // is the door opened or closed.
   bool is_opened() const {
     return opened;
   }
 
 private:
-  u32 button_id;
+  bool linked;
   bool opened;
 };
 
-// Must be linked to another door to be valid.
 // When contains an object (pressed), opens the linked door.
 class Button : public Tile {
 public:
-  // construct a new button, by default isn't linked to another door
-  Button(u32 id, Position<> pos)
-    : Tile(TileType::Button, id, pos), door_id(0x00) {}
+  // construct a new button, by default isn't linked to another door.
+  Button(u32 id) : Tile(TileType::Button, id), linked(false) {}
 
-  // the linked door
-  u32 get_linked() const {
-    return door_id;
+  // flags the button as linked.
+  void link() {
+    linked = true;
   }
 
-  // link a door
-  void set_linked(u32 &new_id) {
-    door_id = new_id;
+  // flags the button as unlinked.
+  void unlink() {
+    linked = false;
   }
 
-  // unlink a door
-  void remove_linked() {
-    door_id = 0x00;
-  }
-
-  // valid when linked to another door
-  bool is_valid() const {
-    return (door_id != 0x00);
+  // whether the button is linked or not.
+  bool is_linked() const {
+    return linked;
   }
 
 private:
-  u32 door_id;
+  bool linked;
 };
