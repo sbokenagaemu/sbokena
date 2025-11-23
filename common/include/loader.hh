@@ -3,8 +3,9 @@
 #pragma once
 
 #include <array>
+#include <string>
+#include <vector>
 
-#include <Texture.hpp>
 #include <raylib.h>
 
 #include "types.hh"
@@ -54,9 +55,9 @@ private:
 
   const std::string name_;
 
-  std::array<raylib::Texture, 17> textures_;
+  std::array<Texture, 17> textures_;
 
-  const raylib::Texture &tile(const TileID &id) const {
+  const Texture &tile(const TileID &id) const {
     return textures_[id];
   }
 };

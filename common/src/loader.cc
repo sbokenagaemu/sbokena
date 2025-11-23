@@ -2,7 +2,6 @@
 
 #include <raylib.h>
 
-#include "Texture.hpp"
 #include "loader.hh"
 
 namespace fs = std::filesystem;
@@ -75,26 +74,26 @@ std::vector<std::string> valid_textures() {
 Theme::Theme(std::string name) : name_{name} {
   fs::path dir = std::filesystem::current_path() / "common/res" / name;
 
-  textures_[0] = raylib::Texture(dir / "roof.png");
-  textures_[1] = raylib::Texture(dir / "wall.png");
-  textures_[2] = raylib::Texture(dir / "tile.png");
-  textures_[3] = raylib::Texture(dir / "player.png");
-  textures_[4] = raylib::Texture(dir / "box.png");
-  textures_[5] = raylib::Texture(dir / "button.png");
-  textures_[6] = raylib::Texture(dir / "door_open.png");
-  textures_[7] = raylib::Texture(dir / "door_closed.png");
+  textures_[0] = LoadTexture("roof.png");
+  textures_[1] = LoadTexture("wall.png");
+  textures_[2] = LoadTexture("tile.png");
+  textures_[3] = LoadTexture("player.png");
+  textures_[4] = LoadTexture("box.png");
+  textures_[5] = LoadTexture("button.png");
+  textures_[6] = LoadTexture("door_open.png");
+  textures_[7] = LoadTexture("door_closed.png");
 
   fs::path dir_floor = dir / "directionals" / "dir_floors";
-  textures_[8] = raylib::Texture(dir_floor / "dir_floor_up.png");
-  textures_[9] = raylib::Texture(dir_floor / "dir_floor_right.png");
-  textures_[10] = raylib::Texture(dir_floor / "dir_floor_down.png");
-  textures_[11] = raylib::Texture(dir_floor / "dir_floor_left.png");
+  textures_[8] = LoadTexture("dir_floor_up.png");
+  textures_[9] = LoadTexture("dir_floor_right.png");
+  textures_[10] = LoadTexture("dir_floor_down.png");
+  textures_[11] = LoadTexture("dir_floor_left.png");
 
   fs::path dir_box = dir / "directionals" / "dir_boxes";
-  textures_[12] = raylib::Texture(dir_box / "dir_box_up.png");
-  textures_[13] = raylib::Texture(dir_box / "dir_box_right.png");
-  textures_[14] = raylib::Texture(dir_box / "dir_box_down.png");
-  textures_[15] = raylib::Texture(dir_box / "dir_box_left.png");
+  textures_[12] = LoadTexture("dir_box_up.png");
+  textures_[13] = LoadTexture("dir_box_right.png");
+  textures_[14] = LoadTexture("dir_box_down.png");
+  textures_[15] = LoadTexture("dir_box_left.png");
 
-  textures_[16] = raylib::Texture(dir / "portal.png");
+  textures_[16] = LoadTexture("portal.png");
 };
