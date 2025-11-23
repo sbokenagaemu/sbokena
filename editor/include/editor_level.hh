@@ -22,6 +22,10 @@
 #include "types.hh"
 
 using namespace sbokena::position;
+using namespace sbokena::editor::tile;
+using namespace sbokena::editor::object;
+
+namespace sbokena::editor::editor_level {
 
 // enum for the difficulty.
 enum class Difficulty { Unknown, Easy, Medium, Hard };
@@ -251,3 +255,5 @@ private:
   // TODO: a grid stucture storing the skins of every position.
   // map<position, image-related-id>
 };
+
+} // namespace sbokena::editor::editor_level

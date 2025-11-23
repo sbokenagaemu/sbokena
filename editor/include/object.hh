@@ -11,6 +11,8 @@
 using namespace sbokena::types;
 using namespace sbokena::direction;
 
+namespace sbokena::editor::object {
+
 // enumeration of types of object.
 enum class ObjectType { Box, OneDirBox, Player };
 
@@ -84,3 +86,5 @@ public:
 private:
   Direction dir;
 };
+
+} // namespace sbokena::editor::object
