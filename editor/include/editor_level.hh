@@ -25,7 +25,7 @@ using namespace sbokena::position;
 using namespace sbokena::editor::tile;
 using namespace sbokena::editor::object;
 
-namespace sbokena::editor::editor_level {
+namespace sbokena::editor::level {
 
 // enum for the difficulty.
 enum class Difficulty { Unknown, Easy, Medium, Hard };
@@ -256,4 +256,4 @@ private:
   // map<position, image-related-id>
 };
 
-} // namespace sbokena::editor::editor_level
+} // namespace sbokena::editor::level

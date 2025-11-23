@@ -8,7 +8,7 @@ using namespace sbokena::position;
 using namespace sbokena::editor::tile;
 using namespace sbokena::editor::object;
 
-namespace sbokena::editor::editor_level {
+namespace sbokena::editor::level {
 
 // Functions regarding tiles.
 
@@ -393,4 +393,4 @@ bool Level::unlink_button(u32 button_id) {
   return true;
 }
 
-} // namespace sbokena::editor::editor_level
+} // namespace sbokena::editor::level
