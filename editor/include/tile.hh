@@ -11,6 +11,8 @@
 using namespace sbokena::types;
 using namespace sbokena::direction;
 
+namespace sbokena::editor::tile {
+
 // An enum containing types of tiles.
 enum class TileType {
   Wall,
@@ -236,3 +238,5 @@ public:
 private:
   bool linked;
 };
+
+} // namespace sbokena::editor::tile

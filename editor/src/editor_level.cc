@@ -5,6 +5,10 @@
 #include <unordered_map>
 
 using namespace sbokena::position;
+using namespace sbokena::editor::tile;
+using namespace sbokena::editor::object;
+
+namespace sbokena::editor::editor_level {
 
 // Functions regarding tiles.
 
@@ -388,3 +392,5 @@ bool Level::unlink_button(u32 button_id) {
   door_to_button.erase(door_id);
   return true;
 }
+
+} // namespace sbokena::editor::editor_level
