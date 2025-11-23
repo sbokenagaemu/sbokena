@@ -131,6 +131,9 @@ public:
 
   ~Level() = default;
 
+  // resets the level back the empty default template but keep the name.
+  void reset();
+
   // returns level name.
   const std::string &get_name() const noexcept {
     return name;
