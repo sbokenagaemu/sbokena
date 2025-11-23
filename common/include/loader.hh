@@ -34,6 +34,8 @@ public:
     return name_;
   }
 
+  ~Theme();
+
 private:
   static constexpr TileID ROOF = 0;
   static constexpr TileID WALL = 1;
