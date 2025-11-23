@@ -10,6 +10,22 @@ using namespace sbokena::editor::object;
 
 namespace sbokena::editor::level {
 
+// resets the level back the empty default template but keep the name.
+void Level::reset() {
+  // clears all stored elements.
+  tiles.map.clear();
+  objects.map.clear();
+  positions.clear();
+  linked_portals.clear();
+  door_to_button.clear();
+  button_to_door.clear();
+  // resets the max id counters.
+  tiles.max_id = null_id;
+  objects.max_id = null_id;
+  // resets the condition.
+  condition = Condition();
+}
+
 // Functions regarding tiles.
 
 // creates a new tile, takes a type and a position as parameters.
