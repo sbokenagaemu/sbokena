@@ -59,4 +59,4 @@ nixGL result/editor/editor # run the level editor
 ```
 
 remember to also read the
-[contributors' guide](./CONTRIBUTING.md).
+[contributors' guide](./docs/CONTRIBUTING.md).
