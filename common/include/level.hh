@@ -1,79 +1,115 @@
-// level-file I/O.
+// level types used in ser/de.
+// see `docs/RULES.md` for the spec.
 
 #pragma once
 
-#include <map>
-#include <variant>
-
 #include <nlohmann/json.hpp>
 
+#include "direction.hh"
 #include "position.hh"
 #include "types.hh"
 
 using nlohmann::json;
 
 using namespace sbokena::types;
+using sbokena::direction::Direction;
 using sbokena::position::Position;
 
 namespace sbokena::level {
 
-// ===== types =====
+// declares that an object has `nlohmann_json` ser/de
+// functions. these must be defined in `src/level.cc`.
+//
+// these functions throw an exception on parsing error.
+#define DECL_JSON(ty)                                                          \
+  void from_json(const json &, ty &);                                          \
+  void to_json(json &, const ty &);
 
-// a regular non-wall tile.
+// ===== tiles =====
+// NOTE: all tiles not stored in the level file are to be
+// interpreted as `3.7. Walls`.
+
+// 3.1. Floor
 struct Floor {};
+DECL_JSON(Floor);
 
-// a button in a button-door pair.
+// 3.2. Button
 struct Button {
-  u32 pair_id;
+  u32 door_id;
 };
+DECL_JSON(Button);
 
-// a door in a button-door pair.
+// 3.3. Door
 struct Door {
-  u32 pair_id;
-  bool open;
+  u32 door_id;
 };
+DECL_JSON(Door);
 
-// a portal in a portal-portal pair.
+// 3.4. Portal
 struct Portal {
-  u32 pair_id;
+  u32 portal_id;
+
+  // direction from which the portal may be entered.
+  // `out_dir` is always the opposite of this direction.
+  Direction in_dir;
 };
+DECL_JSON(Portal);
+
+// 3.5. Uni-directional floor
+struct DirFloor {
+  // direction in which this floor may be traversed.
+  Direction dir;
+};
+DECL_JSON(DirFloor);
+
+// 3.6. Goal
+struct Goal {};
+DECL_JSON(Goal);
 
 // clang-format off
 
-// some tile in a grid.
+// 1. Tile
 using Tile = std::variant<
   Floor,
   Button,
   Door,
-  Portal
+  Portal,
+  DirFloor,
+  Goal
 >;
+DECL_JSON(Tile);
 
 // clang-format on
 
-struct Level {
-  std::map<Position<>, Tile> tiles;
-  // FIXME: blocked on Theme type
-  // std::variant<u32, Theme> theme;
+// ===== objects =====
+
+// 4.1. Player
+struct Player {};
+DECL_JSON(Player);
+
+// 4.2. Box
+struct Box {};
+DECL_JSON(Box);
+
+// 4.3. Uni-directional box
+struct DirBox {
+  // direction in which this box may be pushed.
+  Direction dir;
 };
+DECL_JSON(DirBox);
 
-// ===== from_json/to_json impls =====
+// clang-format off
 
-void from_json(const json &, Floor &);
-void to_json(json &, const Floor &);
+// 2. Object
+using Object = std::variant<
+  Player,
+  Box,
+  DirBox
+>;
+DECL_JSON(Object);
 
-void from_json(const json &, Button &);
-void to_json(json &, const Button &);
+// clang-format on
 
-void from_json(const json &, Door &);
-void to_json(json &, const Door &);
-
-void from_json(const json &, Portal &);
-void to_json(json &, const Portal &);
-
-void from_json(const json &, Tile &);
-void to_json(json &, const Tile &);
-
-void from_json(const json &, Level &);
-void to_json(json &, const Level &);
+#undef DECL_JSON
 
 }; // namespace sbokena::level

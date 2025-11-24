@@ -1,5 +1,6 @@
 #include "level.hh"
 
+#include <format>
 #include <variant>
 
 #include <nlohmann/json.hpp>
@@ -13,119 +14,151 @@ using namespace sbokena::utils;
 
 namespace sbokena::level {
 
-// impl Deserialize for Floor
-void from_json(const json &, Floor &) {
-  // Floor is empty, we're done
-}
+// define from_json/to_json for a struct type.
+//
+// basically identical to `NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE`, but is not
+// generic over `json` and therefore works with... something, somehow.
+//
+// technically this is not a public macro, so be careful with updating.
+// rewrite, if possible, but increment this counter below if you fail.
+//
+// hours_wasted_here = 5
+#define JSON_IMPL_STRUCT(type, ...)                                            \
+  void from_json(const json &nlohmann_json_j, type &nlohmann_json_t) {         \
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, __VA_ARGS__)) \
+  }                                                                            \
+  void to_json(json &nlohmann_json_j, const type &nlohmann_json_t) {           \
+    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, __VA_ARGS__))   \
+  }
 
-// impl Serialize for Floor
-void to_json(json &j, const Floor &) {
-  j = "{}"_json;
-}
+// define from_json/to_json for an empty struct type.
+#define JSON_IMPL_EMPTY(type)                                                  \
+  void from_json(const json &, type &) {}                                      \
+  void to_json(json &j, const type &) {                                        \
+    j = "{}"_json;                                                             \
+  }
 
-// impl Deserialize for Button
-void from_json(const json &j, Button &b) {
-  j.at("pair_id").get_to(b.pair_id);
-}
+// ===== tiles =====
 
-// impl Serialize for Button
-void to_json(json &j, const Button &b) {
-  j = {{"pair_id", b.pair_id}};
-}
+JSON_IMPL_EMPTY(Floor)
+JSON_IMPL_STRUCT(Button, door_id)
+JSON_IMPL_STRUCT(Door, door_id)
+JSON_IMPL_STRUCT(Portal, portal_id, in_dir)
+JSON_IMPL_STRUCT(DirFloor, dir)
+JSON_IMPL_EMPTY(Goal)
 
-// impl Deserialize for Door
-void from_json(const json &j, Door &d) {
-  j.at("pair_id").get_to(d.pair_id);
-  j.at("open").get_to(d.open);
-}
-
-// impl Serialize for Door
-void to_json(json &j, const Door &d) {
-  j = {
-    {"pair_id", d.pair_id},
-    {"open", d.open},
-  };
-}
-
-// impl Deserialize for Portal
-void from_json(const json &j, Portal &p) {
-  j.at("pair_id").get_to(p.pair_id);
-}
-
-// impl Serialize for Portal
-void to_json(json &j, const Portal &p) {
-  j = {{"pair_id", p.pair_id}};
-}
-
-// impl Deserialize for Tile
 void from_json(const json &j, Tile &t) {
-  u32 type = j.at("type").get<u32>();
+  // clang-format off
+  constexpr usize FLOOR_TYPE    = index_of<Tile, Floor>();
+  constexpr usize BUTTON_TYPE   = index_of<Tile, Button>();
+  constexpr usize DOOR_TYPE     = index_of<Tile, Door>();
+  constexpr usize PORTAL_TYPE   = index_of<Tile, Portal>();
+  constexpr usize DIRFLOOR_TYPE = index_of<Tile, DirFloor>();
+  constexpr usize GOAL_TYPE     = index_of<Tile, Goal>();
+  static_assert(std::variant_size_v<Tile> == 6,
+                "Tile gained variants, please update");
+  // clang-format on
 
-  constexpr usize FLOOR_TYPE = index_of<Tile, Floor>();
-  constexpr usize BUTTON_TYPE = index_of<Tile, Button>();
-  constexpr usize DOOR_TYPE = index_of<Tile, Door>();
-  constexpr usize PORTAL_TYPE = index_of<Tile, Portal>();
-  static_assert(
-    index_of<Tile, Portal>() + 1 == std::variant_size_v<Tile>,
-    "more variants for Tile than expected, please update this file");
+#define DE_VAR(ty)                                                             \
+  t.emplace<ty>();                                                             \
+  from_json(j, std::get<ty>(t));                                               \
+  break;
 
+  usize type = j.at("type").get<usize>();
   switch (type) {
   case FLOOR_TYPE:
-    Floor f;
-    from_json(j, f);
-    t = f;
-    break;
+    DE_VAR(Floor);
   case BUTTON_TYPE:
-    Button b;
-    from_json(j, b);
-    t = b;
-    break;
+    DE_VAR(Button);
   case DOOR_TYPE:
-    Door d;
-    from_json(j, d);
-    t = d;
-    break;
+    DE_VAR(Door);
   case PORTAL_TYPE:
-    Portal p;
-    from_json(j, p);
-    t = p;
-    break;
+    DE_VAR(Portal);
+  case DIRFLOOR_TYPE:
+    DE_VAR(DirFloor);
+  case GOAL_TYPE:
+    DE_VAR(Goal);
   default:
     throw std::runtime_error(std::format("unknown tile type: {}", type));
   }
-}
 
-// impl Serialize for Tile
+#undef DE_VAR
+}
 void to_json(json &j, const Tile &t) {
+#define SER_VAR(ty)                                                            \
+  [&j](const ty &v) {                                                          \
+    return to_json(j, v);                                                      \
+  }
+
   // clang-format off
-  overload sers = {
-    [&](const Floor &f) {
-      to_json(j, f);
-    },
-    [&](const Button &b) {
-      to_json(j, b);
-    },
-    [&](const Door &d) {
-      to_json(j, d);
-    },
-    [&](const Portal &p) {
-      to_json(j, p);
-    },
+  overload ser_handlers = {
+    SER_VAR(Floor),
+    SER_VAR(Button),
+    SER_VAR(Door),
+    SER_VAR(Portal),
+    SER_VAR(DirFloor),
+    SER_VAR(Goal),
   };
   // clang-format on
 
-  std::visit(sers, t);
+  std::visit(ser_handlers, t);
   j.push_back({"type", t.index()});
+
+#undef SER_VAR
 }
 
-// impl Deserialize for Level
-void from_json(const json &, Level &) {
-  // TODO: level parsing
-}
+// ===== objects =====
 
-// impl Serialize for Level
-void to_json(json &, const Level &) {
-  // TODO: level writing
+JSON_IMPL_EMPTY(Player)
+JSON_IMPL_EMPTY(Box)
+JSON_IMPL_STRUCT(DirBox, dir)
+
+void from_json(const json &j, Object &t) {
+  // clang-format off
+  constexpr usize PLAYER_TYPE = index_of<Object, Player>();
+  constexpr usize BOX_TYPE    = index_of<Object, Box>();
+  constexpr usize DIRBOX_TYPE = index_of<Object, DirBox>();
+  static_assert(std::variant_size_v<Object> == 3,
+                "Tile gained variants, please update");
+  // clang-format on
+
+#define DE_VAR(ty)                                                             \
+  t.emplace<ty>();                                                             \
+  from_json(j, std::get<ty>(t));                                               \
+  break;
+
+  usize type = j.at("type").get<usize>();
+  switch (type) {
+  case PLAYER_TYPE:
+    DE_VAR(Player)
+  case BOX_TYPE:
+    DE_VAR(Box)
+  case DIRBOX_TYPE:
+    DE_VAR(Box)
+  default:
+    throw std::runtime_error(std::format("unknown tile type: {}", type));
+  }
+
+#undef DE_VAR
+}
+void to_json(json &j, const Object &t) {
+#define SER_VAR(ty)                                                            \
+  [&j](const ty &v) {                                                          \
+    return to_json(j, v);                                                      \
+  }
+
+  // clang-format off
+  overload ser_handlers = {
+    SER_VAR(Player),
+    SER_VAR(Box),
+    SER_VAR(DirBox)
+  };
+  // clang-format on
+
+  std::visit(ser_handlers, t);
+  j.push_back({"type", t.index()});
+
+#undef SER_VAR
 }
 
 } // namespace sbokena::level
