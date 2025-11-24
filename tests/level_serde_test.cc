@@ -29,60 +29,62 @@ TEST(common, floor_rt) {
 
 TEST(common, button_de) {
   const auto src = R"(
-    { "pair_id": 4 }
-  )"sv;
+     { "door_id": 4 }
+   )"sv;
   const auto b = json::parse(src).get<Button>();
-  ASSERT_EQ(b.pair_id, 4);
+  ASSERT_EQ(b.door_id, 4);
 }
 
 TEST(common, button_rt) {
   const auto b = Button{
-    .pair_id = 12,
+    .door_id = 12,
   };
   const auto bs = json(b).dump();
   const auto brt = json::parse(bs).get<Button>();
 
-  ASSERT_EQ(b.pair_id, brt.pair_id);
+  ASSERT_EQ(b.door_id, brt.door_id);
 }
 
 TEST(common, door_de) {
   const auto src = R"(
-    {
-      "pair_id": 8,
-      "open": true
-    }
+    { "door_id": 8 }
   )"sv;
   const auto d = json::parse(src).get<Door>();
-  ASSERT_EQ(d.pair_id, 8);
-  ASSERT_TRUE(d.open);
+  ASSERT_EQ(d.door_id, 8);
 };
 
 TEST(common, door_rt) {
   const auto d = Door{
-    .pair_id = 24,
-    .open = false,
+    .door_id = 24,
   };
   const auto ds = json(d).dump();
   const auto drt = json::parse(ds).get<Door>();
 
-  ASSERT_EQ(d.pair_id, drt.pair_id);
-  ASSERT_EQ(d.open, drt.open);
+  ASSERT_EQ(d.door_id, drt.door_id);
 }
 
 TEST(common, portal_de) {
   const auto src = R"(
-    { "pair_id": 32 }
+    {
+      "portal_id": 32,
+      "in_dir": "Left"
+    }
   )"sv;
   const auto p = json::parse(src).get<Portal>();
-  ASSERT_EQ(p.pair_id, 32);
+  ASSERT_EQ(p.portal_id, 32);
+  ASSERT_EQ(p.in_dir, Direction::Left);
 }
 
 TEST(common, portal_rt) {
-  const auto p = Portal{.pair_id = 40};
+  const auto p = Portal{
+    .portal_id = 40,
+    .in_dir = Direction::Up,
+  };
   const auto ps = json(p).dump();
   const auto prt = json::parse(ps).get<Portal>();
 
-  ASSERT_EQ(p.pair_id, prt.pair_id);
+  ASSERT_EQ(p.portal_id, prt.portal_id);
+  ASSERT_EQ(p.in_dir, prt.in_dir);
 }
 
 TEST(common, tile_de) {
@@ -92,27 +94,25 @@ TEST(common, tile_de) {
   const auto src = R"(
     {
       "type": 2,
-      "pair_id": 12,
-      "open": false
+      "door_id": 12
     }
   )"sv;
   const auto t = json::parse(src).get<Tile>();
   const auto tv = std::get<2>(t);
 
-  ASSERT_EQ(tv.pair_id, 12);
-  ASSERT_FALSE(tv.open);
+  ASSERT_EQ(tv.door_id, 12);
 }
 
 TEST(common, tile_rt) {
   const auto t = Tile{Button{
-    .pair_id = 7,
+    .door_id = 7,
   }};
   const auto tv = std::get<index_of<Tile, Button>()>(t);
   const auto ts = json(t).dump();
   const auto trt = json::parse(ts).get<Tile>();
   const auto trtv = std::get<index_of<Tile, Button>()>(trt);
 
-  ASSERT_EQ(tv.pair_id, trtv.pair_id);
+  ASSERT_EQ(tv.door_id, trtv.door_id);
 }
 
 } // namespace sbokena::level
