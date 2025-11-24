@@ -1,5 +1,7 @@
 #pragma once
 
+#include <nlohmann/json.hpp>
+
 #include "types.hh"
 
 using namespace sbokena::types;
@@ -15,6 +17,15 @@ enum struct Direction : u8 {
   Right = 0b1000,
   // clang-format on
 };
+
+// clang-format off
+NLOHMANN_JSON_SERIALIZE_ENUM(Direction, {
+  {Direction::Up, "Up"},
+  {Direction::Down, "Down"},
+  {Direction::Left, "Left"},
+  {Direction::Right, "Right"},
+})
+// clang-format on
 
 // a set of `Direction`.
 class Directions {
