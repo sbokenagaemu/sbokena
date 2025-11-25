@@ -130,7 +130,7 @@ void from_json(const json &j, Object &t) {
   case BOX_TYPE:
     DE_VAR(Box)
   case DIRBOX_TYPE:
-    DE_VAR(Box)
+    DE_VAR(DirBox)
   default:
     throw std::runtime_error(std::format("unknown tile type: {}", type));
   }
