@@ -15,13 +15,18 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
+
+#include <nlohmann/json.hpp>
 
 #include "object.hh"
 #include "position.hh"
 #include "tile.hh"
 #include "types.hh"
 
-using namespace sbokena::position;
+using nlohmann::json;
+
+using sbokena::position::Position;
 using namespace sbokena::editor::tile;
 using namespace sbokena::editor::object;
 
@@ -120,7 +125,7 @@ struct PositionHash {
   }
 };
 
-// Contains and manages all tiles and objects.
+// contains and manages all tiles and objects.
 class Level {
 public:
   // constructor; apart from names, all other fields are defaults.
@@ -168,7 +173,7 @@ public:
     return objects.generate_new_id();
   }
 
-  // Functions regarding tiles.
+  // ===== tiles =====
 
   // creates a new tile, takes a type and a position as parameters.
   u32 create_tile(TileType type, const Position<> &pos);
@@ -196,7 +201,12 @@ public:
     return positions.find(pos) != positions.end();
   }
 
-  // Functions regrading objects.
+  // updates door state (whether it is opened or closed).
+  // is only opened if all of the linked buttons are activated.
+  // if contains an object, keeps its current state.
+  void update_door_state(u32 id);
+
+  // ===== objects =====
 
   // adds an object onto an existing tile.
   u32 add_object(ObjectType type, const Position<> &pos);
@@ -219,7 +229,7 @@ public:
   // moves the object to another existing position.
   bool move_object(u32 id, const Position<> &new_pos);
 
-  // Functions regarding portal pairs.
+  // ===== portal pairs =====
 
   // links two portals together.
   bool link_portals(u32 id1, u32 id2);
@@ -227,15 +237,15 @@ public:
   // unlinks a portal, which also unlinks the other portal.
   bool unlink_portal(u32 portal_id);
 
-  // Functions regarding door-button pairs.
+  // ===== door-button pairs =====
 
   // links a door and a button together.
   bool link_door_button(u32 door_id, u32 button_id);
 
-  // unlinks the door, which also unlinks the button.
+  // unlinks the door, which also unlinks all linked buttons.
   bool unlink_door(u32 door_id);
 
-  // unlinks the button, which also unlinks the door.
+  // unlinks the button, which also unlinks the door from that button.
   bool unlink_button(u32 button_id);
 
 private:
@@ -251,12 +261,32 @@ private:
   std::unordered_map<Position<>, u32, PositionHash> positions;
   // linked portals, stores both portal 1 -> portal 2 and vice versa.
   std::unordered_map<u32, u32> linked_portals;
-  // stores door_id to button_id.
-  std::unordered_map<u32, u32> door_to_button;
+  // stores door_id to its set of button_ids.
+  std::unordered_map<u32, std::unordered_set<u32>> door_to_buttons;
   // stores button_id to door_id.
   std::unordered_map<u32, u32> button_to_door;
   // TODO: a grid stucture storing the skins of every position.
   // map<position, image-related-id>
 };
+
+// ===== from_json/to_json impls =====
+
+void from_json(const json &, Floor &);
+void to_json(json &, const Floor &);
+
+void from_json(const json &, Button &);
+void to_json(json &, const Button &);
+
+void from_json(const json &, Door &);
+void to_json(json &, const Door &);
+
+void from_json(const json &, Portal &);
+void to_json(json &, const Portal &);
+
+void from_json(const json &, Tile &);
+void to_json(json &, const Tile &);
+
+void from_json(const json &, Level &);
+void to_json(json &, const Level &);
 
 } // namespace sbokena::editor::level
