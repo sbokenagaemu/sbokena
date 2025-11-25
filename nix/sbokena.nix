@@ -162,7 +162,9 @@ in
       clang-tidy -p build \
         $(fd -E build/ -F '.cc') \
         $(fd -E build/ -F '.hh')
-      ctest --test-dir build/tests
+      ctest \
+        --test-dir build/tests \
+        --output-on-failure
     '';
 
     installPhase = ''
