@@ -31,19 +31,19 @@ namespace sbokena::level {
 
 // 3.1. Floor
 struct Floor {};
-DECL_JSON(Floor);
+DECL_JSON(Floor)
 
 // 3.2. Button
 struct Button {
   u32 door_id;
 };
-DECL_JSON(Button);
+DECL_JSON(Button)
 
 // 3.3. Door
 struct Door {
   u32 door_id;
 };
-DECL_JSON(Door);
+DECL_JSON(Door)
 
 // 3.4. Portal
 struct Portal {
@@ -53,14 +53,14 @@ struct Portal {
   // `out_dir` is always the opposite of this direction.
   Direction in_dir;
 };
-DECL_JSON(Portal);
+DECL_JSON(Portal)
 
 // 3.5. Uni-directional floor
 struct DirFloor {
   // direction in which this floor may be traversed.
   Direction dir;
 };
-DECL_JSON(DirFloor);
+DECL_JSON(DirFloor)
 
 // 3.6. Goal
 struct Goal {};
@@ -77,7 +77,7 @@ using Tile = std::variant<
   DirFloor,
   Goal
 >;
-DECL_JSON(Tile);
+DECL_JSON(Tile)
 
 // clang-format on
 
@@ -85,18 +85,18 @@ DECL_JSON(Tile);
 
 // 4.1. Player
 struct Player {};
-DECL_JSON(Player);
+DECL_JSON(Player)
 
 // 4.2. Box
 struct Box {};
-DECL_JSON(Box);
+DECL_JSON(Box)
 
 // 4.3. Uni-directional box
 struct DirBox {
   // direction in which this box may be pushed.
   Direction dir;
 };
-DECL_JSON(DirBox);
+DECL_JSON(DirBox)
 
 // clang-format off
 
@@ -106,7 +106,7 @@ using Object = std::variant<
   Box,
   DirBox
 >;
-DECL_JSON(Object);
+DECL_JSON(Object)
 
 // clang-format on
 
