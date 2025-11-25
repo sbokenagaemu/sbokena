@@ -1,6 +1,7 @@
 #include "level.hh"
 
 #include <format>
+#include <utility>
 #include <variant>
 
 #include <nlohmann/json.hpp>
@@ -90,6 +91,7 @@ void from_json(const json &j, Tile &t) {
     throw std::runtime_error(std::format("unknown tile type: {}", type));
   }
 }
+
 void to_json(json &j, const Tile &t) {
   // clang-format off
   overload ser_handlers = {
@@ -133,6 +135,7 @@ void from_json(const json &j, Object &t) {
     throw std::runtime_error(std::format("unknown tile type: {}", type));
   }
 }
+
 void to_json(json &j, const Object &t) {
   // clang-format off
   overload ser_handlers = {
@@ -144,6 +147,40 @@ void to_json(json &j, const Object &t) {
 
   std::visit(ser_handlers, t);
   j.push_back({"type", t.index()});
+}
+
+// ===== level =====
+
+void from_json(const json &j, Level &l) {
+  j.at("name").get_to(l.name);
+  j.at("theme").get_to(l.theme);
+  j.at("diff").get_to(l.diff);
+
+  using PackedTile = std::pair<Position<>, Tile>;
+  using PackedObject = std::pair<Position<>, Object>;
+
+  const auto tiles = j.at("tiles").get<std::vector<PackedTile>>();
+  const auto objects = j.at("objects").get<std::vector<PackedObject>>();
+
+  for (const auto &ptile : tiles)
+    l.tiles.insert(ptile);
+  for (const auto &pobject : objects)
+    l.objects.insert(pobject);
+}
+
+void to_json(json &j, const Level &l) {
+  j = json::object({
+    {"name", l.name},
+    {"theme", l.theme},
+    {"diff", l.diff},
+    {"tiles", json::array()},
+    {"objects", json::array()},
+  });
+
+  for (const auto &ptile : l.tiles)
+    j.at("tiles").push_back(ptile);
+  for (const auto &pobject : l.objects)
+    j.at("objects").push_back(pobject);
 }
 
 } // namespace sbokena::level
