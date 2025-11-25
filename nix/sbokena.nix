@@ -163,6 +163,7 @@ in
         build/editor/editor \
         build/game/game \
         -t $out/bin
+      cp -r themes $out
       runHook postInstall
     '';
 
