@@ -2,7 +2,11 @@
 
 #include <concepts>
 
+#include <nlohmann/json.hpp>
+
 #include "types.hh"
+
+using nlohmann::json;
 
 using namespace sbokena::types;
 
@@ -67,5 +71,19 @@ struct Position {
     return x < rhs.x || (x == rhs.x && y < rhs.y);
   }
 };
+
+template <std::integral T>
+void from_json(const json &j, Position<T> &pos) {
+  j.at("x").get_to(pos.x);
+  j.at("y").get_to(pos.y);
+}
+
+template <std::integral T>
+void to_json(json &j, const Position<T> &pos) {
+  j = json::object({
+    {"x", pos.x},
+    {"y", pos.y},
+  });
+}
 
 } // namespace sbokena::position
