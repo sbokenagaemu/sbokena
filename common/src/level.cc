@@ -38,6 +38,19 @@ namespace sbokena::level {
     j = "{}"_json;                                                             \
   }
 
+// deserialize a `std::variant` alternative into the container.
+// this is meant to be used in a `switch` case.
+#define DE_VAR(type)                                                           \
+  from_json(j, t.emplace<type>());                                             \
+  break;
+
+// delegated serializer of a `std::variant` alternative.
+// this is meant to be used with "the overload trick".
+#define SER_VAR(type)                                                          \
+  [&j](const type &v) {                                                        \
+    return to_json(j, v);                                                      \
+  }
+
 // ===== tiles =====
 
 JSON_IMPL_EMPTY(Floor)
@@ -59,11 +72,6 @@ void from_json(const json &j, Tile &t) {
                 "Tile gained variants, please update");
   // clang-format on
 
-#define DE_VAR(ty)                                                             \
-  t.emplace<ty>();                                                             \
-  from_json(j, std::get<ty>(t));                                               \
-  break;
-
   usize type = j.at("type").get<usize>();
   switch (type) {
   case FLOOR_TYPE:
@@ -81,15 +89,8 @@ void from_json(const json &j, Tile &t) {
   default:
     throw std::runtime_error(std::format("unknown tile type: {}", type));
   }
-
-#undef DE_VAR
 }
 void to_json(json &j, const Tile &t) {
-#define SER_VAR(ty)                                                            \
-  [&j](const ty &v) {                                                          \
-    return to_json(j, v);                                                      \
-  }
-
   // clang-format off
   overload ser_handlers = {
     SER_VAR(Floor),
@@ -103,8 +104,6 @@ void to_json(json &j, const Tile &t) {
 
   std::visit(ser_handlers, t);
   j.push_back({"type", t.index()});
-
-#undef SER_VAR
 }
 
 // ===== objects =====
@@ -122,11 +121,6 @@ void from_json(const json &j, Object &t) {
                 "Tile gained variants, please update");
   // clang-format on
 
-#define DE_VAR(ty)                                                             \
-  t.emplace<ty>();                                                             \
-  from_json(j, std::get<ty>(t));                                               \
-  break;
-
   usize type = j.at("type").get<usize>();
   switch (type) {
   case PLAYER_TYPE:
@@ -138,15 +132,8 @@ void from_json(const json &j, Object &t) {
   default:
     throw std::runtime_error(std::format("unknown tile type: {}", type));
   }
-
-#undef DE_VAR
 }
 void to_json(json &j, const Object &t) {
-#define SER_VAR(ty)                                                            \
-  [&j](const ty &v) {                                                          \
-    return to_json(j, v);                                                      \
-  }
-
   // clang-format off
   overload ser_handlers = {
     SER_VAR(Player),
@@ -157,8 +144,6 @@ void to_json(json &j, const Object &t) {
 
   std::visit(ser_handlers, t);
   j.push_back({"type", t.index()});
-
-#undef SER_VAR
 }
 
 } // namespace sbokena::level
