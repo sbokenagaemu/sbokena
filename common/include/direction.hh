@@ -20,9 +20,9 @@ enum struct Direction : u8 {
 
 // clang-format off
 NLOHMANN_JSON_SERIALIZE_ENUM(Direction, {
-  {Direction::Up, "Up"},
-  {Direction::Down, "Down"},
-  {Direction::Left, "Left"},
+  {Direction::Up,    "Up"   },
+  {Direction::Down,  "Down" },
+  {Direction::Left,  "Left" },
   {Direction::Right, "Right"},
 })
 // clang-format on
