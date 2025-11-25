@@ -1,4 +1,6 @@
-cmake_minimum_required(VERSION 4.0)
+# Ubuntu 22.04+, Fedora 42+
+cmake_minimum_required(VERSION 3.31)
+
 project(
   sbokena
   VERSION 0.1.0
