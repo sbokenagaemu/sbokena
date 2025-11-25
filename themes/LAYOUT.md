@@ -18,6 +18,8 @@ pointing-up/right/left/down variants, respectively.
 - `portal_*.png`: textures for a `Portal`.
 - `dirfloor_*.png`: textures for a `Uni-directional floor`.
 - `goal.png`: texture for a `Goal`.
+- `wall.png`: texture for a `Wall`.
+- `roof.png`: texture for a `Wall`, that is not adjacent to a a `Floor`.
 
 - `player_*.png`: textures for a `Player`.
 - `box.png`: texture for a `Box`.
