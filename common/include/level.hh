@@ -110,6 +110,38 @@ DECL_JSON(Object)
 
 // clang-format on
 
+// ===== level =====
+
+// the level's creator-selected difficulty rating.
+enum struct Difficulty {
+  Unknown,
+  Easy,
+  Medium,
+  Hard,
+};
+
+// clang-format off
+NLOHMANN_JSON_SERIALIZE_ENUM(Difficulty, {
+  {Difficulty::Unknown, "Unknown"},
+  {Difficulty::Easy,    "Easy"   },
+  {Difficulty::Medium,  "Medium" },
+  {Difficulty::Hard,    "Hard"   },
+})
+// clang-format on
+
+// raw level data from a level file.
+// this type does almost no validation.
+// TODO: mention `LoadedLevel` when it lands
+struct Level {
+  std::string name;
+  std::string theme;
+  Difficulty diff;
+
+  std::map<Position<>, Tile> tiles;
+  std::map<Position<>, Object> objects;
+};
+DECL_JSON(Level)
+
 #undef DECL_JSON
 
 }; // namespace sbokena::level
