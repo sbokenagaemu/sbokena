@@ -15,104 +15,58 @@ using namespace sbokena::utils;
 
 namespace sbokena::level {
 
-TEST(common, floor_de) {
-  const auto src = "{}"sv;
-  json::parse(src).get<Floor>();
+TEST(common, empty_ser) {
+  const json j = Floor{};
+  ASSERT_EQ(j.dump(), "{}");
 }
 
-TEST(common, floor_rt) {
-  const auto f = Floor{};
-  const auto fs = json(f).dump();
-  json::parse(fs).get<Floor>();
-  // no errors, floor is trivial
+TEST(common, empty_de) {
+  const json j = json::parse("{}"sv);
+  j.get<Floor>();
 }
 
-TEST(common, button_de) {
-  const auto src = R"(
-     { "door_id": 4 }
-   )"sv;
-  const auto b = json::parse(src).get<Button>();
-  ASSERT_EQ(b.door_id, 4);
-}
-
-TEST(common, button_rt) {
-  const auto b = Button{
-    .door_id = 12,
+TEST(common, struct_ser) {
+  const json j = Portal{
+    .portal_id = 12,
+    .in_dir = Direction::Down,
   };
-  const auto bs = json(b).dump();
-  const auto brt = json::parse(bs).get<Button>();
-
-  ASSERT_EQ(b.door_id, brt.door_id);
+  ASSERT_EQ(j.dump(), R"({"in_dir":"Down","portal_id":12})"sv);
 }
 
-TEST(common, door_de) {
-  const auto src = R"(
-    { "door_id": 8 }
-  )"sv;
-  const auto d = json::parse(src).get<Door>();
-  ASSERT_EQ(d.door_id, 8);
-};
-
-TEST(common, door_rt) {
-  const auto d = Door{
-    .door_id = 24,
-  };
-  const auto ds = json(d).dump();
-  const auto drt = json::parse(ds).get<Door>();
-
-  ASSERT_EQ(d.door_id, drt.door_id);
-}
-
-TEST(common, portal_de) {
-  const auto src = R"(
+TEST(common, struct_de) {
+  const json j = json::parse(R"(
     {
-      "portal_id": 32,
+      "portal_id": 3,
       "in_dir": "Left"
     }
-  )"sv;
-  const auto p = json::parse(src).get<Portal>();
-  ASSERT_EQ(p.portal_id, 32);
+  )"sv);
+  const Portal p = j.get<Portal>();
+  ASSERT_EQ(p.portal_id, 3);
   ASSERT_EQ(p.in_dir, Direction::Left);
 }
 
-TEST(common, portal_rt) {
-  const auto p = Portal{
-    .portal_id = 40,
+TEST(common, tile_ser) {
+  const json j = Tile{Portal{
+    .portal_id = 4,
     .in_dir = Direction::Up,
-  };
-  const auto ps = json(p).dump();
-  const auto prt = json::parse(ps).get<Portal>();
-
-  ASSERT_EQ(p.portal_id, prt.portal_id);
-  ASSERT_EQ(p.in_dir, prt.in_dir);
+  }};
+  static_assert(index_of<Tile, Portal>() == 3,
+                "index of Portal in Tile changed");
+  ASSERT_EQ(j.dump(), R"({"in_dir":"Up","portal_id":4,"type":3})"sv);
 }
 
 TEST(common, tile_de) {
-  static_assert(index_of<Tile, Door>() == 2,
-                "index of Door used in src, please update");
-
-  const auto src = R"(
+  const json j = json::parse(R"(
     {
-      "type": 2,
-      "door_id": 12
+      "type": 3,
+      "portal_id": 2,
+      "in_dir": "Right"
     }
-  )"sv;
-  const auto t = json::parse(src).get<Tile>();
-  const auto tv = std::get<2>(t);
-
-  ASSERT_EQ(tv.door_id, 12);
-}
-
-TEST(common, tile_rt) {
-  const auto t = Tile{Button{
-    .door_id = 7,
-  }};
-  const auto tv = std::get<index_of<Tile, Button>()>(t);
-  const auto ts = json(t).dump();
-  const auto trt = json::parse(ts).get<Tile>();
-  const auto trtv = std::get<index_of<Tile, Button>()>(trt);
-
-  ASSERT_EQ(tv.door_id, trtv.door_id);
+  )");
+  const Tile t = j.get<Tile>();
+  const Portal p = std::get<Portal>(t);
+  ASSERT_EQ(p.portal_id, 2);
+  ASSERT_EQ(p.in_dir, Direction::Right);
 }
 
 } // namespace sbokena::level
