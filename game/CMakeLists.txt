@@ -7,6 +7,7 @@ target_sources(game PRIVATE ${SOURCES})
 target_include_directories(game PRIVATE include)
 target_link_libraries(game
   PRIVATE
+    nfd
     nlohmann_json::nlohmann_json
     raylib
     raygui
