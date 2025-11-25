@@ -2,6 +2,7 @@
   # config options
   buildRelease ? true,
   enableWayland ? true,
+  enableXDGPortals ? true,
   enableX11 ? true,
   # nixpkgs
   lib,
@@ -70,8 +71,9 @@
     then t
     else f;
 
-  # only enable Wayland and X11 on Linux
+  # only enable Wayland, XDG Portals and X11 on Linux
   enableWayland' = select isLinux enableWayland false;
+  enableXDGPortals' = select isLinux enableXDGPortals false;
   enableX11' = select isLinux enableX11 false;
 
   # build-time dependencies
@@ -99,12 +101,15 @@
   buildInputs =
     lib.optionals isLinux [
       dbus
+      libGL
+    ]
+    # optional dependencies for XDG Portal builds
+    ++ lib.optionals enableXDGPortals' [
       gtk3
       lerc
       libdatrie
       libdeflate
       libepoxy
-      libGL
       libselinux
       libsepol
       libsysprof-capture
@@ -125,10 +130,13 @@
     ++ lib.optionals enableX11' [
       xorg.libX11
       xorg.libXcursor
-      xorg.libXdmcp
       xorg.libXi
       xorg.libXinerama
       xorg.libXrandr
+    ]
+    # optional dependencies for X11 builds with XDG Portals
+    ++ lib.optionals (enableX11' && enableXDGPortals') [
+      xorg.libXdmcp
       xorg.libXtst
     ];
 
@@ -176,6 +184,7 @@ in
         ))
       ]
       ++ lib.optionals isLinux [
+        (lib.cmakeBool "NFD_PORTAL" enableXDGPortals')
         (lib.cmakeBool "GLFW_BUILD_WAYLAND" enableWayland')
         (lib.cmakeBool "GLFW_BUILD_X11" enableX11')
       ];
