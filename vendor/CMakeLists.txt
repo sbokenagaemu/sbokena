@@ -15,6 +15,21 @@ else ()
   )
 endif ()
 
+if (DEFINED ENV{NFD_SRC})
+  FetchContent_Declare(
+    nfd
+    SOURCE_DIR $ENV{NFD_SRC}
+    SYSTEM
+  )
+else ()
+  FetchContent_Declare(
+    nfd
+    GIT_REPOSITORY "https://github.com/btzy/nativefiledialog-extended"
+    GIT_TAG v1.2.1
+    SYSTEM
+  )
+endif ()
+
 if (DEFINED ENV{NLOHMANN_JSON_SRC})
   FetchContent_Declare(
     nlohmann_json
@@ -88,6 +103,7 @@ endif ()
 
 FetchContent_MakeAvailable(
   googletest
+  nfd
   nlohmann_json
   raylib
   raylib_cpp

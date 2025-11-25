@@ -10,14 +10,29 @@
   xorg,
   # dependencies
   cmake,
+  dbus,
   fd,
+  gtk3,
+  lerc,
+  libdatrie,
+  libdeflate,
+  libepoxy,
   libffi,
   libGL,
+  libselinux,
+  libsepol,
+  libsysprof-capture,
+  libthai,
+  libwebp,
   libxkbcommon,
   ninja,
+  pcre2,
   pkg-config,
+  util-linux,
   wayland,
   wayland-scanner,
+  xz,
+  zstd,
   ...
 }: let
   # sources of vendored external libraries
@@ -26,6 +41,10 @@
       url = "https://github.com/google/googletest";
       ref = "v1.17.0";
       rev = "52eb8108c5bdec04579160ae17225d66034bd723";
+    };
+    nfd-src = builtins.fetchGit {
+      url = "https://github.com/btzy/nativefiledialog-extended";
+      rev = "86d5f2005fe1c00747348a12070fec493ea2407e";
     };
     nlohmann-json-src = builtins.fetchGit {
       url = "https://github.com/nlohmann/json";
@@ -78,7 +97,24 @@
 
   # run-time dependencies
   buildInputs =
-    lib.optionals isLinux [libGL]
+    lib.optionals isLinux [
+      dbus
+      gtk3
+      lerc
+      libdatrie
+      libdeflate
+      libepoxy
+      libGL
+      libselinux
+      libsepol
+      libsysprof-capture
+      libthai
+      libwebp
+      pcre2
+      util-linux
+      xz
+      zstd
+    ]
     # optional dependencies for Wayland builds
     ++ lib.optionals enableWayland' [
       libffi
@@ -89,9 +125,11 @@
     ++ lib.optionals enableX11' [
       xorg.libX11
       xorg.libXcursor
+      xorg.libXdmcp
       xorg.libXi
       xorg.libXinerama
       xorg.libXrandr
+      xorg.libXtst
     ];
 
   # kebab-case -> SCREAMING_CASE
