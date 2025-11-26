@@ -183,4 +183,9 @@ void to_json(json &j, const Level &l) {
     j.at("objects").push_back(pobject);
 }
 
+#undef JSON_IMPL_STRUCT
+#undef JSON_IMPL_EMPTY
+#undef DE_VAR
+#undef SER_VAR
+
 } // namespace sbokena::level
