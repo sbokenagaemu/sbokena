@@ -6,7 +6,8 @@ add_library(common)
 target_sources(common PRIVATE ${SOURCES})
 target_include_directories(common PUBLIC include)
 target_link_libraries(common
-  PRIVATE
+  PUBLIC
+    nfd
     nlohmann_json::nlohmann_json
     raylib
 )

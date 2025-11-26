@@ -2,10 +2,20 @@
 
 #pragma once
 
+#include <array>
+#include <filesystem>
 #include <optional>
+#include <span>
 #include <variant>
 
+#include <nfd.h>
+#include <nfd.hpp>
+
+namespace fs = std::filesystem;
+
 namespace sbokena::utils {
+
+// ===== language utils =====
 
 // RAII scope guard that calls a function when destroyed.
 //
@@ -44,7 +54,7 @@ struct overload : Ts... {
 // get the index of a type in a `std::variant`, or its size if the type is not
 // one of its members.
 template <typename V, typename T, size_t I = 0>
-static constexpr size_t index_of() {
+constexpr size_t index_of() {
   using V_I = std::variant_alternative_t<I, V>;
 
   if constexpr (I >= std::variant_size_v<V>)
@@ -54,5 +64,23 @@ static constexpr size_t index_of() {
   else
     return index_of<V, T, I + 1>();
 }
+
+// ===== file UI =====
+
+// file dialog filter for level file types.
+constexpr std::array<nfdfilteritem_t, 1> LEVEL_FILTER = {{
+  {.name = "sbokena level", .spec = "sb,sbk"},
+}};
+
+// create a file dialog for user to open a file.
+std::optional<fs::path>
+open_file_dialog(std::span<const nfdfilteritem_t> filter = LEVEL_FILTER);
+
+// create a folder dialog for user to open a folder.
+std::optional<fs::path> open_folder_dialog();
+
+// save a file and return its location.
+std::optional<fs::path>
+save_file_dialog(std::span<const nfdfilteritem_t> filter = LEVEL_FILTER);
 
 } // namespace sbokena::utils
