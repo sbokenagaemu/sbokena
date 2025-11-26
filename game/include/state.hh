@@ -15,12 +15,14 @@ enum struct StepResult {
 
 // the state machine.
 struct State {
-  // try to advance the world state by one step, using an input.
+  // try to advance the world state by one step, using an
+  // input.
   //
-  // if this returns `Ok`, the world state has changed successfully.
+  // if this returns `Ok`, the world state has changed
+  // successfully.
   //
-  // otherwise, the world state has not changed, and the return value
-  // can be used to determine the reason.
+  // otherwise, the world state has not changed, and the
+  // return value can be used to determine the reason.
   constexpr StepResult step(const StateInput &) noexcept;
 };
 

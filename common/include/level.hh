@@ -21,8 +21,8 @@ namespace sbokena::level {
 // functions. these must be defined in `src/level.cc`.
 //
 // these functions throw an exception on parsing error.
-#define DECL_JSON(ty)                                                          \
-  void from_json(const json &, ty &);                                          \
+#define DECL_JSON(ty)                 \
+  void from_json(const json &, ty &); \
   void to_json(json &, const ty &);
 
 // ===== tiles =====
@@ -64,22 +64,13 @@ DECL_JSON(DirFloor)
 
 // 3.6. Goal
 struct Goal {};
+
 DECL_JSON(Goal);
 
-// clang-format off
-
 // 1. Tile
-using Tile = std::variant<
-  Floor,
-  Button,
-  Door,
-  Portal,
-  DirFloor,
-  Goal
->;
+using Tile =
+  std::variant<Floor, Button, Door, Portal, DirFloor, Goal>;
 DECL_JSON(Tile)
-
-// clang-format on
 
 // ===== objects =====
 
@@ -98,17 +89,9 @@ struct DirBox {
 };
 DECL_JSON(DirBox)
 
-// clang-format off
-
 // 2. Object
-using Object = std::variant<
-  Player,
-  Box,
-  DirBox
->;
+using Object = std::variant<Player, Box, DirBox>;
 DECL_JSON(Object)
-
-// clang-format on
 
 // ===== level =====
 
@@ -120,14 +103,15 @@ enum struct Difficulty {
   Hard,
 };
 
-// clang-format off
-NLOHMANN_JSON_SERIALIZE_ENUM(Difficulty, {
-  {Difficulty::Unknown, "Unknown"},
-  {Difficulty::Easy,    "Easy"   },
-  {Difficulty::Medium,  "Medium" },
-  {Difficulty::Hard,    "Hard"   },
-})
-// clang-format on
+NLOHMANN_JSON_SERIALIZE_ENUM(
+  Difficulty,
+  {
+    {Difficulty::Unknown, "Unknown"},
+    {Difficulty::Easy, "Easy"},
+    {Difficulty::Medium, "Medium"},
+    {Difficulty::Hard, "Hard"},
+  }
+)
 
 // raw level data from a level file.
 // this type does almost no validation.
@@ -135,9 +119,9 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Difficulty, {
 struct Level {
   std::string name;
   std::string theme;
-  Difficulty diff;
+  Difficulty  diff;
 
-  std::map<Position<>, Tile> tiles;
+  std::map<Position<>, Tile>   tiles;
   std::map<Position<>, Object> objects;
 };
 DECL_JSON(Level)

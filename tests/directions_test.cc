@@ -24,8 +24,8 @@ TEST(common, directions) {
 
   const Directions left = Left;
   const Directions vert = Up | Down;
-  const Directions hor = Left | Right;
-  const Directions up = (vert | hor) & Up;
+  const Directions hor  = Left | Right;
+  const Directions up   = (vert | hor) & Up;
   ASSERT_FALSE(none.contains_all(left));
   ASSERT_FALSE(none.contains_any(left));
   ASSERT_TRUE(all.contains_all(left));

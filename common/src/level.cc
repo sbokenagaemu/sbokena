@@ -17,40 +17,46 @@ namespace sbokena::level {
 
 // define from_json/to_json for a struct type.
 //
-// basically identical to `NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE`, but is not
-// generic over `json` and therefore works with... something, somehow.
+// basically identical to
+// `NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE`, but is not generic
+// over `json` and therefore works with... something,
+// somehow.
 //
-// technically this is not a public macro, so be careful with updating.
-// rewrite, if possible, but increment this counter below if you fail.
+// technically this is not a public macro, so be careful
+// with updating. rewrite, if possible, but increment this
+// counter below if you fail.
 //
 // hours_wasted_here = 5
-#define JSON_IMPL_STRUCT(type, ...)                                            \
-  void from_json(const json &nlohmann_json_j, type &nlohmann_json_t) {         \
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, __VA_ARGS__)) \
-  }                                                                            \
-  void to_json(json &nlohmann_json_j, const type &nlohmann_json_t) {           \
-    NLOHMANN_JSON_EXPAND(NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, __VA_ARGS__))   \
+#define JSON_IMPL_STRUCT(type, ...)                                  \
+  void from_json(                                                    \
+    const json &nlohmann_json_j, type &nlohmann_json_t               \
+  ) {                                                                \
+    NLOHMANN_JSON_EXPAND(                                            \
+      NLOHMANN_JSON_PASTE(NLOHMANN_JSON_FROM, __VA_ARGS__)           \
+    )                                                                \
+  }                                                                  \
+  void to_json(json &nlohmann_json_j, const type &nlohmann_json_t) { \
+    NLOHMANN_JSON_EXPAND(                                            \
+      NLOHMANN_JSON_PASTE(NLOHMANN_JSON_TO, __VA_ARGS__)             \
+    )                                                                \
   }
 
 // define from_json/to_json for an empty struct type.
-#define JSON_IMPL_EMPTY(type)                                                  \
-  void from_json(const json &, type &) {}                                      \
-  void to_json(json &j, const type &) {                                        \
-    j = "{}"_json;                                                             \
+#define JSON_IMPL_EMPTY(type)             \
+  void from_json(const json &, type &) {} \
+  void to_json(json &j, const type &) {   \
+    j = "{}"_json;                        \
   }
 
-// deserialize a `std::variant` alternative into the container.
-// this is meant to be used in a `switch` case.
-#define DE_VAR(type)                                                           \
-  from_json(j, t.emplace<type>());                                             \
+// deserialize a `std::variant` alternative into the
+// container. this is meant to be used in a `switch` case.
+#define DE_VAR(type)               \
+  from_json(j, t.emplace<type>()); \
   break;
 
 // delegated serializer of a `std::variant` alternative.
 // this is meant to be used with "the overload trick".
-#define SER_VAR(type)                                                          \
-  [&j](const type &v) {                                                        \
-    return to_json(j, v);                                                      \
-  }
+#define SER_VAR(type) [&j](const type &v) { return to_json(j, v); }
 
 // ===== tiles =====
 
@@ -62,16 +68,16 @@ JSON_IMPL_STRUCT(DirFloor, dir)
 JSON_IMPL_EMPTY(Goal)
 
 void from_json(const json &j, Tile &t) {
-  // clang-format off
   constexpr usize FLOOR_TYPE    = index_of<Tile, Floor>();
   constexpr usize BUTTON_TYPE   = index_of<Tile, Button>();
   constexpr usize DOOR_TYPE     = index_of<Tile, Door>();
   constexpr usize PORTAL_TYPE   = index_of<Tile, Portal>();
   constexpr usize DIRFLOOR_TYPE = index_of<Tile, DirFloor>();
   constexpr usize GOAL_TYPE     = index_of<Tile, Goal>();
-  static_assert(std::variant_size_v<Tile> == 6,
-                "Tile gained variants, please update");
-  // clang-format on
+  static_assert(
+    std::variant_size_v<Tile> == 6,
+    "Tile gained variants, please update"
+  );
 
   usize type = j.at("type").get<usize>();
   switch (type) {
@@ -88,7 +94,9 @@ void from_json(const json &j, Tile &t) {
   case GOAL_TYPE:
     DE_VAR(Goal);
   default:
-    throw std::runtime_error(std::format("unknown tile type: {}", type));
+    throw std::runtime_error(
+      std::format("unknown tile type: {}", type)
+    );
   }
 }
 
@@ -132,7 +140,9 @@ void from_json(const json &j, Object &t) {
   case DIRBOX_TYPE:
     DE_VAR(DirBox)
   default:
-    throw std::runtime_error(std::format("unknown tile type: {}", type));
+    throw std::runtime_error(
+      std::format("unknown tile type: {}", type)
+    );
   }
 }
 
@@ -156,11 +166,12 @@ void from_json(const json &j, Level &l) {
   j.at("theme").get_to(l.theme);
   j.at("diff").get_to(l.diff);
 
-  using PackedTile = std::pair<Position<>, Tile>;
+  using PackedTile   = std::pair<Position<>, Tile>;
   using PackedObject = std::pair<Position<>, Object>;
 
   const auto tiles = j.at("tiles").get<std::vector<PackedTile>>();
-  const auto objects = j.at("objects").get<std::vector<PackedObject>>();
+  const auto objects =
+    j.at("objects").get<std::vector<PackedObject>>();
 
   for (const auto &ptile : tiles)
     l.tiles.insert(ptile);

@@ -1,11 +1,11 @@
-#include <string_view>
-
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 
 #include "direction.hh"
 #include "level.hh"
 #include "utils.hh"
+
+#include <string_view>
 
 using namespace std::string_view_literals;
 
@@ -18,7 +18,7 @@ using sbokena::direction::Direction;
 namespace sbokena::level {
 
 TEST(common, empty_ser) {
-  const json j = Floor{};
+  const json j = Floor {};
   ASSERT_EQ(j.dump(), "{}"sv);
 }
 
@@ -28,15 +28,15 @@ TEST(common, empty_de) {
 }
 
 TEST(common, struct_ser) {
-  const json j = Portal{
+  const json j = Portal {
     .portal_id = 12,
-    .in_dir = Direction::Down,
+    .in_dir    = Direction::Down,
   };
   ASSERT_EQ(j.dump(), R"({"in_dir":"Down","portal_id":12})"sv);
 }
 
 TEST(common, struct_de) {
-  const json j = json::parse(R"(
+  const json   j = json::parse(R"(
     {
       "portal_id": 3,
       "in_dir": "Left"
@@ -48,50 +48,51 @@ TEST(common, struct_de) {
 }
 
 TEST(common, tile_ser) {
-  const json j = Tile{Portal{
+  const json j = Tile {Portal {
     .portal_id = 4,
-    .in_dir = Direction::Up,
+    .in_dir    = Direction::Up,
   }};
-  static_assert(index_of<Tile, Portal>() == 3,
-                "index of Portal in Tile changed");
+  static_assert(
+    index_of<Tile, Portal>() == 3, "index of Portal in Tile changed"
+  );
   ASSERT_EQ(j.dump(), R"({"in_dir":"Up","portal_id":4,"type":3})"sv);
 }
 
 TEST(common, tile_de) {
-  const json j = json::parse(R"(
+  const json   j = json::parse(R"(
     {
       "type": 3,
       "portal_id": 2,
       "in_dir": "Right"
     }
   )");
-  const Tile t = j.get<Tile>();
+  const Tile   t = j.get<Tile>();
   const Portal p = std::get<Portal>(t);
   ASSERT_EQ(p.portal_id, 2);
   ASSERT_EQ(p.in_dir, Direction::Right);
 }
 
 TEST(common, level_ser) {
-  const json j = Level{
-    .name = "test level",
+  const json j = Level {
+    .name  = "test level",
     .theme = "dev",
-    .diff = Difficulty::Unknown,
+    .diff  = Difficulty::Unknown,
     .tiles =
       {
-        {{.x = 0, .y = 0}, {Floor{}}},
-        {{.x = 1, .y = 0}, {Goal{}}},
-        {{.x = 0, .y = 1}, {Button{.door_id = 0}}},
-        {{.x = 1, .y = 1}, {Door{.door_id = 0}}},
+        {{.x = 0, .y = 0}, {Floor {}}},
+        {{.x = 1, .y = 0}, {Goal {}}},
+        {{.x = 0, .y = 1}, {Button {.door_id = 0}}},
+        {{.x = 1, .y = 1}, {Door {.door_id = 0}}},
       },
-    .objects =
-      {
-        {{.x = 0, .y = 0}, {Player{}}},
-        {{.x = 0, .y = 1}, {Box{}}},
-      },
+    .objects = {
+      {{.x = 0, .y = 0}, {Player {}}},
+      {{.x = 0, .y = 1}, {Box {}}},
+    },
   };
 
-  // clang-format off
-  ASSERT_EQ(j.dump(),
+  ASSERT_EQ(
+    j.dump(),
+    // clang-format off
     "{"
       R"("diff":"Unknown",)"
       R"("name":"test level",)"
@@ -113,19 +114,24 @@ TEST(common, level_ser) {
         R"({"door_id":0,"type":2}])"
       "]"
     "}"sv
+    // clang-format on
   );
-  // clang-format on
 }
 
 TEST(common, level_de) {
-  static_assert(index_of<Tile, Portal>() == 3,
-                "index of Portal in Tile changed");
-  static_assert(index_of<Object, Player>() == 0,
-                "index of Player in Object changed");
-  static_assert(index_of<Object, DirBox>() == 2,
-                "index of DirBox in Object changed");
+  static_assert(
+    index_of<Tile, Portal>() == 3, "index of Portal in Tile changed"
+  );
+  static_assert(
+    index_of<Object, Player>() == 0,
+    "index of Player in Object changed"
+  );
+  static_assert(
+    index_of<Object, DirBox>() == 2,
+    "index of DirBox in Object changed"
+  );
 
-  const json j = json::parse(R"(
+  const json  j = json::parse(R"(
     {
       "name": "test level 2",
       "theme": "jungle",
