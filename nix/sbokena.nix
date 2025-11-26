@@ -50,7 +50,11 @@
     };
   };
 
-  inherit (clangStdenv) isLinux;
+  inherit
+    (clangStdenv)
+    isDarwin
+    isLinux
+    ;
   select = pred: t: f:
     if pred
     then t
@@ -135,9 +139,11 @@ in
     src = ../.;
     strictDeps = true;
 
-    inherit nativeBuildInputs;
-    inherit nativeCheckInputs;
-    inherit buildInputs;
+    inherit
+      nativeBuildInputs
+      nativeCheckInputs
+      buildInputs
+      ;
 
     cmakeFlags =
       [
