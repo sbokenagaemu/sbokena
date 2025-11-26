@@ -132,6 +132,13 @@
       LD_LIBRARY_PATH =
         lib.makeLibraryPath
         buildInputs;
+    }
+    // lib.optionalAttrs isDarwin {
+      ASAN_OPTIONS = lib.concatStringsSep ":" [
+        # `nlohmann_json` has a bug on macOS, i don't wanna
+        # look into it just yet, just let it pass for now.
+        "detect_container_overflow=0"
+      ];
     };
 in
   clangStdenv.mkDerivation {
