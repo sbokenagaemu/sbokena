@@ -17,15 +17,15 @@ using namespace sbokena::types;
 using namespace sbokena::utils;
 
 // initial window parameters
-constexpr usize INIT_WIDTH = 800;
-constexpr usize INIT_HEIGHT = 600;
-constexpr std::string INIT_TITLE = "sbokena";
+constexpr usize       INIT_WIDTH  = 800;
+constexpr usize       INIT_HEIGHT = 600;
+constexpr std::string INIT_TITLE  = "sbokena";
 
 int main() {
   SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
   InitWindow(INIT_WIDTH, INIT_HEIGHT, INIT_TITLE.c_str());
   SetWindowMinSize(INIT_WIDTH, INIT_HEIGHT);
-  Deferred _{CloseWindow};
+  Deferred _ {CloseWindow};
 
   NFD::Guard nfd;
 
@@ -37,21 +37,26 @@ int main() {
 
   while (!WindowShouldClose()) {
     BeginDrawing();
-    Deferred _{EndDrawing};
+    Deferred _ {EndDrawing};
 
-    const usize window_width = GetScreenWidth();
+    const usize window_width  = GetScreenWidth();
     const usize window_height = GetScreenHeight();
-    Vector2 window_size = {static_cast<f32>(window_width),
-                           static_cast<f32>(window_height)};
+    Vector2     window_size   = {
+      static_cast<f32>(window_width), static_cast<f32>(window_height)
+    };
 
     // size and position of title
-    Vector2 title_size = MeasureTextEx(GuiGetFont(), "sbokena", 60, 10);
-    Vector2 title_pos = {window_width / 2 - title_size.x / 2,
-                         static_cast<f32>(window_height / 5)};
+    Vector2 title_size =
+      MeasureTextEx(GuiGetFont(), "sbokena", 60, 10);
+    Vector2 title_pos = {
+      window_width / 2 - title_size.x / 2,
+      static_cast<f32>(window_height / 5)
+    };
 
     // size and position of the view containing buttons
     Vector2 view_size = {180, 300};
-    Vector2 view_pos = (window_size - view_size) / 2 + Vector2{0, 100};
+    Vector2 view_pos =
+      (window_size - view_size) / 2 + Vector2 {0, 100};
 
     // size of buttons
     Vector2 btn_size = {180, 90};
@@ -60,33 +65,33 @@ int main() {
     Vector2 message_size = {300, 60};
 
     Rectangle exit_btn = {
-      .x = static_cast<f32>(window_width) - 20,
-      .y = 0,
-      .width = 20,
+      .x      = static_cast<f32>(window_width) - 20,
+      .y      = 0,
+      .width  = 20,
       .height = 20,
     };
     Rectangle start_btn = {
-      .x = view_pos.x,
-      .y = view_pos.y,
-      .width = btn_size.x,
+      .x      = view_pos.x,
+      .y      = view_pos.y,
+      .width  = btn_size.x,
       .height = btn_size.y,
     };
     Rectangle custom_btn = {
-      .x = view_pos.x,
-      .y = view_pos.y + btn_size.y + 10,
-      .width = btn_size.x,
+      .x      = view_pos.x,
+      .y      = view_pos.y + btn_size.y + 10,
+      .width  = btn_size.x,
       .height = btn_size.y,
     };
     Rectangle setting_btn = {
-      .x = view_pos.x,
-      .y = view_pos.y + 2 * btn_size.y + 20,
-      .width = btn_size.x,
+      .x      = view_pos.x,
+      .y      = view_pos.y + 2 * btn_size.y + 20,
+      .width  = btn_size.x,
       .height = btn_size.y,
     };
     Rectangle message_box = {
-      .x = (window_width - message_size.x) / 2,
-      .y = window_height - message_size.y,
-      .width = message_size.x,
+      .x      = (window_width - message_size.x) / 2,
+      .y      = window_height - message_size.y,
+      .width  = message_size.x,
       .height = message_size.y,
     };
 
@@ -115,17 +120,19 @@ int main() {
 
     // display file open failed message
     if (show_file_open_failed) {
-      GuiDrawText("Fail to load file", message_box, TEXT_ALIGN_CENTER, RED);
-      if (GetTime() - start_message >= 3.5) {
+      GuiDrawText(
+        "Fail to load file", message_box, TEXT_ALIGN_CENTER, RED
+      );
+      if (GetTime() - start_message >= 3.5)
         show_file_open_failed = false;
-      }
     }
 
     // setting button
     GuiButton(setting_btn, "settings");
 
     // exit button
-    bool state = GuiButton(exit_btn, GuiIconText(ICON_CROSS_SMALL, NULL));
+    bool state =
+      GuiButton(exit_btn, GuiIconText(ICON_CROSS_SMALL, NULL));
     if (state)
       break;
   }

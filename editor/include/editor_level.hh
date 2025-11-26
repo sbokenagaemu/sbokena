@@ -1,21 +1,28 @@
-// A file containing the implementation of a level inside an editor along with
-// all of its need structures. The level contains:
-//  - A Condition struct denoting its difficulty and move limits.
-//  - A TileMap struct storing every tile's id mapped to its unique_ptr.
-//  - An ObjectMap struct storing every object's id mapped to its unique_ptr.
-//  - A PositionMap struct storing every initialized position mapped to its
-//  tile_id, and a PositionHash for providing its hash function.
-//  - An unordered map for storing all pairs of linked portals.
-//  - An unordered map for storing all pairs of linked button to door.
-//  - An unordered map for storing all pairs of linked door to button.
-// Note: id indexing starts at 0x01, therefore 0x00 means a null or invalid id.
+// A file containing the implementation of a level inside an
+// editor along with all of its need structures. The level
+// contains:
+//  - A Condition struct denoting its difficulty and move
+//  limits.
+//  - A TileMap struct storing every tile's id mapped to its
+//  unique_ptr.
+//  - An ObjectMap struct storing every object's id mapped
+//  to its unique_ptr.
+//  - A PositionMap struct storing every initialized
+//  position mapped to its tile_id, and a PositionHash for
+//  providing its hash function.
+//  - An unordered map for storing all pairs of linked
+//  portals.
+//  - An unordered map for storing all pairs of linked
+//  button to door.
+//  - An unordered map for storing all pairs of linked door
+//  to button.
+// Note: id indexing starts at 0x01, therefore 0x00 means a
+// null or invalid id.
 
 #pragma once
 
 #include <memory>
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
 
 #include <nlohmann/json.hpp>
 
@@ -23,6 +30,9 @@
 #include "position.hh"
 #include "tile.hh"
 #include "types.hh"
+
+#include <unordered_map>
+#include <unordered_set>
 
 using nlohmann::json;
 
@@ -38,15 +48,22 @@ enum class Difficulty { Unknown, Easy, Medium, Hard };
 // invalid or empty id, as id indexing starts from 0x01.
 static constexpr u32 null_id = 0x00;
 
-// contains the difficulty and, move limit, and time limit of the game.
+// contains the difficulty and, move limit, and time limit
+// of the game.
 struct Condition {
   // constructor
-  // by default: difficulty is unknown, both move_limit and time_limit are 0.
-  Condition() : difficulty(Difficulty::Unknown), move_limit(0), time_limit(0) {}
+  // by default: difficulty is unknown, both move_limit and
+  // time_limit are 0.
+  Condition()
+    : difficulty(Difficulty::Unknown),
+      move_limit(0),
+      time_limit(0) {}
+
   // sets difficulty.
   void set_difficulty(Difficulty diff) {
     difficulty = diff;
   }
+
   // difficulty in string form.
   std::string diff_to_string() {
     switch (difficulty) {
@@ -60,41 +77,52 @@ struct Condition {
       return "unknown";
     }
   }
+
   // sets difficulty back to unknown.
   void clear_difficulty() {
     difficulty = Difficulty::Unknown;
   }
+
   // sets move limit.
   void set_move_limit(u32 lim) {
     move_limit = lim;
   }
+
   // removes move limit.
   void clear_move_limit() {
     move_limit = 0;
   }
+
   // sets time limit in seconds.
   void set_time_limit(u32 seconds) {
     time_limit = seconds;
   }
+
   // removes time limit.
   void clear_time_limit() {
     time_limit = 0;
   }
+
   // fields.
   Difficulty difficulty;
-  u32 move_limit;
-  u32 time_limit; // in seconds.
+  u32        move_limit;
+  u32        time_limit; // in seconds.
 };
 
 // an unordered map using tile ids to access tiles.
 struct TileMap {
-  // initialize an empty map and no ids (id starts from 0x01).
+  // initialize an empty map and no ids (id starts from
+  // 0x01).
   TileMap() : map(), max_id(null_id) {}
+
   ~TileMap() = default;
-  // return a new id, which is the id with the max value incremented by 1.
+
+  // return a new id, which is the id with the max value
+  // incremented by 1.
   u32 generate_new_id() {
     return ++max_id;
   }
+
   // the container itself.
   std::unordered_map<u32, std::unique_ptr<Tile>> map;
   // used for generating ids.
@@ -103,13 +131,18 @@ struct TileMap {
 
 // an unordered map using object ids to access objects.
 struct ObjectMap {
-  // initialize an empty map and no ids (id starts from 0x01).
+  // initialize an empty map and no ids (id starts from
+  // 0x01).
   ObjectMap() : map(), max_id(null_id) {}
+
   ~ObjectMap() = default;
-  // return a new id, which is the id with the max value incremented by 1.
+
+  // return a new id, which is the id with the max value
+  // incremented by 1.
   u32 generate_new_id() {
     return ++max_id;
   }
+
   // the container itself.
   std::unordered_map<u32, std::unique_ptr<Object>> map;
   // used for generating ids.
@@ -119,8 +152,8 @@ struct ObjectMap {
 // hashes positions to use for an unordered map.
 struct PositionHash {
   usize operator()(const Position<u32> &pos) const noexcept {
-    std::size_t h1 = std::hash<uint32_t>{}(pos.x);
-    std::size_t h2 = std::hash<uint32_t>{}(pos.y);
+    std::size_t h1 = std::hash<uint32_t> {}(pos.x);
+    std::size_t h2 = std::hash<uint32_t> {}(pos.y);
     return h1 ^ (h2 << 1);
   }
 };
@@ -128,7 +161,8 @@ struct PositionHash {
 // contains and manages all tiles and objects.
 class Level {
 public:
-  // constructor; apart from names, all other fields are defaults.
+  // constructor; apart from names, all other fields are
+  // defaults.
   // clang-format off
   explicit Level(const std::string &name) : 
     name(name), 
@@ -136,11 +170,13 @@ public:
     tiles(),
     objects(), 
     positions() {}
+
   // clang-format on
 
   ~Level() = default;
 
-  // resets the level back the empty default template but keep the name.
+  // resets the level back the empty default template but
+  // keep the name.
   void reset();
 
   // returns level name.
@@ -175,7 +211,8 @@ public:
 
   // ===== tiles =====
 
-  // creates a new tile, takes a type and a position as parameters.
+  // creates a new tile, takes a type and a position as
+  // parameters.
   u32 create_tile(TileType type, const Position<> &pos);
 
   // removes a tile that doesn't have an object on.
@@ -190,10 +227,12 @@ public:
   // the const pointer to the tile.
   const Tile *get_tile(u32 id) const;
 
-  // returns the pointer to the tile at the specified position.
+  // returns the pointer to the tile at the specified
+  // position.
   Tile *get_tile_at(const Position<> &pos);
 
-  // returns the const pointer to the tile at the specified position.
+  // returns the const pointer to the tile at the specified
+  // position.
   const Tile *get_tile_at(const Position<> &pos) const;
 
   // whether the position contains the tile.
@@ -202,8 +241,9 @@ public:
   }
 
   // updates door state (whether it is opened or closed).
-  // is only opened if all of the linked buttons are activated.
-  // if contains an object, keeps its current state.
+  // is only opened if all of the linked buttons are
+  // activated. if contains an object, keeps its current
+  // state.
   void update_door_state(u32 id);
 
   // ===== objects =====
@@ -220,10 +260,12 @@ public:
   // the const pointer to the object.
   const Object *get_object(u32 id) const;
 
-  // returns the pointer to the object at the specified position.
+  // returns the pointer to the object at the specified
+  // position.
   Object *get_object_at(const Position<> &pos);
 
-  // returns the const pointer to the object at the specified position.
+  // returns the const pointer to the object at the
+  // specified position.
   const Object *get_object_at(const Position<> &pos) const;
 
   // moves the object to another existing position.
@@ -242,10 +284,12 @@ public:
   // links a door and a button together.
   bool link_door_button(u32 door_id, u32 button_id);
 
-  // unlinks the door, which also unlinks all linked buttons.
+  // unlinks the door, which also unlinks all linked
+  // buttons.
   bool unlink_door(u32 door_id);
 
-  // unlinks the button, which also unlinks the door from that button.
+  // unlinks the button, which also unlinks the door from
+  // that button.
   bool unlink_button(u32 button_id);
 
 private:
@@ -259,14 +303,15 @@ private:
   ObjectMap objects;
   // position -> tile_id.
   std::unordered_map<Position<>, u32, PositionHash> positions;
-  // linked portals, stores both portal 1 -> portal 2 and vice versa.
+  // linked portals, stores both portal 1 -> portal 2 and
+  // vice versa.
   std::unordered_map<u32, u32> linked_portals;
   // stores door_id to its set of button_ids.
   std::unordered_map<u32, std::unordered_set<u32>> door_to_buttons;
   // stores button_id to door_id.
   std::unordered_map<u32, u32> button_to_door;
-  // TODO: a grid stucture storing the skins of every position.
-  // map<position, image-related-id>
+  // TODO: a grid stucture storing the skins of every
+  // position. map<position, image-related-id>
 };
 
 // ===== from_json/to_json impls =====

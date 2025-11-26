@@ -66,7 +66,8 @@ struct Position {
     return !(*this == rhs);
   }
 
-  // lexicographical less-than compare this position to another.
+  // lexicographical less-than compare this position to
+  // another.
   constexpr bool operator<(const Position<T> &rhs) const noexcept {
     return x < rhs.x || (x == rhs.x && y < rhs.y);
   }

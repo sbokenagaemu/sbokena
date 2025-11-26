@@ -31,15 +31,15 @@ NLOHMANN_JSON_SERIALIZE_ENUM(Direction, {
 class Directions {
 public:
   // construct an empty direction set.
-  constexpr Directions() noexcept : flags_{0} {}
+  constexpr Directions() noexcept : flags_ {0} {}
 
   // construct a direction set from a direction.
   constexpr Directions(const Direction &dir) noexcept
-    : flags_{static_cast<u8>(dir)} {}
+    : flags_ {static_cast<u8>(dir)} {}
 
   // construct a direction set from a raw flag value.
   // this zeroes the upper bits of the value.
-  constexpr Directions(u8 flags) noexcept : flags_{flags} {}
+  constexpr Directions(u8 flags) noexcept : flags_ {flags} {}
 
   // does this set contain some cardinal direction?
   constexpr bool contains(const Direction &dir) const noexcept {
@@ -85,25 +85,30 @@ public:
 
   // the union of this direction set with a direction.
   [[nodiscard("operator| does not modify arguments")]]
-  constexpr Directions operator|(const Direction &dir) const noexcept {
+  constexpr Directions
+  operator|(const Direction &dir) const noexcept {
     return {static_cast<u8>(flags_ | static_cast<u8>(dir))};
   }
 
-  // the intersection of this direction set with a direction.
+  // the intersection of this direction set with a
+  // direction.
   [[nodiscard("operator& does not modify arguments")]]
-  constexpr Directions operator&(const Direction &dir) const noexcept {
+  constexpr Directions
+  operator&(const Direction &dir) const noexcept {
     return {static_cast<u8>(flags_ & static_cast<u8>(dir))};
   }
 
   // the union of 2 direction sets.
   [[nodiscard("operator| does not modify arguments")]]
-  constexpr Directions operator|(const Directions &dirs) const noexcept {
+  constexpr Directions
+  operator|(const Directions &dirs) const noexcept {
     return {static_cast<u8>(flags_ | dirs.flags_)};
   }
 
   // the intersection of 2 direction sets.
   [[nodiscard("operator& does not modify arguments")]]
-  constexpr Directions operator&(const Directions &dirs) const noexcept {
+  constexpr Directions
+  operator&(const Directions &dirs) const noexcept {
     return {static_cast<u8>(flags_ & dirs.flags_)};
   }
 
@@ -137,9 +142,11 @@ private:
 
 // union 2 directions together into a set.
 [[nodiscard("operator| does not modify arguments")]]
-constexpr Directions operator|(const Direction &lhs,
-                               const Direction &rhs) noexcept {
-  return {static_cast<u8>(static_cast<u8>(lhs) | static_cast<u8>(rhs))};
+constexpr Directions
+operator|(const Direction &lhs, const Direction &rhs) noexcept {
+  return {
+    static_cast<u8>(static_cast<u8>(lhs) | static_cast<u8>(rhs))
+  };
 }
 
 } // namespace sbokena::direction

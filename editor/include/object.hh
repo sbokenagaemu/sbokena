@@ -1,6 +1,7 @@
-// A file implementing the structure for moveable objects that are placed on top
-// of files. These include the player and boxes, which can be pushed around by
-// the player. To open a door, a box needs to be on top of its respective
+// A file implementing the structure for moveable objects
+// that are placed on top of files. These include the player
+// and boxes, which can be pushed around by the player. To
+// open a door, a box needs to be on top of its respective
 // button.
 
 #pragma once
@@ -16,10 +17,11 @@ namespace sbokena::editor::object {
 // enumeration of types of object.
 enum class ObjectType { Box, OneDirBox, Player };
 
-// contains common traits of all object classes such as id and type.
+// contains common traits of all object classes such as id
+// and type.
 class Object {
 public:
-  explicit Object(ObjectType type, u32 id) : type{type}, id{id} {}
+  explicit Object(ObjectType type, u32 id) : type {type}, id {id} {}
 
   virtual ~Object() = default;
 
@@ -33,11 +35,12 @@ public:
 
 private:
   ObjectType type;
-  u32 id;
+  u32        id;
   // TODO: an image related id.
 };
 
-// the player; starts at the tile linked to them in the level.
+// the player; starts at the tile linked to them in the
+// level.
 class Player : public Object {
 public:
   Player(u32 id) : Object(ObjectType::Player, id) {}
@@ -53,7 +56,9 @@ public:
 class OneDirBox : public Object {
 public:
   // constructor; by default the direction is up.
-  OneDirBox(u32 id) : Object(ObjectType::OneDirBox, id), dir(Direction::Up) {}
+  OneDirBox(u32 id)
+    : Object(ObjectType::OneDirBox, id),
+      dir(Direction::Up) {}
 
   // to which only direction to move on this tile.
   Direction get_dir() const {

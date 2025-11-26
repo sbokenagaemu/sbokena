@@ -1,8 +1,10 @@
 #include "editor_level.hh"
+
+#include <memory>
+
 #include "tile.hh"
 #include "types.hh"
 
-#include <memory>
 #include <unordered_map>
 
 using namespace sbokena::position;
@@ -11,7 +13,8 @@ using namespace sbokena::editor::object;
 
 namespace sbokena::editor::level {
 
-// resets the level back the empty default template but keep the name.
+// resets the level back the empty default template but keep
+// the name.
 void Level::reset() {
   // clears all stored elements.
   tiles.map.clear();
@@ -21,7 +24,7 @@ void Level::reset() {
   door_to_buttons.clear();
   button_to_door.clear();
   // resets the max id counters.
-  tiles.max_id = null_id;
+  tiles.max_id   = null_id;
   objects.max_id = null_id;
   // resets the condition.
   condition = Condition();
@@ -29,14 +32,15 @@ void Level::reset() {
 
 // ===== tiles =====
 
-// creates a new tile, takes a type and a position as parameters.
+// creates a new tile, takes a type and a position as
+// parameters.
 u32 Level::create_tile(TileType type, const Position<> &pos) {
   u32 id;
-  // if a tile already exists at the position, cannot create a new tile.
+  // if a tile already exists at the position, cannot create
+  // a new tile.
   auto it = positions.find(pos);
-  if (it != positions.end()) {
+  if (it != positions.end())
     return null_id;
-  }
   // creates a new tile at the position.
   id = this->generate_tile_id();
   std::unique_ptr<Tile> tile;
@@ -65,7 +69,7 @@ u32 Level::create_tile(TileType type, const Position<> &pos) {
   }
 
   positions[pos] = id;
-  tiles.map[id] = std::move(tile);
+  tiles.map[id]  = std::move(tile);
   return id;
 }
 
@@ -76,9 +80,8 @@ bool Level::remove_tile(u32 id) {
   if (!tile)
     return false;
   // can’t remove tiles that have an object on them.
-  if (tile->contains_obj()) {
+  if (tile->contains_obj())
     return false;
-  }
   // cleans up links if the tile is linked.
   switch (tile->get_type()) {
   case TileType::Portal: {
@@ -138,7 +141,8 @@ const Tile *Level::get_tile(u32 id) const {
   return it->second.get();
 };
 
-// returns the pointer to the tile at the specified position.
+// returns the pointer to the tile at the specified
+// position.
 Tile *Level::get_tile_at(const Position<> &pos) {
   auto it = positions.find(pos);
   // if the position contains no tile then returns nullptr.
@@ -148,7 +152,8 @@ Tile *Level::get_tile_at(const Position<> &pos) {
   return get_tile(it->second);
 }
 
-// returns the const pointer to the tile at the specified position.
+// returns the const pointer to the tile at the specified
+// position.
 const Tile *Level::get_tile_at(const Position<> &pos) const {
   auto it = positions.find(pos);
   // if the position contains no tile then returns nullptr.
@@ -159,10 +164,12 @@ const Tile *Level::get_tile_at(const Position<> &pos) const {
 }
 
 // updates door state (whether it is opened or closed).
-// is only opened if all of the linked buttons are activated.
-// if contains an object, keeps its current state.
+// is only opened if all of the linked buttons are
+// activated. if contains an object, keeps its current
+// state.
 void Level::update_door_state(u32 id) {
-  // if the door doesn't exist, or if there is an object on it, does nothing.
+  // if the door doesn't exist, or if there is an object on
+  // it, does nothing.
   Door *door = dynamic_cast<Door *>(get_tile(id));
   if (!door || door->contains_obj())
     return;
@@ -172,7 +179,8 @@ void Level::update_door_state(u32 id) {
     (void)door->close();
     return;
   }
-  // checks whether all buttons exist and are pressed (contain object).
+  // checks whether all buttons exist and are pressed
+  // (contain object).
   bool all_pressed = true;
   for (auto b_id : it->second) {
     Button *button = dynamic_cast<Button *>(get_tile(b_id));
@@ -181,12 +189,12 @@ void Level::update_door_state(u32 id) {
       break;
     }
   }
-  // if all buttons are pressed, opens the door, else closes it.
-  if (all_pressed) {
+  // if all buttons are pressed, opens the door, else closes
+  // it.
+  if (all_pressed)
     door->open();
-  } else {
+  else
     door->close();
-  }
 }
 
 // ===== objects =====
@@ -200,11 +208,12 @@ u32 Level::add_object(ObjectType type, const Position<> &pos) {
   // if the tile is a wall then can't add object.
   if (tile->get_type() == TileType::Wall)
     return null_id;
-  // if the tile already contains an object then can't add object.
+  // if the tile already contains an object then can't add
+  // object.
   if (tile->contains_obj())
     return null_id;
   // else adds an object.
-  u32 id = this->generate_object_id();
+  u32                     id = this->generate_object_id();
   std::unique_ptr<Object> object;
   switch (type) {
   case ObjectType::Box:
@@ -220,7 +229,8 @@ u32 Level::add_object(ObjectType type, const Position<> &pos) {
   tile->set_obj_id(id);
   objects.map[id] = std::move(object);
 
-  // update linked door state if placed tile is a button or a door.
+  // update linked door state if placed tile is a button or
+  // a door.
   if (tile->get_type() == TileType::Button) {
     auto door_it = button_to_door.find(tile->get_id());
     if (door_it != button_to_door.end())
@@ -241,15 +251,16 @@ bool Level::remove_object(u32 id) {
   // removes the object_id in the tile the object is on.
   Tile *cleanup = nullptr;
   for (auto &pair : positions) {
-    u32 tile_id = pair.second;
-    Tile *tile = get_tile(tile_id);
+    u32   tile_id = pair.second;
+    Tile *tile    = get_tile(tile_id);
     if (tile && tile->contains_obj() && tile->get_obj_id() == id) {
       tile->remove_obj_id();
       cleanup = tile;
       break;
     }
   }
-  // if aforementioned tile is a button or a door, update the door state.
+  // if aforementioned tile is a button or a door, update
+  // the door state.
   if (cleanup) {
     if (cleanup->get_type() == TileType::Button) {
       auto door_it = button_to_door.find(cleanup->get_id());
@@ -280,7 +291,8 @@ const Object *Level::get_object(u32 id) const {
   return it->second.get();
 }
 
-// returns the pointer to the object at the specified position.
+// returns the pointer to the object at the specified
+// position.
 Object *Level::get_object_at(const Position<> &pos) {
   Tile *tile = get_tile_at(pos);
   if (!tile)
@@ -291,7 +303,8 @@ Object *Level::get_object_at(const Position<> &pos) {
   return get_object(id);
 };
 
-// returns the const pointer to the object at the specified position.
+// returns the const pointer to the object at the specified
+// position.
 const Object *Level::get_object_at(const Position<> &pos) const {
   const Tile *tile = get_tile_at(pos);
   if (!tile)
@@ -312,14 +325,16 @@ bool Level::move_object(u32 id, const Position<> &new_pos) {
   Tile *tile = get_tile_at(new_pos);
   if (!tile)
     return false;
-  // if tile is wall or contains an object, can't move object there.
+  // if tile is wall or contains an object, can't move
+  // object there.
   if (tile->get_type() == TileType::Wall || tile->contains_obj())
     return false;
-  // removes the object_id in the tile the object is currently on.
+  // removes the object_id in the tile the object is
+  // currently on.
   Tile *cleanup = nullptr;
   for (auto &pair : positions) {
-    u32 tile_id = pair.second;
-    Tile *tile = get_tile(tile_id);
+    u32   tile_id = pair.second;
+    Tile *tile    = get_tile(tile_id);
     if (tile) {
       if (tile->contains_obj() && tile->get_obj_id() == id) {
         tile->remove_obj_id();
@@ -330,7 +345,8 @@ bool Level::move_object(u32 id, const Position<> &new_pos) {
   }
   // places the object on a new tile.
   tile->set_obj_id(id);
-  // update the state of possible linked doors in the old and new tile.
+  // update the state of possible linked doors in the old
+  // and new tile.
   auto update = [&](Tile *t) {
     if (!t)
       return;
@@ -379,8 +395,8 @@ bool Level::unlink_portal(u32 portal_id) {
   if (it == linked_portals.end())
     return false;
   // the other portal's id.
-  u32 other_id = it->second;
-  auto it2 = linked_portals.find(other_id);
+  u32  other_id = it->second;
+  auto it2      = linked_portals.find(other_id);
   // checks if the reverse portal pair exists.
   if (it2 == linked_portals.end())
     return false;
@@ -405,11 +421,12 @@ bool Level::link_door_button(u32 door_id, u32 button_id) {
   if (door_id == button_id)
     return false;
   // check if the door and button exist.
-  Door *door = dynamic_cast<Door *>(get_tile(door_id));
+  Door   *door   = dynamic_cast<Door *>(get_tile(door_id));
   Button *button = dynamic_cast<Button *>(get_tile(button_id));
   if (!door || !button)
     return false;
-  // if this button was linked before, unlink from its old door
+  // if this button was linked before, unlink from its old
+  // door
   auto it = button_to_door.find(button_id);
   if (it != button_to_door.end()) {
     if (!unlink_button(button_id))
@@ -418,7 +435,8 @@ bool Level::link_door_button(u32 door_id, u32 button_id) {
   // links the door and the button.
   door->link();
   button->link();
-  // adds the pair in both directions into door_to_button and button_to_door.
+  // adds the pair in both directions into door_to_button
+  // and button_to_door.
   door_to_buttons[door_id].emplace(button_id);
   button_to_door[button_id] = door_id;
   // update door state after removing button.
@@ -450,8 +468,8 @@ bool Level::unlink_door(u32 door_id) {
   return true;
 }
 
-// unlinks the button, which also unlinks the door from that button.
-// if the door is now empty then closes it.
+// unlinks the button, which also unlinks the door from that
+// button. if the door is now empty then closes it.
 bool Level::unlink_button(u32 button_id) {
   // checks if the button to door pair exists.
   auto it = button_to_door.find(button_id);
@@ -461,7 +479,7 @@ bool Level::unlink_button(u32 button_id) {
   u32 door_id = it->second;
   // checks if the door and the button exists.
   Button *button = dynamic_cast<Button *>(get_tile(button_id));
-  Door *door = dynamic_cast<Door *>(get_tile(door_id));
+  Door   *door   = dynamic_cast<Door *>(get_tile(door_id));
   if (!button || !door)
     return false;
   // erases the pairs in button_to_door and door_to_buttons.
@@ -472,7 +490,8 @@ bool Level::unlink_button(u32 button_id) {
   button_to_door.erase(button_id);
   // unlinks the button
   button->unlink();
-  // if door is now empty then unlinks the button and closes the door.
+  // if door is now empty then unlinks the button and closes
+  // the door.
   if (door_it->second.empty()) {
     door_to_buttons.erase(door_it);
     door->unlink();
