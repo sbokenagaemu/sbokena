@@ -2,7 +2,6 @@
   # config options
   buildRelease ? true,
   enableWayland ? true,
-  enableXDGPortals ? true,
   enableX11 ? true,
   # nixpkgs
   lib,
@@ -13,27 +12,13 @@
   cmake,
   dbus,
   fd,
-  gtk3,
-  lerc,
-  libdatrie,
-  libdeflate,
-  libepoxy,
   libffi,
   libGL,
-  libselinux,
-  libsepol,
-  libsysprof-capture,
-  libthai,
-  libwebp,
   libxkbcommon,
   ninja,
-  pcre2,
   pkg-config,
-  util-linux,
   wayland,
   wayland-scanner,
-  xz,
-  zstd,
   ...
 }: let
   # sources of vendored external libraries
@@ -73,7 +58,6 @@
 
   # only enable Wayland, XDG Portals and X11 on Linux
   enableWayland' = select isLinux enableWayland false;
-  enableXDGPortals' = select isLinux enableXDGPortals false;
   enableX11' = select isLinux enableX11 false;
 
   # build-time dependencies
@@ -103,23 +87,6 @@
       dbus
       libGL
     ]
-    # optional dependencies for XDG Portal builds
-    ++ lib.optionals enableXDGPortals' [
-      gtk3
-      lerc
-      libdatrie
-      libdeflate
-      libepoxy
-      libselinux
-      libsepol
-      libsysprof-capture
-      libthai
-      libwebp
-      pcre2
-      util-linux
-      xz
-      zstd
-    ]
     # optional dependencies for Wayland builds
     ++ lib.optionals enableWayland' [
       libffi
@@ -133,11 +100,6 @@
       xorg.libXi
       xorg.libXinerama
       xorg.libXrandr
-    ]
-    # optional dependencies for X11 builds with XDG Portals
-    ++ lib.optionals (enableX11' && enableXDGPortals') [
-      xorg.libXdmcp
-      xorg.libXtst
     ];
 
   # kebab-case -> SCREAMING_CASE
@@ -184,7 +146,6 @@ in
         ))
       ]
       ++ lib.optionals isLinux [
-        (lib.cmakeBool "NFD_PORTAL" enableXDGPortals')
         (lib.cmakeBool "GLFW_BUILD_WAYLAND" enableWayland')
         (lib.cmakeBool "GLFW_BUILD_X11" enableX11')
       ];

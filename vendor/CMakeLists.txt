@@ -16,9 +16,7 @@ else ()
 endif ()
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  if (NOT DEFINED NFD_PORTAL)
-    set(NFD_PORTAL 1)
-  endif ()
+  set(NFD_PORTAL 1)
 endif ()
 
 if (DEFINED ENV{NFD_SRC})
