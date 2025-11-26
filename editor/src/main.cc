@@ -7,9 +7,13 @@
 #include <raygui.h>
 #include <raylib.h>
 
-#include "types.hh"
+#include "editor_level.hh"
 
 using namespace sbokena::types;
+using namespace sbokena::editor::level;
+
+// for testing purposes
+#include <iostream>
 
 // several resolution presets can be implemented via
 // changing the values, while retaining the ratio
@@ -25,22 +29,65 @@ constexpr u32 view_control_button_width   = 120;
 constexpr u32 view_control_button_height  = 50;
 
 int main() {
+  Level         level_ = Level("default");
+  raylib::Color color_;
+
+  std::array<float, 10> sizes = {
+    40,
+    10,
+    80,
+    25,
+    20,
+    25,
+    60,
+    50,
+    100,
+    (10 * 2 + 25 * 2 + 80 * 2 + 20)
+  };
+
+  float min_width  = sizes[9] + 4 * sizes[0] + sizes[8] + 40;
+  float min_height = sizes[7] + 4 * sizes[2] + 5 * sizes[4] + 20;
+
   raylib::Window window(
-    width, height, "Window", FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE
+    min_width,
+    min_height,
+    "Window",
+    FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE
   );
   bool exit = false;
 
-  // The width of the tile picker section
-  const f32 tile_picker_width =
-    ((2 * tile_picker_space_inbetween) + (2 * tile_picker_box_size)
-     + (2 * tile_picker_padding));
+  SetWindowMinSize(min_width, min_height);
+
+  const char          *options_theme   = "Yes;No;IDK";
+  int                  active_theme    = 0;
+  bool                 edit_mode_theme = false;
+  std::array<float, 4> zoom_values     = {0.25, 0.5, 1, 2};
+  float                current_zoom    = 2;
 
   while (!window.ShouldClose() && !exit) {
     window.BeginDrawing();
 
-    // DECORATIVE ELEMENTS
     // Clear gray background
-    window.ClearBackground(raylib::Color::Gray());
+    window.ClearBackground(raylib::Color::LightGray());
+
+    // resizes the window to be at least it's minimum
+    float current_window_width  = window.GetWidth();
+    float current_window_height = window.GetHeight();
+
+    if (current_window_width < min_width)
+      current_window_width = min_width;
+
+    if (current_window_height < min_height)
+      current_window_height = min_height;
+
+    std::cout << current_zoom << std::endl;
+
+    // DECORATIVE ELEMENTS
+    // tile_picker
+    const Rectangle tile_picker = {
+      0, 0, sizes[9], current_window_height
+    };
+    DrawRectangleRec(tile_picker, raylib::Color::Gray());
 
     // tile_picker_vertical_1
     const Rectangle tile_picker_vertical_1 = {
@@ -56,6 +103,12 @@ int main() {
       height
     };
     DrawRectangleRec(tile_picker_vertical_2, raylib::Color::Black());
+
+    // taskbar
+    const Rectangle taskbar = {
+      sizes[9], 0, current_window_width - sizes[9], sizes[0]
+    };
+    DrawRectangleRec(taskbar, raylib::Color::Gray());
 
     // taskbar_line
     const Rectangle taskbar_line = {
@@ -156,7 +209,8 @@ int main() {
       view_control_button_height
     };
     if (GuiButton(zoom_in_button, "Zoom in")) {
-      // TODO
+      if (current_zoom < 3)
+        current_zoom += 1;
     }
 
     // Rotate button
@@ -173,14 +227,14 @@ int main() {
 
     // Zoom out button (?)
     const Rectangle zoom_out_button = {
-      (tile_picker_padding + 2 * view_control_padding)
-        + (2 * view_control_button_width),
-      height - view_control_button_height,
-      view_control_button_width,
-      view_control_button_height
+      (sizes[1] + 2 * sizes[5]) + (2 * sizes[6]),
+      current_window_height - sizes[7],
+      sizes[6],
+      sizes[7]
     };
-    if (GuiButton(zoom_out_button, "Zoom in")) {
-      // TODO
+    if (GuiButton(zoom_out_button, "Zoom out")) {
+      if (current_zoom != 0)
+        current_zoom -= 1;
     }
 
     // TILES
