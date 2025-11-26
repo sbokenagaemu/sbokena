@@ -1,20 +1,37 @@
 BasedOnStyle: LLVM
-ColumnLimit: 80
-
-# indents
+AlignAfterOpenBracket: BlockIndent
+AlignConsecutiveAssignments:
+  Enabled: true
+AlignConsecutiveDeclarations:
+  Enabled: true
+AlignEscapedNewlines: LeftWithLastLine
+AlignOperands: AlignAfterOperator
+AllowShortFunctionsOnASingleLine: Empty
+AlwaysBreakBeforeMultilineStrings: true
+BinPackArguments: false
+BinPackParameters: false
+BreakAfterAttributes: Always
+BreakBeforeBinaryOperators: NonAssignment
+BreakTemplateDeclarations: Yes
+ColumnLimit: 70
 ConstructorInitializerIndentWidth: 2
 ContinuationIndentWidth: 2
-
-# no single-line constructs (mostly)
-# basically only prevent this for either
-# a) things that affect control flow
-# b) templates & require clauses
-AllowShortCaseExpressionOnASingleLine: false
-AllowShortCaseLabelsOnASingleLine: false
-AllowShortCompoundRequirementOnASingleLine: true
-AllowShortEnumsOnASingleLine: true
-AllowShortFunctionsOnASingleLine: Empty
-AllowShortLambdasOnASingleLine: Empty
-AllowShortLoopsOnASingleLine: false
-AllowShortIfStatementsOnASingleLine: false
-BreakTemplateDeclarations: Yes
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: <[a-zA-Z0-9]+>
+    Priority: 1
+  - Regex: <[a-zA-Z0-9\.\/]+>
+    Priority: 2
+  - Regex: '".+"'
+    Priority: 3
+InsertNewlineAtEOF: true
+InsertTrailingCommas: Wrapped
+KeepEmptyLines:
+  AtStartOfBlock: false
+  AtStartOfFile: false
+PackConstructorInitializers: CurrentLine
+RemoveBracesLLVM: true
+RequiresExpressionIndentation: Keyword
+SeparateDefinitionBlocks: Always
+ShortNamespaceLines: 0
+SpaceBeforeCpp11BracedList: true
