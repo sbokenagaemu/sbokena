@@ -80,6 +80,23 @@ int main() {
     if (current_window_height < min_height)
       current_window_height = min_height;
 
+    // GRID
+    float x_offset = 0;
+    float y_offset = 0;
+    float grid_size = 64 * zoom_values[current_zoom];
+    for (u32 y = 0; y < 31; y++) {
+      for (u32 x = 0; x < 31; x++) {
+        const Rectangle tile = {x_offset + grid_size * x,
+                                y_offset + grid_size * y, grid_size, grid_size};
+        if ((x + y) % 2) {
+          color_ = raylib::Color::Black();
+        } else {
+          color_ = raylib::Color::White();
+        }
+        DrawRectangleRec(tile, color_);
+      }
+    }
+
     std::cout << current_zoom << std::endl;
 
     // DECORATIVE ELEMENTS
