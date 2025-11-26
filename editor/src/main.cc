@@ -1,5 +1,6 @@
 #ifndef RAYGUI_IMPLEMENTATION
 #define RAYGUI_IMPLEMENTATION
+#include <Vector2.hpp>
 #endif
 
 #include <Color.hpp>
@@ -8,6 +9,7 @@
 #include <raylib.h>
 
 #include "editor_level.hh"
+#include "grid.hh"
 
 using namespace sbokena::types;
 using namespace sbokena::editor::level;
@@ -58,14 +60,27 @@ int main() {
 
   SetWindowMinSize(min_width, min_height);
 
-  const char          *options_theme   = "Yes;No;IDK";
-  int                  active_theme    = 0;
-  bool                 edit_mode_theme = false;
-  std::array<float, 4> zoom_values     = {0.25, 0.5, 1, 2};
-  float                current_zoom    = 2;
+  const char                *options_theme   = "Yes;No;IDK";
+  int                        active_theme    = 0;
+  bool                       edit_mode_theme = false;
+  const std::array<float, 4> zoom_values     = {0.25, 0.5, 1, 2};
+  float                      current_zoom    = 2;
+  raylib::Vector2            mousepos;
+  float                      x_offset = 0;
+  float                      y_offset = 0;
 
   while (!window.ShouldClose() && !exit) {
     window.BeginDrawing();
+
+    if (IsMouseButtonPressed(MOUSE_MIDDLE_BUTTON))
+      mousepos = GetMousePosition();
+    if (IsMouseButtonDown(MOUSE_MIDDLE_BUTTON)) {
+      raylib::Vector2 diff =
+        Vector2Subtract(GetMousePosition(), mousepos);
+      x_offset += diff.GetX();
+      y_offset += diff.GetY();
+      mousepos = GetMousePosition();
+    }
 
     // Clear gray background
     window.ClearBackground(raylib::Color::LightGray());
@@ -81,23 +96,22 @@ int main() {
       current_window_height = min_height;
 
     // GRID
-    float x_offset = 0;
-    float y_offset = 0;
     float grid_size = 64 * zoom_values[current_zoom];
     for (u32 y = 0; y < 31; y++) {
       for (u32 x = 0; x < 31; x++) {
-        const Rectangle tile = {x_offset + grid_size * x,
-                                y_offset + grid_size * y, grid_size, grid_size};
-        if ((x + y) % 2) {
+        const Rectangle tile = {
+          x_offset + grid_size * x,
+          y_offset + grid_size * y,
+          grid_size,
+          grid_size
+        };
+        if ((x + y) % 2)
           color_ = raylib::Color::Black();
-        } else {
+        else
           color_ = raylib::Color::White();
-        }
         DrawRectangleRec(tile, color_);
       }
     }
-
-    std::cout << current_zoom << std::endl;
 
     // DECORATIVE ELEMENTS
     // tile_picker
