@@ -6,13 +6,19 @@
 
 #pragma once
 
+#include <algorithm>
+#include <vector>
+
 #include "direction.hh"
 #include "types.hh"
 
-using namespace sbokena::types;
-using namespace sbokena::direction;
+using sbokena::direction::Direction;
+using sbokena::types::u32;
 
 namespace sbokena::editor::tile {
+
+// invalid or empty id, as id indexing starts from 0x01.
+static constexpr u32 null_id = 0x00;
 
 // An enum containing types of tiles.
 enum class TileType {
@@ -30,12 +36,11 @@ enum class TileType {
 class Tile {
 public:
   // construct a new tile, contains no object by default.
-  // obj_id = 0x00 -> no id linked (id indexing starts at
-  // 0x01).
+  // obj_id = null_id -> no id linked (id indexing starts at 0x01).
   explicit Tile(TileType type, u32 id)
     : type(type),
       id(id),
-      obj_id(0x00) {}
+      obj_id(null_id) {}
 
   // default destructor.
   virtual ~Tile() = default;
@@ -52,7 +57,7 @@ public:
 
   // if there is an object on the tile.
   virtual bool contains_obj() const {
-    return (obj_id != 0x00);
+    return (obj_id != null_id);
   }
 
   // tile's object id.
@@ -67,7 +72,7 @@ public:
 
   // object goes off tile.
   virtual void remove_obj_id() {
-    obj_id = 0x00;
+    obj_id = null_id;
   }
 
 private:
@@ -91,7 +96,7 @@ public:
 
   // no object, no id.
   u32 get_obj_id() const override {
-    return 0x00;
+    return null_id;
   }
 
   // object cannot be on wall.
@@ -192,22 +197,27 @@ public:
   // is up.
   Portal(u32 id)
     : Tile(TileType::Portal, id),
-      linked(false),
+      portal_id(null_id),
       dir_in(Direction::Up) {}
 
-  // flags the portal as linked.
-  void link() {
-    linked = true;
+  // links the portal to another portal.
+  void link(u32 linked_id) {
+    portal_id = linked_id;
   }
 
-  // flags the portal as unlinked.
+  // unlinks the portal.
   void unlink() {
-    linked = false;
+    portal_id = null_id;
   }
 
   // whether the portal is linked or not.
   bool is_linked() const {
-    return linked;
+    return (portal_id != null_id);
+  }
+
+  // the linked portal id.
+  u32 get_linked() const {
+    return portal_id;
   }
 
   // which only direction for the object to move into this
@@ -262,33 +272,55 @@ public:
   }
 
 private:
-  bool      linked;
+  u32       portal_id;
   Direction dir_in;
 };
 
-// Opens when the linked button is pressed.
+// Is linked to one or more buttons. When all are pressed, tries to
+// open the door. If contains an object, the state doesn't change
+// untill it stops containing one.
 class Door : public Tile {
 public:
-  // construct a new door, by default isn't linked to
-  // another button and isn't opened.
+  // constructs a new door, by default isn't linked to another button
+  // and isn't opened.
   Door(u32 id)
     : Tile(TileType::Door, id),
-      linked(false),
+      button_ids(),
       opened(false) {}
 
-  // flags the door as linked.
-  void link() {
-    linked = true;
+  // links the door to a button; prevents duplicates.
+  void link(u32 linked_id) {
+    auto it =
+      std::find(button_ids.begin(), button_ids.end(), linked_id);
+    if (it == button_ids.end())
+      button_ids.push_back(linked_id);
   }
 
-  // flags the door as unlinked.
-  void unlink() {
-    linked = false;
+  // unlinks the door from a button.
+  void unlink(u32 unlinked_id) {
+    auto it =
+      std::find(button_ids.begin(), button_ids.end(), unlinked_id);
+    if (it != button_ids.end())
+      button_ids.erase(it);
+  }
+
+  // unlinks the door from all buttons.
+  void unlink_all() {
+    button_ids.clear();
   }
 
   // whether the door is linked or not.
   bool is_linked() const {
-    return linked;
+    return !button_ids.empty();
+  }
+
+  // the vector of linked ids.
+  std::vector<u32> &get_linked_vector() {
+    return button_ids;
+  }
+
+  const std::vector<u32> &get_linked_vector() const {
+    return button_ids;
   }
 
   // opens the door.
@@ -317,34 +349,38 @@ public:
   }
 
 private:
-  bool linked;
-  bool opened;
+  std::vector<u32> button_ids;
+  bool             opened;
 };
 
-// When contains an object (pressed), opens the linked door.
+// Is linked to a door, tries to it when contains an object (pressed).
 class Button : public Tile {
 public:
-  // construct a new button, by default isn't linked to
-  // another door.
-  Button(u32 id) : Tile(TileType::Button, id), linked(false) {}
+  // constructs a new button, by default isn't linked to another door.
+  Button(u32 id) : Tile(TileType::Button, id), door_id(null_id) {}
 
-  // flags the button as linked.
-  void link() {
-    linked = true;
+  // links the button to a door.
+  void link(u32 linked_id) {
+    door_id = linked_id;
   }
 
-  // flags the button as unlinked.
+  // unlinks the button.
   void unlink() {
-    linked = false;
+    door_id = null_id;
   }
 
   // whether the button is linked or not.
   bool is_linked() const {
-    return linked;
+    return (door_id != null_id);
+  }
+
+  // the linked door id.
+  u32 get_linked() const {
+    return door_id;
   }
 
 private:
-  bool linked;
+  u32 door_id;
 };
 
 } // namespace sbokena::editor::tile

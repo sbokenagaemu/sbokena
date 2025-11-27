@@ -31,21 +31,18 @@
 #include "object.hh"
 #include "position.hh"
 #include "tile.hh"
-#include "types.hh"
 
 using nlohmann::json;
 
 using sbokena::position::Position;
 using namespace sbokena::editor::tile;
 using namespace sbokena::editor::object;
+using sbokena::editor::tile::null_id;
 
 namespace sbokena::editor::level {
 
 // enum for the difficulty.
 enum class Difficulty { Unknown, Easy, Medium, Hard };
-
-// invalid or empty id, as id indexing starts from 0x01.
-static constexpr u32 null_id = 0x00;
 
 // contains the difficulty and, move limit, and time limit
 // of the game.
@@ -148,15 +145,6 @@ struct ObjectMap {
   u32 max_id;
 };
 
-// hashes positions to use for an unordered map.
-struct PositionHash {
-  usize operator()(const Position<u32> &pos) const noexcept {
-    std::size_t h1 = std::hash<uint32_t> {}(pos.x);
-    std::size_t h2 = std::hash<uint32_t> {}(pos.y);
-    return h1 ^ (h2 << 1);
-  }
-};
-
 // contains and manages all tiles and objects.
 class Level {
 public:
@@ -168,7 +156,11 @@ public:
     condition(), 
     tiles(),
     objects(), 
-    positions() {}
+    pos_tiles(),
+    pos_objects(),
+    linked_portals(),
+    door_to_buttons(),
+    button_to_door() {}
 
   // clang-format on
 
@@ -236,7 +228,7 @@ public:
 
   // whether the position contains the tile.
   bool has_tile_at(const Position<> &pos) const {
-    return positions.find(pos) != positions.end();
+    return pos_tiles.find(pos) != pos_tiles.end();
   }
 
   // updates door state (whether it is opened or closed).
@@ -301,9 +293,10 @@ private:
   // id -> object.
   ObjectMap objects;
   // position -> tile_id.
-  std::unordered_map<Position<>, u32, PositionHash> positions;
-  // linked portals, stores both portal 1 -> portal 2 and
-  // vice versa.
+  std::map<Position<>, u32> pos_tiles;
+  // position -> object_id.
+  std::map<Position<>, u32> pos_objects;
+  // linked portals, stores both portal 1 -> portal 2 and vice versa.
   std::unordered_map<u32, u32> linked_portals;
   // stores door_id to its set of button_ids.
   std::unordered_map<u32, std::unordered_set<u32>> door_to_buttons;
@@ -312,25 +305,5 @@ private:
   // TODO: a grid stucture storing the skins of every
   // position. map<position, image-related-id>
 };
-
-// ===== from_json/to_json impls =====
-
-void from_json(const json &, Floor &);
-void to_json(json &, const Floor &);
-
-void from_json(const json &, Button &);
-void to_json(json &, const Button &);
-
-void from_json(const json &, Door &);
-void to_json(json &, const Door &);
-
-void from_json(const json &, Portal &);
-void to_json(json &, const Portal &);
-
-void from_json(const json &, Tile &);
-void to_json(json &, const Tile &);
-
-void from_json(const json &, Level &);
-void to_json(json &, const Level &);
 
 } // namespace sbokena::editor::level
