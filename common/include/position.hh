@@ -5,15 +5,18 @@
 
 #include <nlohmann/json.hpp>
 
+#include "direction.hh"
 #include "types.hh"
 
 using nlohmann::json;
 
 using namespace sbokena::types;
+using namespace sbokena::direction;
 
 namespace sbokena::position {
 
 // a position in a 2D grid.
+// for the game, +y points down, and +x points right.
 template <std::integral T = u32>
 struct Position {
   T x;
@@ -21,8 +24,21 @@ struct Position {
 
   // this position with x and y swapped.
   [[nodiscard("tposed does not modify `this`")]]
-  constexpr Position tposed() const {
+  constexpr Position tposed() const noexcept {
     return {y, x};
+  }
+
+  constexpr Position move(const Direction &dir) const noexcept {
+    switch (dir) {
+    case Direction::Up:
+      return {x, y - 1};
+    case Direction::Down:
+      return {x, y + 1};
+    case Direction::Left:
+      return {x - 1, y};
+    case Direction::Right:
+      return {x + 1, y};
+    }
   }
 
   // negate this position element-wise.
