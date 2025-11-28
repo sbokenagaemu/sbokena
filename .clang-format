@@ -6,6 +6,7 @@ AlignConsecutiveDeclarations:
   Enabled: true
 AlignEscapedNewlines: LeftWithLastLine
 AlignOperands: AlignAfterOperator
+AllowShortBlocksOnASingleLine: Empty
 AllowShortFunctionsOnASingleLine: Empty
 AlwaysBreakBeforeMultilineStrings: true
 BinPackArguments: false
