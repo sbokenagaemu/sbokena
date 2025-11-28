@@ -1,11 +1,10 @@
 #include "editor_level.hh"
 
 #include <memory>
+#include <unordered_map>
 
 #include "tile.hh"
 #include "types.hh"
-
-#include <unordered_map>
 
 using namespace sbokena::position;
 using namespace sbokena::editor::tile;
