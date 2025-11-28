@@ -28,6 +28,7 @@
 
 #include <nlohmann/json.hpp>
 
+#include "level.hh"
 #include "object.hh"
 #include "position.hh"
 #include "tile.hh"
@@ -165,6 +166,8 @@ public:
   // clang-format on
 
   ~Level() = default;
+
+  // ===== general ======
 
   // resets the level back the empty default template but
   // keep the name.
@@ -304,6 +307,7 @@ private:
   std::unordered_map<u32, u32> button_to_door;
   // TODO: a grid stucture storing the skins of every
   // position. map<position, image-related-id>
+  // TODO: std::string theme
 };
 
 } // namespace sbokena::editor::level
