@@ -18,6 +18,20 @@ enum struct Direction : u8 {
   // clang-format on
 };
 
+// reverse a given direction.
+constexpr Direction operator-(const Direction &dir) noexcept {
+  switch (dir) {
+  case Direction::Up:
+    return Direction::Down;
+  case Direction::Down:
+    return Direction::Up;
+  case Direction::Left:
+    return Direction::Right;
+  case Direction::Right:
+    return Direction::Left;
+  }
+}
+
 // clang-format off
 NLOHMANN_JSON_SERIALIZE_ENUM(Direction, {
   {Direction::Up,    "Up"   },
@@ -90,8 +104,7 @@ public:
     return {static_cast<u8>(flags_ | static_cast<u8>(dir))};
   }
 
-  // the intersection of this direction set with a
-  // direction.
+  // the intersection of this direction set with a direction.
   [[nodiscard("operator& does not modify arguments")]]
   constexpr Directions
   operator&(const Direction &dir) const noexcept {
