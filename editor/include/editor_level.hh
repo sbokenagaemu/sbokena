@@ -23,6 +23,8 @@
 
 #include <memory>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 
 #include <nlohmann/json.hpp>
 
@@ -30,9 +32,6 @@
 #include "position.hh"
 #include "tile.hh"
 #include "types.hh"
-
-#include <unordered_map>
-#include <unordered_set>
 
 using nlohmann::json;
 

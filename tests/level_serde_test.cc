@@ -1,11 +1,11 @@
+#include <string_view>
+
 #include <gtest/gtest.h>
 #include <nlohmann/json.hpp>
 
 #include "direction.hh"
 #include "level.hh"
 #include "utils.hh"
-
-#include <string_view>
 
 using namespace std::string_view_literals;
 
