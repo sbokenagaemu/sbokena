@@ -18,9 +18,9 @@ ConstructorInitializerIndentWidth: 2
 ContinuationIndentWidth: 2
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex: <[a-zA-Z0-9]+>
+  - Regex: <[a-zA-Z0-9_]+>
     Priority: 1
-  - Regex: <[a-zA-Z0-9\.\/]+>
+  - Regex: <[a-zA-Z0-9_\.\/]+>
     Priority: 2
   - Regex: '".+"'
     Priority: 3
