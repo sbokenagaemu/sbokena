@@ -3,9 +3,11 @@
 #pragma once
 
 #include <array>
+#include <exception>
 #include <filesystem>
 #include <optional>
 #include <span>
+#include <stdexcept>
 #include <variant>
 
 #include <nfd.h>
@@ -65,6 +67,20 @@ constexpr size_t index_of() {
   else
     return index_of<V, T, I + 1>();
 }
+
+// clang-format off
+
+// assert a predicate, or throw an exception.
+constexpr void assert_throw(
+  bool pred,
+  const std::exception &ex =
+    std::runtime_error {"assertion failed"}
+) {
+  if (!pred)
+    throw ex;
+}
+
+// clang-format on
 
 // ===== file UI =====
 
