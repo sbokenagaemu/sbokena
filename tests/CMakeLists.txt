@@ -9,6 +9,7 @@ target_link_libraries(tests PRIVATE
   GTest::gtest_main
   nlohmann_json::nlohmann_json
   common
+  libgame
 )
 
 include(GoogleTest)
