@@ -3,6 +3,7 @@
 #include <filesystem>
 
 #include <gtest/gtest.h>
+#include <raylib.h>
 
 #include "loader.hh"
 #include "utils.hh"
@@ -17,9 +18,8 @@ namespace sbokena::loader {
 // this should work when called both from the repository root,
 // as well as when called by `ctest` in `build/tests`.
 TEST(common, theme_load_ok) {
-  const auto cwd   = fs::current_path();
-  const auto theme = Theme::load("dev", cwd);
-  ASSERT_TRUE(theme.has_value());
+  const auto         cwd {fs::current_path()};
+  const Theme<Image> theme {"dev", cwd};
   // destroy it, see if unloading fails
 }
 
