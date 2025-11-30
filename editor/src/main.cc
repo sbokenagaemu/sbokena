@@ -1,5 +1,6 @@
 #ifndef RAYGUI_IMPLEMENTATION
 #define RAYGUI_IMPLEMENTATION
+#include <Vector2.hpp>
 #endif
 
 #include <Color.hpp>
@@ -47,17 +48,19 @@ int main() {
   int             active_theme      = 0;
   bool            edit_mode_theme   = false;
   f32             current_tile_size = 64;
-  raylib::Vector2 mousepos;
+  raylib::Vector2 mouse_position;
+  raylib::Vector2 mouse_start_position;
   raylib::Vector2 grid_offset = {0, 0};
 
   while (!window.ShouldClose() && !exit) {
     window.BeginDrawing();
 
     if (IsMouseButtonPressed(MOUSE_MIDDLE_BUTTON))
-      mousepos = GetMousePosition();
+      mouse_start_position = GetMousePosition();
     if (IsMouseButtonDown(MOUSE_MIDDLE_BUTTON)) {
-      grid_offset += Vector2Subtract(GetMousePosition(), mousepos);
-      mousepos = GetMousePosition();
+      grid_offset +=
+        Vector2Subtract(GetMousePosition(), mouse_start_position);
+      mouse_start_position = GetMousePosition();
     }
 
     // Clear gray background
