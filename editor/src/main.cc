@@ -116,22 +116,15 @@ int main() {
             grid_offset,
             grid_end(grid_offset, current_tile_size)
           )) {
-        raylib::Vector2 selected_grid_tile_index = {
-          floorf(
-            (mouse_position.GetX() - grid_offset.GetX())
-            / current_tile_size
-          ),
-          floorf(
-            (mouse_position.GetY() - grid_offset.GetY())
-            / current_tile_size
-          )
-        };
+        selected_grid_tile_index =
+          tile_index(mouse_position, grid_offset, current_tile_size);
 
         std::cout << "yes" << std::endl;
 
         selected_tile_position = grid_offset.Add(
           selected_grid_tile_index.Scale(current_tile_size)
         );
+
         is_selection_shown = true;
       }
     }
@@ -299,8 +292,12 @@ int main() {
       view_control_button_height
     };
     if (GuiButton(zoom_in_button, "Zoom in")) {
-      if (current_tile_size <= 256)
+      if (current_tile_size <= 256) {
         current_tile_size *= 2;
+        selected_tile_position = grid_offset.Add(
+          selected_grid_tile_index.Scale(current_tile_size)
+        );
+      }
     }
 
     // Rotate button
@@ -324,8 +321,12 @@ int main() {
       view_control_button_height
     };
     if (GuiButton(zoom_out_button, "Zoom out")) {
-      if (current_tile_size >= 32)
+      if (current_tile_size >= 32) {
         current_tile_size /= 2;
+        selected_tile_position = grid_offset.Add(
+          selected_grid_tile_index.Scale(current_tile_size)
+        );
+      }
     }
 
     // TILES
