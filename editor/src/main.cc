@@ -50,16 +50,22 @@ int main() {
   f32             current_tile_size = 64;
   raylib::Vector2 mouse_position;
   raylib::Vector2 mouse_start_position;
-  raylib::Vector2 grid_offset = {0, 0};
+  raylib::Vector2 grid_offset              = {0, 0};
+  raylib::Vector2 selected_tile_position   = {0, 0};
+  raylib::Vector2 selected_grid_tile_index = {0, 0};
+  bool            is_selection_shown       = false;
 
   while (!window.ShouldClose() && !exit) {
     window.BeginDrawing();
+    mouse_position = GetMousePosition();
 
     if (IsMouseButtonPressed(MOUSE_MIDDLE_BUTTON))
       mouse_start_position = GetMousePosition();
     if (IsMouseButtonDown(MOUSE_MIDDLE_BUTTON)) {
-      grid_offset +=
-        Vector2Subtract(GetMousePosition(), mouse_start_position);
+      raylib::Vector2 difference =
+        Vector2Subtract(mouse_position, mouse_start_position);
+      grid_offset += difference;
+      selected_tile_position += difference;
       mouse_start_position = GetMousePosition();
     }
 
@@ -77,14 +83,13 @@ int main() {
       current_window_height = min_height;
 
     // GRID
-    f32 grid_size = current_tile_size;
     for (u32 y = 0; y < 31; y++) {
       for (u32 x = 0; x < 31; x++) {
         const Rectangle tile = {
-          grid_offset.GetX() + grid_size * x,
-          grid_offset.GetY() + grid_size * y,
-          grid_size,
-          grid_size
+          grid_offset.GetX() + current_tile_size * x,
+          grid_offset.GetY() + current_tile_size * y,
+          current_tile_size,
+          current_tile_size
         };
         if ((x + y) % 2)
           color_ = raylib::Color::Black();
@@ -92,6 +97,42 @@ int main() {
           color_ = raylib::Color::White();
         DrawRectangleRec(tile, color_);
       }
+    }
+
+    // tile selection
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+      raylib::Vector2 selected_grid_tile_index = {
+        mouse_position.GetX() / current_tile_size,
+        mouse_position.GetY() / current_tile_size
+      };
+      selected_tile_position.x =
+        grid_offset.GetX()
+        + (int)floorf(
+            (mouse_position.GetX() - grid_offset.GetX())
+            / current_tile_size
+          ) * current_tile_size;
+      selected_tile_position.y =
+        grid_offset.GetY()
+        + (int)floorf(
+            (mouse_position.GetY() - grid_offset.GetY())
+            / current_tile_size
+          ) * current_tile_size;
+      is_selection_shown = true;
+    }
+
+    // deselecting the tile
+    if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+      is_selection_shown = false;
+
+    // showing the selection
+    if (is_selection_shown) {
+      const Rectangle selection = {
+        selected_tile_position.GetX(),
+        selected_tile_position.GetY(),
+        current_tile_size,
+        current_tile_size
+      };
+      DrawRectangleRec(selection, Fade(raylib::Color::Gray(), 0.5));
     }
 
     // DECORATIVE ELEMENTS
