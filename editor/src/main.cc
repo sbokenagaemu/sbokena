@@ -44,7 +44,7 @@ int main() {
 
   SetWindowMinSize(min_width, min_height);
 
-  const char     *options_theme     = "Yes;No;IDK";
+  const char     *options_theme     = "Theme #1;Theme #2;Theme #3";
   int             active_theme      = 0;
   bool            edit_mode_theme   = false;
   f32             current_tile_size = 64;
@@ -197,6 +197,23 @@ int main() {
       // TODO
     }
 
+    // Theme Dropdown menu
+    const Rectangle dropdown_theme = {
+      tile_picker_width + 20,
+      5,
+      dropdown_width,
+      taskbar_button_size - 10
+    };
+    if (GuiDropdownBox(
+          dropdown_theme,
+          options_theme,
+          &active_theme,
+          edit_mode_theme
+        )) {
+      edit_mode_theme = !edit_mode_theme;
+    }
+
+    /**
     // Undo button (?)
     const Rectangle undo_button = {
       tile_picker_width, 0, taskbar_button_size, taskbar_button_size
@@ -215,6 +232,7 @@ int main() {
     if (GuiButton(redo_button, "Redo")) {
       // TODO
     }
+    */
 
     // Zoom in button (?)
     const Rectangle zoom_in_button = {
