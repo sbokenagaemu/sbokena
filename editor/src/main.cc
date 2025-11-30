@@ -293,6 +293,9 @@ int main() {
     if (GuiButton(zoom_in_button, "Zoom in")) {
       if (current_tile_size <= 256) {
         current_tile_size *= 2;
+        grid_offset = refactored_grid_offset(
+          grid_offset, selected_tile_position, 2
+        );
         selected_tile_position = grid_offset.Add(
           selected_grid_tile_index.Scale(current_tile_size)
         );
@@ -322,6 +325,9 @@ int main() {
     if (GuiButton(zoom_out_button, "Zoom out")) {
       if (current_tile_size >= 32) {
         current_tile_size /= 2;
+        grid_offset = refactored_grid_offset(
+          grid_offset, selected_tile_position, 0.5
+        );
         selected_tile_position = grid_offset.Add(
           selected_grid_tile_index.Scale(current_tile_size)
         );
