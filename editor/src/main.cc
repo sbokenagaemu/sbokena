@@ -1,6 +1,5 @@
 #ifndef RAYGUI_IMPLEMENTATION
 #define RAYGUI_IMPLEMENTATION
-#include <Vector2.hpp>
 #endif
 
 #include <Color.hpp>

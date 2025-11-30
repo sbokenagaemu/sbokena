@@ -1,10 +1,8 @@
-//
+// helper functions for the editor window
 
 #pragma once
 
-#include <Vector2.hpp>
-
-#include "types.hh"
+#include <Window.hpp>
 
 bool is_inside(
   raylib::Vector2 pos, raylib::Vector2 min, raylib::Vector2 max
