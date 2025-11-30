@@ -1,6 +1,5 @@
 #ifndef RAYGUI_IMPLEMENTATION
 #define RAYGUI_IMPLEMENTATION
-#include <Vector2.hpp>
 #endif
 
 #include <Color.hpp>
@@ -51,6 +50,7 @@ int main() {
   raylib::Vector2 mouse_position;
   raylib::Vector2 mouse_start_position;
   raylib::Vector2 grid_offset              = {0, 0};
+  raylib::Vector2 grid_end                 = {2048, 2048};
   raylib::Vector2 selected_tile_position   = {0, 0};
   raylib::Vector2 selected_grid_tile_index = {0, 0};
   bool            is_selection_shown       = false;
@@ -102,21 +102,19 @@ int main() {
     // tile selection
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
       raylib::Vector2 selected_grid_tile_index = {
-        mouse_position.GetX() / current_tile_size,
-        mouse_position.GetY() / current_tile_size
+        floorf(
+          (mouse_position.GetX() - grid_offset.GetX())
+          / current_tile_size
+        ),
+        floorf(
+          (mouse_position.GetY() - grid_offset.GetY())
+          / current_tile_size
+        )
       };
-      selected_tile_position.x =
-        grid_offset.GetX()
-        + (int)floorf(
-            (mouse_position.GetX() - grid_offset.GetX())
-            / current_tile_size
-          ) * current_tile_size;
-      selected_tile_position.y =
-        grid_offset.GetY()
-        + (int)floorf(
-            (mouse_position.GetY() - grid_offset.GetY())
-            / current_tile_size
-          ) * current_tile_size;
+
+      selected_tile_position = grid_offset.Add(
+        selected_grid_tile_index.Scale(current_tile_size)
+      );
       is_selection_shown = true;
     }
 
