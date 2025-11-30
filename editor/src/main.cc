@@ -1,5 +1,6 @@
 #ifndef RAYGUI_IMPLEMENTATION
 #define RAYGUI_IMPLEMENTATION
+#include <Vector2.hpp>
 #endif
 
 #include <Color.hpp>
@@ -16,18 +17,20 @@ using namespace sbokena::editor::level;
 // for testing purposes
 #include <iostream>
 
-constexpr u32 taskbar_button_size         = 40;  // 0
-constexpr u32 tile_picker_padding         = 10;  // 1
-constexpr u32 tile_picker_box_size        = 80;  // 2
-constexpr u32 tile_picker_box_padding     = 25;  // 3
-constexpr u32 tile_picker_space_inbetween = 20;  // 4
-constexpr u32 view_control_padding        = 25;  // 5
-constexpr u32 view_control_button_width   = 60;  // 6
-constexpr u32 view_control_button_height  = 50;  // 7
-constexpr u32 dropdown_width              = 100; // 8
-constexpr u32 tile_picker_width           = 250; // 9
-constexpr f32 min_width                   = 550;
-constexpr f32 min_height                  = 470;
+constexpr u32 taskbar_button_size         = 40;
+constexpr u32 tile_picker_padding         = 10;
+constexpr u32 tile_picker_box_size        = 80;
+constexpr u32 tile_picker_box_padding     = 25;
+constexpr u32 tile_picker_space_inbetween = 20;
+constexpr u32 view_control_padding        = 25;
+constexpr u32 view_control_button_width   = 60;
+constexpr u32 view_control_button_height  = 50;
+constexpr u32 dropdown_width              = 100;
+constexpr u32 grid_view_min_height        = 45;
+// also the minimum width of the grid-view
+constexpr u32 tile_picker_width = 250;
+constexpr f32 min_width         = 550;
+constexpr f32 min_height        = 470;
 
 int main() {
   Level         level_ = Level("default");
@@ -50,7 +53,6 @@ int main() {
   raylib::Vector2 mouse_position;
   raylib::Vector2 mouse_start_position;
   raylib::Vector2 grid_offset              = {0, 0};
-  raylib::Vector2 grid_end                 = {2048, 2048};
   raylib::Vector2 selected_tile_position   = {0, 0};
   raylib::Vector2 selected_grid_tile_index = {0, 0};
   bool            is_selection_shown       = false;
@@ -101,21 +103,37 @@ int main() {
 
     // tile selection
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
-      raylib::Vector2 selected_grid_tile_index = {
-        floorf(
-          (mouse_position.GetX() - grid_offset.GetX())
-          / current_tile_size
-        ),
-        floorf(
-          (mouse_position.GetY() - grid_offset.GetY())
-          / current_tile_size
-        )
-      };
+      // checks whether:
+      // 1) the mouse is inside the window's grid part
+      // 2) the mouse is inside the actual grid
+      if (is_inside(
+            mouse_position,
+            {tile_picker_width, grid_view_min_height},
+            {current_window_width, current_window_height}
+          )
+          && is_inside(
+            mouse_position,
+            grid_offset,
+            grid_end(grid_offset, current_tile_size)
+          )) {
+        raylib::Vector2 selected_grid_tile_index = {
+          floorf(
+            (mouse_position.GetX() - grid_offset.GetX())
+            / current_tile_size
+          ),
+          floorf(
+            (mouse_position.GetY() - grid_offset.GetY())
+            / current_tile_size
+          )
+        };
 
-      selected_tile_position = grid_offset.Add(
-        selected_grid_tile_index.Scale(current_tile_size)
-      );
-      is_selection_shown = true;
+        std::cout << "yes" << std::endl;
+
+        selected_tile_position = grid_offset.Add(
+          selected_grid_tile_index.Scale(current_tile_size)
+        );
+        is_selection_shown = true;
+      }
     }
 
     // deselecting the tile
