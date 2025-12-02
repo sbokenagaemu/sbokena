@@ -22,7 +22,7 @@ static constexpr u32 null_id = 0x00;
 
 // An enum containing types of tiles.
 enum class TileType {
-  Wall,
+  Roof,
   Floor,
   OneDir,
   Goal,
@@ -84,10 +84,10 @@ private:
 
 // The default type for a tile. Does not and cannot contain
 // any object.
-class Wall : public Tile {
+class Roof : public Tile {
 public:
-  // construct a new wall.
-  explicit Wall(u32 id) : Tile(TileType::Wall, id) {}
+  // construct a new roof.
+  explicit Roof(u32 id) : Tile(TileType::Roof, id) {}
 
   // does not contain object.
   bool contains_obj() const override {
@@ -99,14 +99,14 @@ public:
     return null_id;
   }
 
-  // object cannot be on wall.
+  // object cannot be on roof.
   void set_obj_id(const u32 &) override {}
 
   // does not have object to remove to begin with.
   void remove_obj_id() override {}
 };
 
-// The basic, most common type of non-wall tile. Can contain
+// The basic, most common type of non-roof tile. Can contain
 // an object.
 class Floor : public Tile {
 public:
