@@ -44,8 +44,8 @@ u32 Level::create_tile(TileType type, const Position<> &pos) {
   id = this->generate_tile_id();
   std::unique_ptr<Tile> tile;
   switch (type) {
-  case TileType::Wall:
-    tile = std::make_unique<Wall>(id);
+  case TileType::Roof:
+    tile = std::make_unique<Roof>(id);
     break;
   case TileType::Floor:
     tile = std::make_unique<Floor>(id);
@@ -204,8 +204,8 @@ u32 Level::add_object(ObjectType type, const Position<> &pos) {
   if (!has_tile_at(pos))
     return null_id;
   Tile *tile = get_tile_at(pos);
-  // if the tile is a wall then can't add object.
-  if (tile->get_type() == TileType::Wall)
+  // if the tile is a roof then can't add object.
+  if (tile->get_type() == TileType::Roof)
     return null_id;
   // if the tile already contains an object then can't add
   // object.
@@ -331,9 +331,9 @@ bool Level::move_object(u32 id, const Position<> &new_pos) {
   Tile *tile = get_tile_at(new_pos);
   if (!tile)
     return false;
-  // if tile is wall or contains an object, can't move
+  // if tile is roof or contains an object, can't move
   // object there.
-  if (tile->get_type() == TileType::Wall || tile->contains_obj())
+  if (tile->get_type() == TileType::Roof || tile->contains_obj())
     return false;
   // finds the current position of the object, if failed, returns
   // false.

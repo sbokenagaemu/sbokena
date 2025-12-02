@@ -25,6 +25,7 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 #include <nlohmann/json.hpp>
 
@@ -41,6 +42,7 @@ using namespace sbokena::editor::object;
 using sbokena::editor::tile::null_id;
 
 namespace sbokena::editor::level {
+using CommonLevel = sbokena::level::Level;
 
 // enum for the difficulty.
 enum class Difficulty { Unknown, Easy, Medium, Hard };
@@ -183,6 +185,11 @@ public:
     name = str;
   }
 
+  // returns theme used.
+  const std::string &get_theme() const noexcept {
+    return theme;
+  }
+
   // returns level condition.
   const Condition &get_condition() const noexcept {
     return condition;
@@ -289,6 +296,8 @@ public:
 private:
   // the level name.
   std::string name;
+  // theme used.
+  std::string theme;
   // level difficulty, move limit, and time limit.
   Condition condition;
   // id -> tile.
@@ -307,7 +316,8 @@ private:
   std::unordered_map<u32, u32> button_to_door;
   // TODO: a grid stucture storing the skins of every
   // position. map<position, image-related-id>
-  // TODO: std::string theme
 };
+
+// TODO: convert to LoadedLevel json implementations here
 
 } // namespace sbokena::editor::level
