@@ -25,7 +25,6 @@
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <vector>
 
 #include <nlohmann/json.hpp>
 
@@ -39,7 +38,7 @@ using nlohmann::json;
 using sbokena::position::Position;
 using namespace sbokena::editor::tile;
 using namespace sbokena::editor::object;
-using sbokena::editor::tile::null_id;
+using sbokena::editor::tile::null_id; // 0x00
 
 namespace sbokena::editor::level {
 using CommonLevel = sbokena::level::Level;
