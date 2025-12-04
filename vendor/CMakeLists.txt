@@ -1,20 +1,5 @@
 include(FetchContent)
 
-if (DEFINED ENV{GOOGLETEST_SRC})
-  FetchContent_Declare(
-    googletest
-    SOURCE_DIR $ENV{GOOGLETEST_SRC}
-    SYSTEM
-  )
-else ()
-  FetchContent_Declare(
-    googletest
-    GIT_REPOSITORY "https://github.com/google/googletest"
-    GIT_TAG v1.17.0
-    SYSTEM
-  )
-endif ()
-
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(NFD_PORTAL 1)
 endif ()
@@ -106,7 +91,6 @@ else ()
 endif ()
 
 FetchContent_MakeAvailable(
-  googletest
   nfd
   nlohmann_json
   raylib
