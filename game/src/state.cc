@@ -95,6 +95,29 @@ static bool is_valid_dir(const Tile &tile, const Direction &step) {
 static bool is_valid_dir(const DirBox &box, const Direction &step) {
   return box.dir == step;
 }
+
+// return both exit position and direction of exit
+static std::pair<Position<>, Direction> get_portal_exit(
+  const Position<>                           portal_from,
+  const u32                                  id,
+  const std::map<Position<>, Tile>          &tiles,
+  const std::unordered_map<u32, PortalPair> &portals
+) {
+  auto portal_iter = portals.find(id);
+  assert_throw(
+    portal_iter != portals.end(),
+    std::logic_error {"portal not found"}
+  );
+  auto       portal_pair = portal_iter->second;
+  Position<> portal_to;
+  if (portal_from == portal_pair.first)
+    portal_to = portal_pair.second;
+  else
+    portal_to = portal_pair.first;
+  Tile      portal_to_ = find_tile(tiles, portal_to).value();
+  Direction out_dir    = -std::get<Portal>(portal_to_).in_dir;
+  return std::pair(portal_to.move(out_dir), out_dir);
+}
 }
 
 // move only player
