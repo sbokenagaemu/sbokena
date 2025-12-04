@@ -118,6 +118,44 @@ static std::pair<Position<>, Direction> get_portal_exit(
   Direction out_dir    = -std::get<Portal>(portal_to_).in_dir;
   return std::pair(portal_to.move(out_dir), out_dir);
 }
+
+// check type of the tile that player will take over from the object
+// TODO: check that input is correct even when called from only moving
+// player through portal
+static std::optional<StepResult> move_player_object(
+  const Direction              &input,
+  const Tile                   &player_tile,
+  Position<>                    player_from,
+  Position<>                    player_to,
+  Position<>                    box_to,
+  std::map<Position<>, Object> &objects
+) {
+  switch (player_tile.index()) {
+  case index_of<Tile, DirFloor>(): {
+    if (!is_valid_dir(player_tile, input))
+      return std::optional<StepResult>(StepResult::InvalidDirection);
+    // falls through
+  }
+  case index_of<Tile, Floor>():
+  case index_of<Tile, Goal>(): {
+    break;
+  }
+    // player moving to the Goal containing a Box already, meaning
+    // that number of goals met decreases by 1
+
+  case index_of<Tile, Door>():
+  case index_of<Tile, Button>(): {
+    update_position(
+      player_from,
+      player_to,
+      std::optional<Position<>>(box_to),
+      objects
+    );
+    break;
+  }
+  }
+  return std::nullopt;
+}
 }
 
 // move only player
