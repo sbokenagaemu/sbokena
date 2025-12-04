@@ -83,8 +83,18 @@ static bool is_door_open(
   return true;
 }
 
-bool is_valid_dir(Tile tile, Direction step) {
+// check if user steps in to DirFloor/Portal in the correct
+// direction.
+static bool is_valid_dir(const Tile &tile, const Direction &step) {
+  if (std::holds_alternative<DirFloor>(tile))
   return std::get<DirFloor>(tile).dir == step;
+  else
+    return std::get<Portal>(tile).in_dir == step;
+}
+
+static bool is_valid_dir(const DirBox &box, const Direction &step) {
+  return box.dir == step;
+}
 }
 
 // move only player
