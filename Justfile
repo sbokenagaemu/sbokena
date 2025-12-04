@@ -30,6 +30,6 @@ lint *args: (cmake args)
     $(fd -E build -F '.cc') \
     $(fd -E build -F '.hh')
 
-test *args: (build args)
+test *args: (build args "-DBUILD_TESTS=1")
   ctest --test-dir build/tests \
     {{args}}

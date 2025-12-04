@@ -141,7 +141,7 @@
       ];
     };
 in
-  clangStdenv.mkDerivation {
+  clangStdenv.mkDerivation (finalAttrs: {
     name = "sbokena";
     src = ../.;
     strictDeps = true;
@@ -158,6 +158,9 @@ in
           select buildRelease "Release" "Debug"
         ))
       ]
+      ++ lib.optionals finalAttrs.doCheck [
+        (lib.cmakeBool "BUILD_TESTS" true)
+      ]
       ++ lib.optionals isLinux [
         (lib.cmakeBool "GLFW_BUILD_WAYLAND" enableWayland')
         (lib.cmakeBool "GLFW_BUILD_X11" enableX11')
@@ -171,6 +174,7 @@ in
       cmake --build build
     '';
 
+    doCheck = false;
     checkPhase = ''
       clang-tidy -p build \
         $(fd -E build/ -F '.cc') \
@@ -195,4 +199,4 @@ in
 
     # passthru env-vars for shell
     passthru.env = env;
-  }
+  })
