@@ -21,23 +21,21 @@ namespace sbokena::game::state {
 // see that method's documentation for details.
 enum struct StepResult {
   Ok,
+  LevelComplete,
   // invalid movements
   StepOnWall,
   SlamOnDoor,
   InvalidDirection,
-
-  // internal errors
-  TooManyPlayers,
-  MissingPlayer,
-  MissingTile,
-  MissingDoorId,
+  PushTwoBoxes
 };
 
-using DoorSet    = std::pair<Door *, std::vector<Button *>>;
-using PortalPair = std::pair<Portal *, Portal *>;
+// pair of position of door and its corresponding buttons' position
+using DoorSet    = std::pair<Position<>, std::vector<Position<>>>;
+using PortalPair = std::pair<Position<>, Position<>>;
 
 // the state machine.
 struct State {
+  u32                          completed_goals;
   std::map<Position<>, Tile>   tiles;
   std::map<Position<>, Object> objects;
 
@@ -53,7 +51,7 @@ struct State {
   //
   // otherwise, the world state has not changed, and the return value
   // can be used to determine the reason.
-  constexpr StepResult step(const Direction &input) noexcept;
+  StepResult step(const Direction &input) noexcept;
 };
 
 } // namespace sbokena::game::state
