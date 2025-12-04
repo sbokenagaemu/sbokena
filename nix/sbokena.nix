@@ -181,7 +181,8 @@ in
         $(fd -E build/ -F '.hh')
       ctest \
         --test-dir build/tests \
-        --output-on-failure
+        --output-on-failure \
+        --timeout 1
     '';
 
     installPhase = ''
