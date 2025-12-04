@@ -47,8 +47,7 @@
     traverse a _Portal_ pair whose entrance and exit 
     directions are the same aas the _Box_'s direction.
 5. Resolution Rules:
-    1. _Box Pushing Rules_:
-    When a _Player_ at position $P_{x,y}$ pushes a box 
+    1. _Box Pushing Rules_: When a _Player_ at position $P_{x,y}$ pushes a box 
     in direction $\text{D} \in \{ \text{Up, Down, Left, Right} \}$;
     let $\text{traverse}: P_{x,y} \rightarrow \text{D} \rightarrow P_{x,y}$ 
     be the position $P_{x,y}$ moved 1 unit over in direction $\text{D}$.
@@ -57,14 +56,21 @@
         - If ($\text{traverse } (\text{traverse } P_{x,y} \text{ D})\text{ D}$) enters a _Portal_, obtain the exit position $P'_{x,y}$ from the _Portal Traversal Rules_, then reapply the _Box Pushing Rules_ where the new position of the _Box_ is $P'_{x,y}$.
         - Otherwise, the _Box_ is pushed to position $\text{traverse } P_{x,y} \text{ D}$.
         - These rules also apply to _Uni-directional boxes_ with pushing direction $\text D$.
-    2. _Portal Traversal Rules_:
-    When a _Player_ at position $P_{x,y}$ moves in direction $\text{D} \in \{ \text{Up, Down, Left, Right} \}$ into a _Portal_ at position ($\text{traverse } P_{x,y} \text{ D}$) with entrance direction $\text D$, we consider them having entered the _Portal_.
+    2. _Portal Traversal Rules_: When a _Player_ at position $P_{x,y}$ moves in direction $\text{D} \in \{ \text{Up, Down, Left, Right} \}$ into a _Portal_ at position ($\text{traverse } P_{x,y} \text{ D}$) with entrance direction $\text D$, we consider them having entered the _Portal_.
         - When a _Player_ enters a _Portal_ P, consider the exit position $P'_{x,y}$:
             - If it contains a _Wall_ or a closed _Door_, the entrance is rejected, and the _Player_ stays in place.
             - If it contains a _Box_ or a _Uni-directional box_, and if the _Box_ can be pushed by the _Box Pushing Rules_ in the exit direction, push the _Box_ to $(\text{traverse } P'_{x,y})$, and move the _Player_ to $P'_{x,y}$. If box pushing fails, the _Player_ stay in place.
             - Otherwise, move the _Player_ to $P'_{x,y}$.
-    3. _Moving rules_:
-    Every time a _Player_ successfully moves from a _Tile_ $T$ to a _Tile_ $T'$, the _Tile_ they just moved from is empty. Thus,
+    3. _Moving Rules_: Every time a _Player_ successfully moves from a _Tile_ $T$ to a _Tile_ $T'$, the _Tile_ they just moved from is empty. Thus,
         - Run the exit event on _Tile_ $T$.
         - Run the enter event on the next _Tile_ $T'$.
 
+        Should the _Player_ fails to move for multiple reasons, the failure
+    order shall be as follows:
+        1. Failure to exit a _Tile_:
+            - Exiting a _DirFloor_ in the wrong direction.
+        2. Failure to enter a _Tile_:
+            - Entering a closed _Door_.
+            - Entering a _Portal_ that can not be exited from. (See _Portal Traversal Rules_)
+            - Entering a _Uni-directional floor_ in the wrong direction.
+            - Entering a _Wall_.
