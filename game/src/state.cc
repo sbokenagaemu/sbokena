@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <optional>
+#include <stdexcept>
 #include <unordered_map>
 #include <variant>
 
@@ -45,15 +46,19 @@ find_object(std::map<Position<>, Object> &objects, Position<> &pos) {
   return std::optional<Object>(obj);
 }
 
-// update an object's position in the map
-void update_position(
-  Position<>                    from,
-  Position<>                    to,
+// update the position of player (and object, if available) in the map
+static void update_position(
+  const Position<>              from,
+  const Position<>              to,
+  std::optional<Position<>>     object_to,
   std::map<Position<>, Object> &objects
 ) {
-  auto nodeHandler  = objects.extract(from);
-  nodeHandler.key() = to;
-  objects.insert(std::move(nodeHandler));
+  // Position<> from is guaranteed to be
+  // in the map when player is found
+  if (object_to) {
+    auto object_handler  = objects.extract(to);
+    object_handler.key() = object_to.value();
+    objects.insert(std::move(object_handler));
 }
 
 std::optional<bool>
