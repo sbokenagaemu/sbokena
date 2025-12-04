@@ -13,17 +13,15 @@ using namespace sbokena::utils;
 namespace sbokena::game::state {
 
 // find player position in objects map.
-static constexpr std::optional<std::pair<Position<>, Player &>>
+static constexpr Position<>
 find_player(std::map<Position<>, Object> &objects) {
   auto iter =
     std::find_if(objects.begin(), objects.end(), [](const auto &p) {
       return std::holds_alternative<Player>(p.second);
     });
 
-  if (iter == objects.end())
-    return std::nullopt;
-  auto &[pos, obj] = *iter;
-  return {{pos, std::get<Player>(obj)}};
+  Position<> pos = iter->first;
+  return pos;
 }
 
 static constexpr std::optional<Tile>
