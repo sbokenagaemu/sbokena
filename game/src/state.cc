@@ -61,14 +61,26 @@ static void update_position(
     objects.insert(std::move(object_handler));
 }
 
-std::optional<bool>
-is_door_open(u32 id, std::unordered_map<u32, DoorSet> &doors) {
+  auto player_handler  = objects.extract(from);
+  player_handler.key() = to;
+  objects.insert(std::move(player_handler));
+}
+
+// check if a door is opened, aka. one of its corresponding button is
+// being pressed. return nullopt if no door of id is found.
+static bool is_door_open(
+  const u32                               id,
+  const std::unordered_map<u32, DoorSet> &doors,
+  // FIXME: should be const but currently not const
+  std::map<Position<>, Object> &objects
+) {
   auto door_iter = doors.find(id);
-  if (door_iter == doors.end())
-    return std::nullopt;
+  assert_throw(door_iter != doors.end());
   auto buttons = door_iter->second.second;
-  for (auto button : buttons) {}
-  return std::optional<bool>(false);
+  for (auto b_pos : buttons)
+    if (find_object(objects, b_pos).has_value())
+      return false;
+  return true;
 }
 
 bool is_valid_dir(Tile tile, Direction step) {
