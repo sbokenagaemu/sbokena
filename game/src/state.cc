@@ -25,7 +25,7 @@ find_player(std::map<Position<>, Object> &objects) {
 }
 
 static constexpr std::optional<Tile>
-find_tile(std::map<Position<>, Tile> &tiles, Position<> &pos) {
+find_tile(const std::map<Position<>, Tile> &tiles, Position<> &pos) {
   auto tile_iter = tiles.find(pos);
   if (tile_iter == tiles.end())
     return std::nullopt;
@@ -33,12 +33,15 @@ find_tile(std::map<Position<>, Tile> &tiles, Position<> &pos) {
   return std::optional<Tile>(tile);
 }
 
+// only find objects (Box/DirBox).
 static constexpr std::optional<Object>
 find_object(std::map<Position<>, Object> &objects, Position<> &pos) {
   auto obj_iter = objects.find(pos);
   if (obj_iter == objects.end())
     return std::nullopt;
   auto &[_, obj] = *obj_iter;
+  // throw exception if object is Player
+  assert_throw(std::holds_alternative<Player>(obj));
   return std::optional<Object>(obj);
 }
 
