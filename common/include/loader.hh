@@ -96,27 +96,24 @@ public:
   // unloads the managed resource.
   ~OwnedResource() {
     if (res)
-      unload_res(res);
+      unload_res(res.value());
   }
 
-  std::optional<Res> &get() noexcept {
-    return res.and_then([](Res &res) { return res; });
+  // take the resource back.
+  Res &&take() {
+    Res &&moved = std::move(res.value());
+    res.reset();
+    return moved;
   }
 
-  std::optional<const Res> &get_const() const noexcept {
-    return res.and_then([](const Res &res) { return res; });
-  }
-
+  // same as get, but throws an exception on failure.
   Res &operator*() {
     return res.value();
   }
 
+  // same as get_const, but throws an exception on failure.
   const Res &operator*() const {
     return res.value();
-  }
-
-  std::optional<Res> &&take() noexcept {
-    return res.and_then(std::move);
   }
 
 private:
@@ -147,6 +144,9 @@ template <typename S>
   requires Resource<S> && Sprite<S>
 class Theme {
 public:
+  // the backing sprites store.
+  using Sprites = OwnedResource<S>[];
+
   // clang-format off
 
   // indices into the sprites array.
@@ -179,13 +179,16 @@ public:
 
   // clang-format on
 
-  // type of the backing sprite storage.
-  using Sprites = std::array<OwnedResource<S>, __SPRITES>;
-
   // load a named theme from a path, seeking upwards in the directory
   // tree recursively until it's found.
   Theme(std::string_view name, const fs::path &search_root) {
     fs::path cur {search_root};
+
+    while (true) {
+      const fs::path dir = cur / "themes" / name;
+      if (!fs::exists(dir))
+        continue;
+    }
   }
 
   // conversion between resource types.
@@ -198,10 +201,10 @@ public:
   // store all sprites in VRAM.
   template <>
   Theme<Texture>(const Theme<Image> &theme)
-    : name_ {name_},
-      sprites_ {std::make_shared_for_overwrite(__SPRITES)} {
+    : name_ {theme.name_},
+      sprites_ {std::make_shared_for_overwrite<S[]>(__SPRITES)} {
     for (usize i = 0; i < __SPRITES; ++i)
-      sprites_[i] = LoadTextureFromImage(*theme.sprites()[i]);
+      sprites_[i] = LoadTextureFromImage(*theme.sprites_[i]);
   }
 
   Theme()                         = delete;
@@ -224,6 +227,10 @@ public:
 private:
   std::shared_ptr<std::string> name_;
   std::shared_ptr<Sprites>     sprites_;
+
+  template <typename T>
+    requires Resource<T> && Sprite<T>
+  friend class Theme;
 };
 
 }; // namespace sbokena::loader
