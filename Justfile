@@ -31,5 +31,8 @@ lint *args: (cmake args)
     $(fd -E build -F '.hh')
 
 test *args: (build args "-DBUILD_TESTS=1")
-  ctest --test-dir build/tests \
+  ctest \
+    --test-dir build/tests \
+    --output-on-failure \
+    --timeout 1 \
     {{args}}
