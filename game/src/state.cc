@@ -345,14 +345,8 @@ static constexpr std::optional<StepResult> move_player(
   return std::nullopt;
 }
 
-// move player and the object in the next tile
-static constexpr std::optional<StepResult> move_objects() {}
-
-constexpr StepResult State::step(const Direction &input) noexcept {
-  auto player_ = find_player(this->objects);
-  if (!player_)
-    return StepResult::MissingPlayer;
-  auto [player_from, player] = player_.value();
+StepResult State::step(const Direction &input) noexcept {
+  Position<> player_from = find_player(this->objects);
 
   // check if current tile is a uni-directional floor
   auto from_tile = find_tile(this->tiles, player_from).value();
@@ -371,22 +365,35 @@ constexpr StepResult State::step(const Direction &input) noexcept {
 
   auto to_object_ = find_object(this->objects, player_to);
   std::optional<StepResult> res;
-  if (to_object_ == std::nullopt)
+  if (!to_object_)
     res = move_player(
       input,
       player_from,
       player_to,
       to_tile,
       this->objects,
-      this->doors
+      this->tiles,
+      this->doors,
+      this->portals,
+      false
     );
   else
-    res = move_objects();
+    res = move_objects(
+      input,
+      player_from,
+      player_to,
+      to_object_.value(),
+      to_tile,
+      this->objects,
+      this->tiles,
+      this->doors,
+      this->portals
+    );
 
-  if (res == std::nullopt) {
-    // on_exit();
+  // res == nullopt meaning that positions moved successfully
+  if (!res)
     return StepResult::Ok;
-  } else
+  else
     return res.value();
 }
 
