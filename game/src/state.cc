@@ -59,7 +59,7 @@ static void update_position(
     auto object_handler  = objects.extract(to);
     object_handler.key() = object_to.value();
     objects.insert(std::move(object_handler));
-}
+  }
 
   auto player_handler  = objects.extract(from);
   player_handler.key() = to;
@@ -87,7 +87,7 @@ static bool is_door_open(
 // direction.
 static bool is_valid_dir(const Tile &tile, const Direction &step) {
   if (std::holds_alternative<DirFloor>(tile))
-  return std::get<DirFloor>(tile).dir == step;
+    return std::get<DirFloor>(tile).dir == step;
   else
     return std::get<Portal>(tile).in_dir == step;
 }
