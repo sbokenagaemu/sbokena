@@ -7,6 +7,8 @@
 #include <format>
 #include <memory>
 #include <optional>
+#include <print>
+#include <span>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -16,10 +18,12 @@
 
 #include "position.hh"
 #include "types.hh"
+#include "utils.hh"
 
 namespace fs = std::filesystem;
 
 using namespace sbokena::types;
+using namespace sbokena::utils;
 using sbokena::position::Position;
 
 namespace sbokena::loader {
@@ -91,12 +95,13 @@ public:
   OwnedResource &operator=(OwnedResource &&other) {
     res = std::move(other.res);
     other.res.reset();
+    return *this;
   }
 
   // unloads the managed resource.
   ~OwnedResource() {
     if (res)
-      unload_res(res.value());
+      unload_res(std::move(res.value()));
   }
 
   // take the resource back.
@@ -106,14 +111,24 @@ public:
     return moved;
   }
 
-  // same as get, but throws an exception on failure.
+  // access the underlying resource.
   Res &operator*() {
     return res.value();
   }
 
-  // same as get_const, but throws an exception on failure.
+  // access the underlying resource.
   const Res &operator*() const {
     return res.value();
+  }
+
+  // access the underlying resource.
+  Res *operator->() noexcept {
+    return res ? &res.value() : nullptr;
+  }
+
+  // access the underlying resource.
+  const Res *operator->() const noexcept {
+    return res ? &res.value() : nullptr;
   }
 
 private:
@@ -137,15 +152,17 @@ struct ThemeLoadException : std::runtime_error {
 
 // a loaded and validated theme for in-memory use.
 // a value of `loader::Theme` guarantees that:
-// - all `Tile`/`Object` sprites are squares.
-// - all `Tile`/`Object` sprites have the same dimensions.
-// - all textures listed in `themes/LAYOUT.md` are present.
+// - all `Tile`/`Object` sprites have the same non-zero, uniform,
+//   square sizes.
+// - all sprites listed in `themes/LAYOUT.md` are present.
 template <typename S>
   requires Resource<S> && Sprite<S>
 class Theme {
 public:
+  // the owned sprite type.
+  using OwnedSprite = OwnedResource<S>;
   // the backing sprites store.
-  using Sprites = OwnedResource<S>[];
+  using Sprites = OwnedSprite[];
 
   // clang-format off
 
@@ -181,14 +198,72 @@ public:
 
   // load a named theme from a path, seeking upwards in the directory
   // tree recursively until it's found.
-  Theme(std::string_view name, const fs::path &search_root) {
-    fs::path cur {search_root};
+  Theme(std::string_view name, const fs::path &search_root)
+    : name_ {std::make_shared<std::string>(name)} {
+    fs::path                 cur {search_root};
+    std::unique_ptr<Sprites> tmp {nullptr};
 
-    while (true) {
+    while (!tmp) {
+      tmp          = std::make_unique<Sprites>(__SPRITES);
+      usize loaded = 0;
+      usize width  = 0;
+
       const fs::path dir = cur / "themes" / name;
       if (!fs::exists(dir))
-        continue;
+        goto backtrack;
+
+      for (const auto &entry : fs::directory_iterator {dir}) {
+        const fs::path path = entry.path();
+        const fs::path stem = path.stem();
+
+        // skip irrelevant files
+        const auto iter = std::find(names.begin(), names.end(), stem);
+        if (iter == names.end()) {
+          std::println("ignoring file {}", path.c_str());
+          continue;
+        }
+
+        const usize i = std::distance(names.begin(), iter);
+        tmp[i]        = path;
+
+        // all sprites must have positive size
+        if (!tmp[i]->width || !tmp[i]->height) {
+          std::println("file {} has zero size", path.c_str());
+          goto backtrack;
+        }
+
+        // all sprites must be square
+        if (tmp[i]->width != tmp[i]->height) {
+          std::println("file {} has non-square size", path.c_str());
+          goto backtrack;
+        }
+
+        // all sprites must have the same size
+        if (!width)
+          width = tmp[i]->width;
+        else if (static_cast<usize>(tmp[i]->width) != width) {
+          std::println("file {} has non-uniform size", path.c_str());
+          goto backtrack;
+        }
+
+        ++loaded;
+      }
+
+      if (loaded < __SPRITES)
+        goto backtrack;
+
+      break;
+
+    backtrack:
+      std::println("{} invalid, backtracking...", cur.c_str());
+      tmp.reset();
+      if (!cur.has_parent_path())
+        break;
+      cur = cur.parent_path();
     }
+
+    assert_throw(!!tmp, std::runtime_error {"theme dir not found"});
+    sprites_ = std::move(tmp);
   }
 
   // conversion between resource types.
@@ -202,7 +277,7 @@ public:
   template <>
   Theme<Texture>(const Theme<Image> &theme)
     : name_ {theme.name_},
-      sprites_ {std::make_shared_for_overwrite<S[]>(__SPRITES)} {
+      sprites_ {std::make_shared_for_overwrite<Sprites>(__SPRITES)} {
     for (usize i = 0; i < __SPRITES; ++i)
       sprites_[i] = LoadTextureFromImage(*theme.sprites_[i]);
   }
@@ -220,8 +295,10 @@ public:
   }
 
   // the sprites contained in the theme.
-  const Sprites &sprites() const noexcept {
-    return *sprites_;
+  std::span<OwnedSprite, __SPRITES> sprites() const noexcept {
+    return std::span<OwnedSprite, __SPRITES> {
+      sprites_.get(), __SPRITES
+    };
   }
 
 private:

@@ -1,4 +1,4 @@
-// `loader::Theme` loading and validation test.
+// theme and level loader tests.
 
 #include <filesystem>
 
@@ -6,11 +6,8 @@
 #include <raylib.h>
 
 #include "loader.hh"
-#include "utils.hh"
 
 namespace fs = std::filesystem;
-
-using sbokena::utils::Deferred;
 
 namespace sbokena::loader {
 
@@ -18,8 +15,11 @@ namespace sbokena::loader {
 // this should work when called both from the repository root,
 // as well as when called by `ctest` in `build/tests`.
 TEST(common, theme_load_ok) {
-  const auto         cwd {fs::current_path()};
+  const fs::path     cwd {fs::current_path()};
   const Theme<Image> theme {"dev", cwd};
+  const Theme<Image> copy {theme};
+  const Theme<Image> move {std::move(theme)};
+  const Image &_ = *theme.sprites()[Theme<Image>::__SPRITES - 1];
   // destroy it, see if unloading fails
 }
 
