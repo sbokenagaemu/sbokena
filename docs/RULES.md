@@ -62,8 +62,14 @@
             - If it contains a _Box_ or a _Uni-directional box_, and if the _Box_ can be pushed by the _Box Pushing Rules_ in the exit direction, push the _Box_ to $(\text{traverse } P'_{x,y})$, and move the _Player_ to $P'_{x,y}$. If box pushing fails, the _Player_ stay in place.
             - Otherwise, move the _Player_ to $P'_{x,y}$.
     3. _Moving Rules_: Every time a _Player_ successfully moves from a _Tile_ $T$ to a _Tile_ $T'$, the _Tile_ they just moved from is empty. Thus,
-        - Run the exit event on _Tile_ $T$.
-        - Run the enter event on the next _Tile_ $T'$.
+        1. Run the enter event on the next _Tile_ $T'$.
+        2. Run the exit event on _Tile_ $T$.
+
+        When a _Player_ successfully moves an _Object_, the order of events is:
+        1. Run the enter event for _Object_ on $T''$.
+        2. Run the exit event for _Object_ on $T'$.
+        3. Run the enter event for _Player_ on $T'$.
+        4. RUn the exit event for _Player_ on $T$.
 
         Should the _Player_ fails to move for multiple reasons, the failure
     order shall be as follows:
