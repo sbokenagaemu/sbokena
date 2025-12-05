@@ -254,49 +254,94 @@ static constexpr std::optional<StepResult> move_objects(
 }
 
 // move only player
+// if valid move, return nullopt, else return error
 static constexpr std::optional<StepResult> move_player(
-  const Direction                  &input,
-  Position<>                        player_from,
-  Position<>                        player_to,
-  const Tile                       &tile,
-  std::map<Position<>, Object>     &objects,
-  std::unordered_map<u32, DoorSet> &doors
+  // TODO: confirm that direction is only used in case of DirFloor
+  const Direction                     &input,
+  Position<>                           player_from,
+  Position<>                           player_to,
+  const Tile                          &tile,
+  std::map<Position<>, Object>        &objects,
+  std::map<Position<>, Tile>          &tiles,
+  std::unordered_map<u32, DoorSet>    &doors,
+  std::unordered_map<u32, PortalPair> &portals,
+  bool                                 is_from_portal
 ) {
   usize tile_type = tile.index();
   switch (tile_type) {
     // if step on floor/goal/button, change position of player to
     // position of floor/goal/button.
   case index_of<Tile, Floor>():
+  case index_of<Tile, Button>():
   case index_of<Tile, Goal>(): {
-    update_position(player_from, player_to, objects);
-    break;
-  }
-  case index_of<Tile, Button>(): {
-    update_position(player_from, player_to, objects);
+    // TODO: add something to record number of goals met
+    update_position(player_from, player_to, std::nullopt, objects);
     break;
   }
   case index_of<Tile, Door>(): {
-    auto door_state =
-      is_door_open(std::get<Door>(tile).door_id, doors);
-    if (door_state == std::nullopt)
-      return std::optional<StepResult>(StepResult::MissingDoorId);
-    if (door_state.value() == false)
+    auto door_open =
+      is_door_open(std::get<Door>(tile).door_id, doors, objects);
+
+    if (!door_open)
       return std::optional<StepResult>(StepResult::SlamOnDoor);
     else
-      update_position(player_from, player_to, objects);
+      update_position(player_from, player_to, std::nullopt, objects);
     break;
   }
   case index_of<Tile, DirFloor>(): {
-    if (is_valid_dir(tile, input))
-      update_position(player_from, player_to, objects);
+    // using is_from_portal to exclude the case when player get out
+    // of a portal
+    if (is_valid_dir(tile, input) || is_from_portal)
+      update_position(player_from, player_to, std::nullopt, objects);
     else
       return std::optional<StepResult>(StepResult::InvalidDirection);
     break;
   }
   case index_of<Tile, Portal>(): {
+    if (!is_valid_dir(tile, input))
+      return std::optional<StepResult>(StepResult::InvalidDirection);
+    auto [p_portal_exit, out_dir] = get_portal_exit(
+      player_to, std::get<Portal>(tile).portal_id, tiles, portals
+    );
+
+    std::optional<Tile> exit_tile_ = find_tile(tiles, p_portal_exit);
+    if (!exit_tile_)
+      return std::optional<StepResult>(StepResult::StepOnWall);
+    auto exit_tile = exit_tile_.value();
+
+    std::optional<Object> exit_object_ =
+      find_object(objects, p_portal_exit);
+    if (exit_object_ == std::nullopt)
+      return move_player(
+        out_dir,
+        player_from,
+        p_portal_exit,
+        exit_tile,
+        objects,
+        tiles,
+        doors,
+        portals,
+        true
+      );
+    else
+      // direction at this point should be dir out from portal
+      // TODO: check where input param is used
+      return move_objects(
+        out_dir,
+        player_from,
+        p_portal_exit,
+        exit_object_.value(),
+        exit_tile,
+        objects,
+        tiles,
+        doors,
+        portals
+      );
+
     break;
   }
   }
+
   return std::nullopt;
 }
 
