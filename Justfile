@@ -26,9 +26,11 @@ fmt *args:
     $(fd -E build -F '.hh')
 
 lint *args: (cmake args)
-  clang-tidy -p build/ {{args}} \
-    $(fd -E build -F '.cc') \
-    $(fd -E build -F '.hh')
+  cat \
+    <(fd -E build/ -F '.cc') \
+    <(fd -E build/ -F '.cc') \
+    | parallel -j $(nproc) \
+      clang-tidy -p build
 
 test *args: (build args "-DBUILD_TESTS=1")
   ctest --test-dir build/tests \

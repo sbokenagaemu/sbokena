@@ -6,6 +6,7 @@
   llvmPackages,
   # dependencies
   just,
+  parallel,
   ...
 }: let
   sbokena =
@@ -20,6 +21,7 @@ in
     packages = [
       llvmPackages.lldb
       just
+      parallel
     ];
 
     shellHook = ''
