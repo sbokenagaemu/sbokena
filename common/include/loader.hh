@@ -151,10 +151,13 @@ struct ThemeLoadException : std::runtime_error {
 };
 
 // a loaded and validated theme for in-memory use.
-// a value of `loader::Theme` guarantees that:
+// a valid value of `loader::Theme` guarantees that:
 // - all `Tile`/`Object` sprites have the same non-zero, uniform,
 //   square sizes.
 // - all sprites listed in `themes/LAYOUT.md` are present.
+//
+// note that the default-constructed `Theme` is NOT valid.
+// trying to call any of its accessor methods will throw an exception.
 template <typename S>
   requires Resource<S> && Sprite<S>
 class Theme {
@@ -199,8 +202,9 @@ public:
   // load a named theme from a path, seeking upwards in the directory
   // tree recursively until it's found.
   Theme(std::string_view name, const fs::path &search_root)
-    : name_ {std::make_shared<std::string>(name)} {
     fs::path                 cur {search_root};
+    : name_ {std::make_shared<std::string>(name)},
+      sprites_ {nullptr} {
     std::unique_ptr<Sprites> tmp {nullptr};
 
     while (!tmp) {
@@ -282,7 +286,9 @@ public:
       sprites_[i] = LoadTextureFromImage(*theme.sprites_[i]);
   }
 
-  Theme()                         = delete;
+  // the sole invalid `Theme`.
+  Theme() : name_ {nullptr}, sprites_ {nullptr} {}
+
   Theme(const Theme &)            = default;
   Theme &operator=(const Theme &) = default;
   Theme(Theme &&)                 = default;
@@ -290,12 +296,14 @@ public:
   ~Theme()                        = default;
 
   // the name of the theme.
-  std::string_view name() const noexcept {
+  std::string_view name() const {
+    assert_throw(!!name_);
     return *name_;
   }
 
   // the sprites contained in the theme.
-  std::span<OwnedSprite, __SPRITES> sprites() const noexcept {
+  std::span<OwnedSprite, __SPRITES> sprites() const {
+    assert_throw(!!sprites_);
     return std::span<OwnedSprite, __SPRITES> {
       sprites_.get(), __SPRITES
     };
