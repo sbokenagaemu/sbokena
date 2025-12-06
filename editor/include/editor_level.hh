@@ -41,7 +41,7 @@ using namespace sbokena::editor::object;
 using sbokena::editor::tile::null_id; // 0x00
 
 namespace sbokena::editor::level {
-using CommonLevel = sbokena::level::Level;
+using CommonLevel = sbokena::level::RawLevel;
 
 // enum for the difficulty.
 enum class Difficulty { Unknown, Easy, Medium, Hard };
