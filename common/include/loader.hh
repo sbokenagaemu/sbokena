@@ -266,7 +266,7 @@ public:
       cur = cur.parent_path();
     }
 
-    assert_throw(!!tmp, std::runtime_error {"theme dir not found"});
+    assert_throw(!!tmp, ThemeLoadException {name, search_root});
     sprites_ = std::move(tmp);
   }
 
