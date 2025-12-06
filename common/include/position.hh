@@ -1,6 +1,7 @@
 #pragma once
 
 #include <concepts>
+#include <limits>
 
 #include <nlohmann/json.hpp>
 
@@ -71,6 +72,20 @@ struct Position {
   constexpr bool operator<(const Position<T> &rhs) const noexcept {
     return x < rhs.x || (x == rhs.x && y < rhs.y);
   }
+};
+
+// the minimal `Position` value.
+template <std::integral T = u32>
+constexpr Position<T> POS_MIN = {
+  .x = std::numeric_limits<T>::min(),
+  .y = std::numeric_limits<T>::min()
+};
+
+// the maximal `Position` value.
+template <std::integral T = u32>
+constexpr Position<T> POS_MAX = {
+  .x = std::numeric_limits<T>::max(),
+  .y = std::numeric_limits<T>::max()
 };
 
 template <std::integral T>

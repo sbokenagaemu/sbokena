@@ -33,12 +33,12 @@ public:
   constexpr explicit Deferred(F fn) noexcept : fn {fn} {}
 
   // don't call the invocable when the guard is destroyed.
-  constexpr void cancel() {
+  constexpr void cancel() noexcept {
     fn.reset();
   }
 
   constexpr ~Deferred() {
-    if (fn.has_value())
+    if (fn)
       fn.value()();
   }
 
