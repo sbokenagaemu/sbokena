@@ -114,8 +114,9 @@ NLOHMANN_JSON_SERIALIZE_ENUM(
 )
 
 // raw level data from a level file.
+//
 // this type does almost no validation.
-// TODO: mention `LoadedLevel` when it lands
+// if this is needed, see `sbokena::loader::Level`.
 struct Level {
   std::string name;
   std::string theme;
