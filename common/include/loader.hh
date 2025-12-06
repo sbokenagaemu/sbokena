@@ -362,7 +362,7 @@ public:
   // will be committed into VRAM.
   template <typename T = S>
     requires Resource<T> && Sprite<T>
-  Level(const level::Level &raw, const Theme<T> &theme)
+  Level(const level::RawLevel &raw, const Theme<T> &theme)
     : name_ {raw.name},
       theme_ {theme},
       diff_ {raw.diff},
