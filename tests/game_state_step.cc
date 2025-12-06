@@ -207,6 +207,14 @@ TEST(game, state_door_button) {
   ASSERT_FALSE(st.objects.contains({.x = 2, .y = 1}));
 
   // █████
+  // █ pd█
+  // █████
+  // step left, exit door
+  ASSERT_EQ(st.step(Direction::Left), StepResult::Ok);
+  std::get<Player>(st.objects.at({.x = 2, .y = 1}));
+  ASSERT_FALSE(st.objects.contains({.x = 3, .y = 1}));
+
+  // █████
   // █p͔͔͕͕db█
   // █████
   State st1 = {
@@ -226,5 +234,132 @@ TEST(game, state_door_button) {
   ASSERT_EQ(st1.step(Direction::Right), StepResult::SlamOnDoor);
   std::get<Player>(st1.objects.at({.x = 1, .y = 1}));
 }
+
+TEST(game, state_door_button_box) {
+  // ███████
+  // █p☐bd █
+  // ███████
+  State st1 = {
+    .completed_goals = 0,
+    .tiles =
+      {
+        {{.x = 1, .y = 1}, {Floor {}}},
+        {{.x = 2, .y = 1}, {Floor {}}},
+        {{.x = 3, .y = 1}, {Button {.door_id = 1}}},
+        {{.x = 4, .y = 1}, {Door {.door_id = 1}}},
+        {{.x = 5, .y = 1}, {Floor {}}},
+
+      },
+    .objects =
+      {
+        {{.x = 1, .y = 1}, {Player {}}},
+        {{.x = 2, .y = 1}, {Box {}}},
+      },
+    .doors   = {{1, {{4, 1}, {{3, 1}}}}},
+    .portals = {},
+  };
+
+  // ███████
+  // █ p☐d █
+  // ███████
+  // push box on button
+  ASSERT_EQ(st1.step(Direction::Right), StepResult::Ok);
+  std::get<Player>(st1.objects.at({.x = 2, .y = 1}));
+  std::get<Box>(st1.objects.at({.x = 3, .y = 1}));
+
+  // ███████
+  // █  p☐ █
+  // ███████
+  // push box through door
+  ASSERT_EQ(st1.step(Direction::Right), StepResult::Ok);
+  std::get<Player>(st1.objects.at({.x = 3, .y = 1}));
+  std::get<Box>(st1.objects.at({.x = 4, .y = 1}));
+
+  // ███████
+  // █  bp☐█
+  // ███████
+  // push box of door, player under door
+  ASSERT_EQ(st1.step(Direction::Right), StepResult::Ok);
+  std::get<Player>(st1.objects.at({.x = 4, .y = 1}));
+  std::get<Box>(st1.objects.at({.x = 5, .y = 1}));
+}
+
+TEST(game, state_walk_portal) {
+  // ███████
+  // █p┤ ├ █
+  // ███████
+  State st1 = {
+    .completed_goals = 0,
+    .tiles =
+      {
+        {{.x = 1, .y = 1}, {Floor {}}},
+        {{.x = 2, .y = 1},
+         {Portal {
+           .portal_id = 1,
+           .in_dir    = Direction::Right,
+         }}},
+        {{.x = 3, .y = 1}, {Floor {}}},
+        {{.x = 4, .y = 1},
+         {Portal {
+           .portal_id = 1,
+           .in_dir    = Direction::Left,
+         }}},
+        {{.x = 5, .y = 1}, {Floor {}}},
+
+      },
+    .objects =
+      {
+        {{.x = 1, .y = 1}, {Player {}}},
+      },
+    .doors   = {},
+    .portals = {{1, {{.x = 2, .y = 1}, {.x = 4, .y = 1}}}},
+  };
+
+  // ███████
+  // █ ┤ ├p█
+  // ███████
+  // traverse through portal
+  ASSERT_EQ(st1.step(Direction::Right), StepResult::Ok);
+  std::get<Player>(st1.objects.at({.x = 5, .y = 1}));
+  ASSERT_FALSE(st1.objects.contains({.x = 1, .y = 1}));
+
+  // ███████
+  // █ ┤p├ █
+  // ███████
+  State st2 = {
+    .completed_goals = 0,
+    .tiles =
+      {
+        {{.x = 1, .y = 1}, {Floor {}}},
+        {{.x = 2, .y = 1},
+         {Portal {
+           .portal_id = 1,
+           .in_dir    = Direction::Right,
+         }}},
+        {{.x = 3, .y = 1}, {Floor {}}},
+        {{.x = 4, .y = 1},
+         {Portal {
+           .portal_id = 1,
+           .in_dir    = Direction::Left,
+         }}},
+        {{.x = 5, .y = 1}, {Floor {}}},
+
+      },
+    .objects =
+      {
+        {{.x = 3, .y = 1}, {Player {}}},
+      },
+    .doors   = {},
+    .portals = {{1, {{.x = 2, .y = 1}, {.x = 4, .y = 1}}}},
+  };
+
+  // traverse through portal in wrong direction
+  ASSERT_EQ(st2.step(Direction::Right), StepResult::InvalidDirection);
+  std::get<Player>(st2.objects.at({.x = 3, .y = 1}));
+  ASSERT_EQ(st2.step(Direction::Left), StepResult::InvalidDirection);
+  std::get<Player>(st2.objects.at({.x = 3, .y = 1}));
+}
+
+// TODO: test multiple buttons and one door
 
 } // namespace sbokena::game::state
