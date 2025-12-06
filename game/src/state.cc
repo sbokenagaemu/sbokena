@@ -136,21 +136,19 @@ static std::optional<StepResult> move_player_object(
       return std::optional<StepResult>(StepResult::InvalidDirection);
     // falls through
   }
-  case index_of<Tile, Floor>():
   case index_of<Tile, Goal>(): {
+    update_position(player_to, box_to, objects);
+    update_position(player_from, player_to, objects);
     break;
   }
     // player moving to the Goal containing a Box already, meaning
     // that number of goals met decreases by 1
 
+  case index_of<Tile, Floor>():
   case index_of<Tile, Door>():
   case index_of<Tile, Button>(): {
-    update_position(
-      player_from,
-      player_to,
-      std::optional<Position<>>(box_to),
-      objects
-    );
+    update_position(player_to, box_to, objects);
+    update_position(player_from, player_to, objects);
     break;
   }
   }
