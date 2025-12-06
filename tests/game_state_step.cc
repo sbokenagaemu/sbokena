@@ -491,9 +491,9 @@ TEST(game, state_walk_portal) {
 }
 
 TEST(game, state_push_portal) {
-  // █████████
-  // █p☐┤ ├  █
-  // █████████
+  // ████████
+  // █p☐┤├  █
+  // ████████
   State st1 = {
     .completed_goals = 0,
     .tiles =
@@ -505,14 +505,13 @@ TEST(game, state_push_portal) {
            .portal_id = 1,
            .in_dir    = Direction::Right,
          }}},
-        {{.x = 4, .y = 1}, {Floor {}}},
-        {{.x = 5, .y = 1},
+        {{.x = 4, .y = 1},
          {Portal {
            .portal_id = 1,
            .in_dir    = Direction::Left,
          }}},
+        {{.x = 5, .y = 1}, {Floor {}}},
         {{.x = 6, .y = 1}, {Floor {}}},
-        {{.x = 7, .y = 1}, {Floor {}}},
 
       },
     .objects =
@@ -522,13 +521,23 @@ TEST(game, state_push_portal) {
 
       },
     .doors   = {},
-    .portals = {{1, {{.x = 3, .y = 1}, {.x = 5, .y = 1}}}},
+    .portals = {{1, {{.x = 3, .y = 1}, {.x = 4, .y = 1}}}},
   };
-
+  // ████████
+  // █ p┤├☐ █
+  // ████████
   ASSERT_EQ(st1.step(Direction::Right), StepResult::Ok);
   ASSERT_FALSE(st1.objects.contains({.x = 1, .y = 1}));
   std::get<Player>(st1.objects.at({.x = 2, .y = 1}));
   std::get<Box>(st1.objects.at({.x = 5, .y = 1}));
+
+  // ████████
+  // █  ┤├p☐█
+  // ████████
+  ASSERT_EQ(st1.step(Direction::Right), StepResult::Ok);
+  ASSERT_FALSE(st1.objects.contains({.x = 2, .y = 1}));
+  std::get<Player>(st1.objects.at({.x = 5, .y = 1}));
+  std::get<Box>(st1.objects.at({.x = 6, .y = 1}));
 }
 
 // TODO: test multiple buttons and one door
