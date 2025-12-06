@@ -16,6 +16,7 @@
   libGL,
   libxkbcommon,
   ninja,
+  parallel,
   pkg-config,
   wayland,
   wayland-scanner,
@@ -83,6 +84,7 @@
   nativeCheckInputs = [
     llvmPackages.clang-tools
     cmake
+    parallel
   ];
 
   # run-time dependencies
@@ -176,9 +178,11 @@ in
 
     doCheck = false;
     checkPhase = ''
-      clang-tidy -p build \
-        $(fd -E build/ -F '.cc') \
-        $(fd -E build/ -F '.hh')
+      cat \
+        <(fd -E build -F '.cc') \
+        <(fd -E build -F '.hh') \
+        | parallel -j $(nproc) \
+          clang-tidy -p build
       ctest \
         --test-dir build/tests \
         --output-on-failure
