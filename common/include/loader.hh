@@ -4,27 +4,36 @@
 
 #include <array>
 #include <concepts>
+#include <filesystem>
 #include <format>
+#include <map>
 #include <memory>
 #include <optional>
 #include <print>
+#include <set>
 #include <span>
 #include <stdexcept>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <utility>
 
+#include <nlohmann/json.hpp>
 #include <raylib.h>
 
+#include "level.hh"
 #include "position.hh"
 #include "types.hh"
 #include "utils.hh"
 
 namespace fs = std::filesystem;
 
+using nlohmann::json;
+
 using namespace sbokena::types;
 using namespace sbokena::utils;
-using sbokena::position::Position;
+using namespace sbokena::position;
+namespace level = sbokena::level;
 
 namespace sbokena::loader {
 
@@ -148,6 +157,12 @@ struct ThemeLoadException : std::runtime_error {
 
   const std::string name;
   const fs::path    path;
+};
+
+// an exception thrown when validating a `Level`.
+struct InvalidLevelException : std::runtime_error {
+  InvalidLevelException()
+    : std::runtime_error {"invalid level data"} {}
 };
 
 // a loaded and validated theme for in-memory use.
@@ -316,6 +331,166 @@ private:
   template <typename T>
     requires Resource<T> && Sprite<T>
   friend class Theme;
+};
+
+// a loaded and validated level for in-memory use.
+// a value of `loader::Level` guarantees that:
+// - the requisite theme is valid and loaded. see the `Theme` class
+//   for the exact details of these guarantees.
+// - all `Door` tiles have at least one corresponding button.
+// - all `Portal` tiles are paired correctly.
+// - the number of `Goal` tiles equals the number of `Box` and
+//  `DirBox` objects combined.
+// - there is exactly one `Player` object.
+template <typename S>
+  requires Resource<S> && Sprite<S>
+class Level {
+public:
+  using DoorSet = std::pair<
+    Position<>,          // position of door
+    std::set<Position<>> // positions of buttons
+    >;
+  using PortalSet = std::pair<
+    Position<>, // position of 1st portal
+    Position<>  // position of 2nd portal
+    >;
+
+  // validate a `RawLevel`, and take in a `Theme`.
+  //
+  // this constructor is parameterized, i.e. you can pass in a
+  // `Theme<Image>` to a `Level<Texture>` constructor, and the theme
+  // will be committed into VRAM.
+  template <typename T = S>
+    requires Resource<T> && Sprite<T>
+  Level(const level::Level &raw, const Theme<T> &theme)
+    : name_ {raw.name},
+      theme_ {theme},
+      diff_ {raw.diff},
+      tiles_ {raw.tiles},
+      objects_ {raw.objects},
+      player_ {POS_MAX<>} {
+    // #box must equal #goal
+    isize boxes = 0;
+
+    for (const auto &[pos, obj] : objects_)
+      switch (obj.index()) {
+      case index_of<level::Object, level::Player>(): {
+        // check if we've already set the player's position
+        assert_throw(player_ == POS_MAX<>, InvalidLevelException {});
+        player_ = pos;
+        break;
+      }
+      case index_of<level::Object, level::Box>():
+      case index_of<level::Object, level::DirBox>(): {
+        // count #box
+        ++boxes;
+        break;
+      }
+      }
+
+    for (const auto &[pos, tile] : tiles_)
+      switch (tile.index()) {
+      case index_of<level::Tile, level::Floor>():
+        // nothing to do here
+        break;
+      case index_of<level::Tile, level::Button>(): {
+        // - if the door is there, add the button
+        // - if the door is not there, insert a fake door
+        const auto &btn  = std::get<level::Button>(tile);
+        const auto  iter = doors_.find(btn.door_id);
+        if (iter != doors_.end())
+          iter->second.second.insert(pos);
+        else
+          doors_.insert({btn.door_id, {POS_MAX<>, {pos}}});
+        break;
+      }
+      case index_of<level::Tile, level::Door>(): {
+        // - if the door is not there, add an empty set
+        // - if the door is there, either it's a placeholder (ok), or
+        //   it's a duplicate (error)
+        const auto &door = std::get<level::Door>(tile);
+        const auto  iter = doors_.find(door.door_id);
+        if (iter != doors_.end()) {
+          assert_throw(
+            iter->second.first == POS_MAX<>, InvalidLevelException {}
+          );
+          iter->second.first = pos;
+          break;
+        }
+        break;
+      }
+      case index_of<level::Tile, level::Portal>(): {
+        // - if the pair isn't present, add as the left hand
+        // - if the right hand is filled, add as the right hand
+        // - if both are filled, throw an error.
+        const auto &portal = std::get<level::Portal>(tile);
+        const auto  iter   = portals_.find(portal.portal_id);
+        if (iter == portals_.end())
+          portals_.insert({portal.portal_id, {pos, POS_MAX<>}});
+        else {
+          assert_throw(
+            iter->second.second == POS_MAX<>, InvalidLevelException {}
+          );
+          iter->second.second = pos;
+        }
+        break;
+      };
+      case index_of<level::Tile, level::Goal>(): {
+        // "uncount" #box
+        // if it's 0 at the end, the level is valid
+        --boxes;
+        break;
+      }
+      }
+
+    // require #box == #goal
+    assert_throw(boxes == 0, InvalidLevelException {});
+
+    // require player to be present
+    assert_throw(player_ != POS_MAX<>, InvalidLevelException {});
+
+    // check for dangling doorsets
+    for (const auto &[_, doorset] : doors_) {
+      assert_throw(
+        doorset.first != POS_MAX<>, InvalidLevelException {}
+      );
+      assert_throw(!doorset.second.empty(), InvalidLevelException {});
+    }
+
+    // check for dangling portals
+    for (const auto &[_, portalset] : portals_) {
+      assert_throw(
+        portalset.first != POS_MAX<>, InvalidLevelException {}
+      );
+      assert_throw(
+        portalset.second != POS_MAX<>, InvalidLevelException {}
+      );
+    }
+  }
+
+  Level()                         = delete;
+  Level(const Level &)            = default;
+  Level &operator=(const Level &) = default;
+  Level(Level &&)                 = default;
+  Level &operator=(Level &&)      = default;
+  ~Level()                        = default;
+
+  std::string_view name() const noexcept {
+    return name_;
+  }
+
+private:
+  std::string       name_;
+  Theme<S>          theme_;
+  level::Difficulty diff_;
+
+  std::map<Position<>, level::Tile>   tiles_;
+  std::map<Position<>, level::Object> objects_;
+
+  std::unordered_map<u32, DoorSet>   doors_;
+  std::unordered_map<u32, PortalSet> portals_;
+
+  Position<> player_;
 };
 
 }; // namespace sbokena::loader
