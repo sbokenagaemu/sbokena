@@ -216,7 +216,10 @@ public:
 
   // load a named theme from a path, seeking upwards in the directory
   // tree recursively until it's found.
-  Theme(std::string_view name, const fs::path &search_root)
+  Theme(
+    std::string_view name,
+    const fs::path  &search_root = fs::current_path()
+  )
     : name_ {std::make_shared<std::string>(name)},
       sprites_ {nullptr} {
     fs::path                 cur = fs::canonical(search_root);
