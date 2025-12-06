@@ -14,7 +14,7 @@ namespace sbokena::loader {
 // try to find and load the `dev` theme (inside `themes/dev`)
 // this should work when called both from the repository root,
 // as well as when called by `ctest` in `build/tests`.
-TEST(common, theme_load_ok) {
+TEST(common, theme_load_dev) {
   const fs::path     cwd {fs::current_path()};
   const Theme<Image> theme {"dev", cwd};
   const Theme<Image> copy {theme};
