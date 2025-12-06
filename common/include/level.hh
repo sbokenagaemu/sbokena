@@ -26,8 +26,6 @@ namespace sbokena::level {
   void to_json(json &, const ty &);
 
 // ===== tiles =====
-// NOTE: all tiles not stored in the level file are to be
-// interpreted as `3.7. Walls`.
 
 // 3.1. Floor
 struct Floor {};
@@ -64,10 +62,12 @@ DECL_JSON(DirFloor)
 
 // 3.6. Goal
 struct Goal {};
-
-DECL_JSON(Goal);
+DECL_JSON(Goal)
 
 // 1. Tile
+//
+// NOTE: `Wall` tiles are not actually stored in level files,
+// and are thus omitted from this type.
 using Tile =
   std::variant<Floor, Button, Door, Portal, DirFloor, Goal>;
 DECL_JSON(Tile)
