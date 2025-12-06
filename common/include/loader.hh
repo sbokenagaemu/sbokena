@@ -202,9 +202,9 @@ public:
   // load a named theme from a path, seeking upwards in the directory
   // tree recursively until it's found.
   Theme(std::string_view name, const fs::path &search_root)
-    fs::path                 cur {search_root};
     : name_ {std::make_shared<std::string>(name)},
       sprites_ {nullptr} {
+    fs::path                 cur = fs::canonical(search_root);
     std::unique_ptr<Sprites> tmp {nullptr};
 
     while (!tmp) {
@@ -261,7 +261,7 @@ public:
     backtrack:
       std::println("{} invalid, backtracking...", cur.c_str());
       tmp.reset();
-      if (!cur.has_parent_path())
+      if (cur == cur.root_path())
         break;
       cur = cur.parent_path();
     }
