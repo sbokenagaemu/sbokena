@@ -26,7 +26,8 @@ enum struct StepResult {
   StepOnWall,
   SlamOnDoor,
   InvalidDirection,
-  PushTwoBoxes
+  PushTwoObjects,
+  PushYourself
 };
 
 // pair of position of door and its corresponding buttons' position

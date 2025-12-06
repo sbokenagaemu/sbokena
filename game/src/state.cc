@@ -188,7 +188,11 @@ static constexpr std::optional<StepResult> move_objects(
 
   auto object_object = find_object(objects, object_to);
   if (object_object)
-    return StepResult::PushTwoBoxes;
+    return StepResult::PushTwoObjects;
+
+  // cannot push oneself
+  if (std::holds_alternative<Player>(object))
+    return StepResult::PushYourself;
 
   switch (object_tile.index()) {
   case index_of<Tile, Floor>():
