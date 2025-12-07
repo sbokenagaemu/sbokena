@@ -50,7 +50,7 @@ bool            is_selection_shown       = false;
 
 TileType   currently_selected_tile_type = TileType::Roof;
 ObjectType currently_selected_object_type;
-bool       is_currently_placing           = true;
+bool       is_currently_placing           = false;
 Rectangle  currently_selected_outline_rec = {
   tile_first_col_x,
   tile_picker_box_padding,
@@ -66,6 +66,7 @@ void switch_selection(Rectangle rec) {
     tile_picker_box_size + 10
   };
   is_currently_placing = true;
+  is_selection_shown   = false;
 }
 
 int main() {
@@ -127,7 +128,8 @@ int main() {
     }
 
     // tile selection
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)
+        && !is_currently_placing) {
       // checks whether:
       // 1) the mouse is inside the window's grid part
       // 2) the mouse is inside the actual grid
@@ -160,13 +162,15 @@ int main() {
 
     // showing the selection
     if (is_selection_shown) {
-      const Rectangle selection = {
+      const Rectangle grid_selection = {
         selected_tile_position.GetX(),
         selected_tile_position.GetY(),
         current_tile_size,
         current_tile_size
       };
-      DrawRectangleRec(selection, Fade(raylib::Color::Gray(), 0.5));
+      DrawRectangleRec(
+        grid_selection, Fade(raylib::Color::Gray(), 0.5)
+      );
     }
 
     // DECORATIVE ELEMENTS
@@ -327,7 +331,7 @@ int main() {
       view_control_button_height
     };
     if (GuiButton(rotate_button, "Rotate")) {
-      // TODO
+      if (is_selection_shown && !is_currently_placing) {}
     }
 
     // Zoom out button
