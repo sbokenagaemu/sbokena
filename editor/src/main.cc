@@ -2,7 +2,9 @@
 #define RAYGUI_IMPLEMENTATION
 #include <Vector2.hpp>
 
+#include "object.hh"
 #include "position.hh"
+#include "tile.hh"
 #endif
 
 #include <Color.hpp>
@@ -335,8 +337,22 @@ int main() {
       view_control_button_height
     };
     if (GuiButton(rotate_button, "Rotate")) {
-      if (is_selection_shown && !is_currently_placing)
-        level_.get_tile_at();
+      if (is_selection_shown && !is_currently_placing) {
+        Tile *tile_ = level_.get_tile_at(selected_grid_tile_index);
+        if (tile_) {
+          if (OneDir *one_dir_ = dynamic_cast<OneDir *>(tile_))
+            one_dir_->rotate();
+          else if (Portal *portal_ = dynamic_cast<Portal *>(tile_))
+            portal_->rotate();
+        }
+        Object *object_ =
+          level_.get_object_at(selected_grid_tile_index);
+        if (object_) {
+          if (OneDirBox *one_dir_box_ =
+                dynamic_cast<OneDirBox *>(object_))
+            one_dir_box_->rotate();
+        }
+      }
     }
 
     // Zoom out button
