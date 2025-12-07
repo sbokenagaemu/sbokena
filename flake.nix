@@ -1,7 +1,10 @@
 {
   inputs = {
-    flake-parts.url = "github:hercules-ci/flake-parts";
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+
+    git-hooks-nix.url = "github:cachix/git-hooks.nix";
+    git-hooks-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = inputs @ {flake-parts, ...}:
@@ -12,8 +15,13 @@
         "aarch64-darwin"
       ];
 
+      imports = [
+        inputs.git-hooks-nix.flakeModule
+      ];
+
       perSystem = {
         self',
+        config,
         pkgs,
         ...
       }: let
@@ -22,10 +30,15 @@
           ./nix/sbokena.nix
           {};
       in {
-        # Nix formatter, run with `nix fmt`
-        formatter = pkgs.writeShellScriptBin "nix-fmt" ''
-          ${pkgs.alejandra}/bin/alejandra -q .
-        '';
+        # pre-commit hooks
+        pre-commit = {
+          check.enable = true;
+          settings.package = pkgs.prek;
+          settings.hooks = {
+            alejandra.enable = true;
+            clang-format.enable = true;
+          };
+        };
 
         # default dev shell, activated by `nix develop`
         # manually or by `direnv` automatically
@@ -36,6 +49,7 @@
 
             inputsFrom = [
               sbokena
+              config.pre-commit.devShell
             ];
 
             packages = [
@@ -45,6 +59,7 @@
             ];
 
             shellHook = ''
+              ${config.pre-commit.shellHook}
               if [ ! -d ./build ]; then
                 just cmake
               fi
@@ -65,11 +80,6 @@
 
         # miscellaneous checks, run with `nix flake check`
         checks = {
-          format =
-            pkgs.callPackage
-            ./nix/checks/format.nix
-            {};
-
           sbokena = (sbokena
             .override {buildRelease = false;})
             .overrideAttrs {doCheck = true;};
