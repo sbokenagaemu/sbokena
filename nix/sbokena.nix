@@ -182,7 +182,7 @@ in
       cat \
         <(fd -E build -F '.cc') \
         <(fd -E build -F '.hh') \
-        | parallel -j $(nproc) \
+        | parallel --will-cite -j $(nproc) \
           clang-tidy -p build
       ctest \
         --test-dir build/tests \
