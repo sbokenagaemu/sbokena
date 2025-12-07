@@ -29,7 +29,7 @@ lint *args: (cmake args)
   cat \
     <(fd -E build/ -F '.cc') \
     <(fd -E build/ -F '.cc') \
-    | parallel -j $(nproc) \
+    | parallel --will-cite -j $(nproc) \
       clang-tidy -p build
 
 test *args: (build args "-DBUILD_TESTS=1")
