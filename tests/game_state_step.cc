@@ -14,7 +14,7 @@ TEST(game, state_walk_normal) {
   // █ p █
   // █████
   State st = {
-    .completed_goals = 0,
+    .goal = {},
     .tiles =
       {{{.x = 1, .y = 1}, {Floor {}}},
        {{.x = 2, .y = 1}, {Floor {}}},
@@ -49,7 +49,7 @@ TEST(game, state_walk_dirfloor) {
   // █ p→█
   // █████
   State st = {
-    .completed_goals = 0,
+    .goal = {},
     .tiles =
       {{{.x = 1, .y = 1}, {Floor {}}},
        {{.x = 2, .y = 1}, {Floor {}}},
@@ -81,7 +81,7 @@ TEST(game, state_push_normal) {
   // █p☐ █
   // █████
   State st = {
-    .completed_goals = 0,
+    .goal = {},
     .tiles =
       {{{.x = 1, .y = 1}, {Floor {}}},
        {{.x = 2, .y = 1}, {Floor {}}},
@@ -119,7 +119,7 @@ TEST(game, state_push_dirbox) {
   // █p͔͔͕͕˃ █
   // █████
   State st = {
-    .completed_goals = 0,
+    .goal = {},
     .tiles =
       {{{.x = 1, .y = 1}, {Floor {}}},
        {{.x = 2, .y = 1}, {Floor {}}},
@@ -152,7 +152,7 @@ TEST(game, state_push_dirbox) {
   // █p͔͔͕͕˄ █
   // █████
   State st_op = {
-    .completed_goals = 0,
+    .goal = {},
     .tiles =
       {{{.x = 1, .y = 1}, {Floor {}}},
        {{.x = 2, .y = 1}, {Floor {}}},
@@ -177,7 +177,7 @@ TEST(game, state_door_button) {
   // █p͔͔͕͕bd█
   // █████
   State st = {
-    .completed_goals = 0,
+    .goal = {},
     .tiles =
       {{{.x = 1, .y = 1}, {Floor {}}},
        {{.x = 2, .y = 1}, {Button {.door_id = 1}}},
@@ -218,7 +218,7 @@ TEST(game, state_door_button) {
   // █p͔͔͕͕db█
   // █████
   State st1 = {
-    .completed_goals = 0,
+    .goal = {},
     .tiles =
       {{{.x = 1, .y = 1}, {Floor {}}},
        {{.x = 2, .y = 1}, {Door {.door_id = 1}}},
@@ -240,7 +240,7 @@ TEST(game, state_door_button_box) {
   // █p☐bd █
   // ███████
   State st1 = {
-    .completed_goals = 0,
+    .goal = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -289,7 +289,7 @@ TEST(game, state_walk_portal) {
   // █p┤ ├ █
   // ███████
   State st1 = {
-    .completed_goals = 0,
+    .goal = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -327,7 +327,7 @@ TEST(game, state_walk_portal) {
   // █ ┤p├ █
   // ███████
   State st2 = {
-    .completed_goals = 0,
+    .goal = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -363,7 +363,7 @@ TEST(game, state_walk_portal) {
   // █p┤├┤├ █
   // ████████
   State st3 = {
-    .completed_goals = 0,
+    .goal = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -412,7 +412,7 @@ TEST(game, state_walk_portal) {
   // █p┤├┬├ █
   // ████████
   State st4 = {
-    .completed_goals = 0,
+    .goal = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -457,7 +457,7 @@ TEST(game, state_walk_portal) {
   // █ ├p┤ █
   // ███████
   State st5 = {
-    .completed_goals = 0,
+    .goal = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -493,7 +493,7 @@ TEST(game, state_walk_portal) {
   // █p┤├┤├█
   // ███████
   State st6 = {
-    .completed_goals = 0,
+    .goal = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -542,7 +542,7 @@ TEST(game, state_push_portal) {
   // █p☐┤├  █
   // ████████
   State st1 = {
-    .completed_goals = 0,
+    .goal = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -592,7 +592,7 @@ TEST(game, state_push_portal) {
   // █p☐┤ ┤ █
   // ████████
   State st2 = {
-    .completed_goals = 0,
+    .goal = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -640,7 +640,7 @@ TEST(game, state_push_portal) {
   // █p☐┤├█
   // ██████
   State st3 = {
-    .completed_goals = 0,
+    .goal = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -677,7 +677,7 @@ TEST(game, dirfloor_portal) {
   // █p→┤├↓█
   // ███████
   State st1 = {
-    .completed_goals = 0,
+    .goal = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -716,6 +716,212 @@ TEST(game, dirfloor_portal) {
   // re-enter Portal but wrong direction of DirFloor
   ASSERT_EQ(st1.step(Direction::Left), StepResult::InvalidDirection);
   std::get<Player>(st1.objects.at({.x = 5, .y = 1}));
+
+  // ███████
+  // █p☐┤├↓█
+  // ███████
+  State st2 = {
+    .goal = {},
+    .tiles =
+      {
+        {{.x = 1, .y = 1}, {Floor {}}},
+        {{.x = 2, .y = 1}, {DirFloor {.dir = Direction::Right}}},
+        {{.x = 3, .y = 1},
+         {Portal {
+           .portal_id = 1,
+           .in_dir    = Direction::Right,
+         }}},
+        {{.x = 4, .y = 1},
+         {Portal {
+           .portal_id = 1,
+           .in_dir    = Direction::Left,
+         }}},
+        {{.x = 5, .y = 1}, {DirFloor {.dir = Direction::Down}}},
+
+      },
+    .objects =
+      {
+        {{.x = 1, .y = 1}, {Player {}}},
+        {{.x = 2, .y = 1}, {DirBox {.dir = Direction::Right}}},
+
+      },
+    .doors   = {},
+    .portals = {{1, {{.x = 3, .y = 1}, {.x = 4, .y = 1}}}},
+  };
+
+  // push DirBox through portal in right direction
+  ASSERT_EQ(st2.step(Direction::Right), StepResult::Ok);
+  ASSERT_FALSE(st2.objects.contains({.x = 1, .y = 1}));
+  std::get<Player>(st2.objects.at({.x = 2, .y = 1}));
+  std::get<DirBox>(st2.objects.at({.x = 5, .y = 1}));
+
+  // push DirBox out of DirFloor in wrong direction
+  ASSERT_EQ(st2.step(Direction::Right), StepResult::InvalidDirection);
+  std::get<Player>(st2.objects.at({.x = 2, .y = 1}));
+  std::get<DirBox>(st2.objects.at({.x = 5, .y = 1}));
+}
+
+TEST(game, goal) {
+  // ███████
+  // █p☐┤├g█
+  // ███████
+  State st1 = {
+    .goal = {{.x = 5, .y = 1}},
+    .tiles =
+      {
+        {{.x = 1, .y = 1}, {Floor {}}},
+        {{.x = 2, .y = 1}, {Floor {}}},
+        {{.x = 3, .y = 1},
+         {Portal {
+           .portal_id = 1,
+           .in_dir    = Direction::Right,
+         }}},
+        {{.x = 4, .y = 1},
+         {Portal {
+           .portal_id = 1,
+           .in_dir    = Direction::Left,
+         }}},
+        {{.x = 5, .y = 1}, {Goal {}}},
+
+      },
+    .objects =
+      {
+        {{.x = 1, .y = 1}, {Player {}}},
+        {{.x = 2, .y = 1}, {Box {}}},
+
+      },
+    .doors   = {},
+    .portals = {{1, {{.x = 3, .y = 1}, {.x = 4, .y = 1}}}},
+  };
+
+  // push box to goal through portal.
+  ASSERT_EQ(st1.step(Direction::Right), StepResult::LevelComplete);
+  ASSERT_FALSE(st1.objects.contains({.x = 1, .y = 1}));
+  std::get<Player>(st1.objects.at({.x = 2, .y = 1}));
+  std::get<Box>(st1.objects.at({.x = 5, .y = 1}));
+}
+
+TEST(game, general_game) {
+  // ███████
+  // █p☐b┤ █
+  // █☐    █
+  // █d  ┬ █
+  // █g  →g█
+  // ███████
+  State st1 = {
+    .goal = {{.x = 1, .y = 4}, {.x = 5, .y = 4}},
+    .tiles =
+      {
+        {{.x = 1, .y = 1}, {Floor {}}},
+        {{.x = 2, .y = 1}, {Floor {}}},
+        {{.x = 3, .y = 1}, Button {.door_id = 1}},
+        {{.x = 4, .y = 1},
+         {Portal {
+           .portal_id = 1,
+           .in_dir    = Direction::Right,
+         }}},
+        {{.x = 5, .y = 1}, {Floor {}}},
+        {{.x = 1, .y = 2}, {Floor {}}},
+        {{.x = 2, .y = 2}, {Floor {}}},
+        {{.x = 3, .y = 2}, {Floor {}}},
+        {{.x = 4, .y = 2}, {Floor {}}},
+        {{.x = 5, .y = 2}, {Floor {}}},
+        {{.x = 1, .y = 3}, {Door {.door_id = 1}}},
+        {{.x = 2, .y = 3}, {Floor {}}},
+        {{.x = 3, .y = 3}, {Floor {}}},
+        {{.x = 4, .y = 3},
+         {Portal {.portal_id = 1, .in_dir = Direction::Up}}},
+        {{.x = 5, .y = 3}, {Floor {}}},
+        {{.x = 1, .y = 4}, {Goal {}}},
+        {{.x = 2, .y = 4}, {Floor {}}},
+        {{.x = 3, .y = 4}, {Floor {}}},
+        {{.x = 4, .y = 4}, {DirFloor {.dir = Direction::Right}}},
+        {{.x = 5, .y = 4}, {Goal {}}},
+
+      },
+    .objects =
+      {
+        {{.x = 1, .y = 1}, {Player {}}},
+        {{.x = 2, .y = 1}, {Box {}}},
+        {{.x = 1, .y = 2}, {Box {}}},
+
+      },
+    .doors   = {{1, {{.x = 1, .y = 3}, {{.x = 3, .y = 1}}}}},
+    .portals = {{1, {{.x = 4, .y = 1}, {.x = 4, .y = 3}}}},
+  };
+
+  // ███████
+  // █ p☐┤ █
+  // █☐    █
+  // █d  ┬ █
+  // █g  →g█
+  // ███████
+  // push box on button
+  ASSERT_EQ(st1.step(Direction::Right), StepResult::Ok);
+  ASSERT_EQ(st1.step(Direction::Left), StepResult::Ok);
+  // push box through opened door
+  ASSERT_EQ(st1.step(Direction::Down), StepResult::Ok);
+  // push box on one goal
+  ASSERT_EQ(st1.step(Direction::Down), StepResult::Ok);
+  // ███████
+  // █  ☐┤ █
+  // █     █
+  // █p  ┬ █
+  // █☐  →g█
+  // ███████
+  ASSERT_EQ(st1.step(Direction::Up), StepResult::Ok);
+  ASSERT_EQ(st1.step(Direction::Up), StepResult::Ok);
+  ASSERT_EQ(st1.step(Direction::Right), StepResult::Ok);
+  // push box through portal to dirfloor
+  ASSERT_EQ(st1.step(Direction::Right), StepResult::Ok);
+  // ███████
+  // █  p┤ █
+  // █     █
+  // █d  ┬ █
+  // █☐  ☐g█
+  // ███████
+  // attempt to push box through portal
+  ASSERT_EQ(st1.step(Direction::Right), StepResult::InvalidDirection);
+  ASSERT_EQ(st1.step(Direction::Down), StepResult::Ok);
+  ASSERT_EQ(st1.step(Direction::Down), StepResult::Ok);
+  ASSERT_EQ(st1.step(Direction::Down), StepResult::Ok);
+  ASSERT_EQ(st1.step(Direction::Right), StepResult::LevelComplete);
+}
+
+TEST(game, state_case_1) {
+  // █████
+  // █┬  █
+  // █p☐┤█
+  // █████
+
+  State st1 = {
+    .goal = {{.x = 1, .y = 4}, {.x = 5, .y = 4}},
+    .tiles =
+      {
+        {{.x = 1, .y = 1},
+         {Portal {
+           .portal_id = 1,
+           .in_dir    = Direction::Up,
+         }}},
+        {{.x = 2, .y = 1}, {Floor {}}},
+        {{.x = 3, .y = 1}, {Floor {}}},
+        {{.x = 1, .y = 2}, {Floor {}}},
+        {{.x = 2, .y = 2}, {Floor {}}},
+        {{.x = 3, .y = 2},
+         {Portal {.portal_id = 1, .in_dir = Direction::Right}}},
+
+      },
+    .objects =
+      {
+        {{.x = 1, .y = 2}, {Player {}}},
+        {{.x = 2, .y = 2}, {Box {}}},
+
+      },
+    .doors   = {},
+    .portals = {{1, {{.x = 1, .y = 1}, {.x = 3, .y = 2}}}},
+  };
+
+  ASSERT_EQ(st1.step(Direction::Right), StepResult::PushTwoObjects);
 }
 
 // TODO: test multiple buttons and one door

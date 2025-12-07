@@ -36,7 +36,7 @@ using PortalPair = std::pair<Position<>, Position<>>;
 
 // the state machine.
 struct State {
-  u32                          completed_goals;
+  std::vector<Position<>>      goal;
   std::map<Position<>, Tile>   tiles;
   std::map<Position<>, Object> objects;
 
