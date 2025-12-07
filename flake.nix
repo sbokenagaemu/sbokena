@@ -30,9 +30,26 @@
         # default dev shell, activated by `nix develop`
         # manually or by `direnv` automatically
         devShells.default =
-          pkgs.callPackage
-          ./nix/devShell.nix
-          {};
+          pkgs.mkShell.override
+          {stdenv = pkgs.clangStdenv;} {
+            inherit (sbokena.passthru) env;
+
+            inputsFrom = [
+              sbokena
+            ];
+
+            packages = [
+              pkgs.llvmPackages.lldb
+              pkgs.just
+              pkgs.parallel
+            ];
+
+            shellHook = ''
+              if [ ! -d ./build ]; then
+                just cmake
+              fi
+            '';
+          };
 
         # buildable packages, by `nix build .#<name>`
         # also includes checks specific to the package
