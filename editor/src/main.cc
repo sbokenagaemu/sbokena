@@ -152,7 +152,7 @@ int main() {
           tile_index(mouse_position, grid_offset, current_tile_size);
 
         std::cout << "yes" << std::endl;
-        selected_tile_position = (raylib::Vector2) {
+        selected_tile_position = raylib::Vector2 {
           grid_offset.GetX()
             + selected_grid_tile_index.x * current_tile_size,
           grid_offset.GetY()
@@ -322,9 +322,12 @@ int main() {
         grid_offset = refactored_grid_offset(
           grid_offset, selected_tile_position, 2
         );
-        selected_tile_position = grid_offset.Add(
-          selected_grid_tile_index.Scale(current_tile_size)
-        );
+        selected_tile_position = raylib::Vector2 {
+          grid_offset.GetX()
+            + selected_grid_tile_index.x * current_tile_size,
+          grid_offset.GetY()
+            + selected_grid_tile_index.y * current_tile_size
+        };
       }
     }
 
@@ -352,6 +355,7 @@ int main() {
                 dynamic_cast<OneDirBox *>(object_))
             one_dir_box_->rotate();
         }
+        std::cout << "rotating" << std::endl;
       }
     }
 
@@ -369,9 +373,12 @@ int main() {
         grid_offset = refactored_grid_offset(
           grid_offset, selected_tile_position, 0.5
         );
-        selected_tile_position = grid_offset.Add(
-          selected_grid_tile_index.Scale(current_tile_size)
-        );
+        selected_tile_position = raylib::Vector2 {
+          grid_offset.GetX()
+            + selected_grid_tile_index.x * current_tile_size,
+          grid_offset.GetY()
+            + selected_grid_tile_index.y * current_tile_size
+        };
       }
     }
 
