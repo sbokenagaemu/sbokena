@@ -38,3 +38,19 @@ test *args: (build args "-DBUILD_TESTS=1")
     --output-on-failure \
     --timeout 1 \
     {{args}}
+
+cov-show *args: (test args "-DLLVM_COVERAGE=1")
+  llvm-profdata merge \
+    $(fd profraw build/tests/cov) \
+    -o build/tests/cov/cov.profdata
+  llvm-cov show \
+    build/tests/tests \
+    -instr-profile build/tests/cov/cov.profdata
+
+cov-report *args: (test args "-DLLVM_COVERAGE=1")
+  llvm-profdata merge \
+    $(fd profraw build/tests/cov) \
+    -o build/tests/cov/cov.profdata
+  llvm-cov report \
+    build/tests/tests \
+    -instr-profile build/tests/cov/cov.profdata

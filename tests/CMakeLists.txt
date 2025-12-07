@@ -31,6 +31,23 @@ if (BUILD_TESTS)
     libgame
   )
 
+  # code coverage support
+  if (LLVM_COVERAGE)
+    target_compile_options(tests
+      PRIVATE
+        -fprofile-instr-generate
+        -fcoverage-mapping
+    )
+    target_link_options(tests
+      PRIVATE
+        -fprofile-instr-generate
+    )
+  endif ()
+
   include(GoogleTest)
-  gtest_discover_tests(tests)
+  gtest_discover_tests(tests
+    PROPERTIES
+      ENVIRONMENT
+      "$<$<BOOL:${LLVM_COVERAGE}>:LLVM_PROFILE_FILE=cov/cov-%m-%p.profraw>"
+  )
 endif ()
