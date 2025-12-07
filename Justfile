@@ -33,6 +33,7 @@ lint *args: (cmake args)
       clang-tidy -p build
 
 test *args: (build args "-DBUILD_TESTS=1")
+  rm -rf build/tests/cov
   ctest \
     --test-dir build/tests \
     --output-on-failure \
