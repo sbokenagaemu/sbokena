@@ -1,5 +1,5 @@
 // A file containing the implementation of a level inside an
-// editor along with all of its need structures. The level
+// editor along with all of its needed structures. The level
 // contains:
 //  - A Condition struct denoting its difficulty and move
 //  limits.

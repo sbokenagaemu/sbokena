@@ -114,9 +114,10 @@ NLOHMANN_JSON_SERIALIZE_ENUM(
 )
 
 // raw level data from a level file.
+//
 // this type does almost no validation.
-// TODO: mention `LoadedLevel` when it lands
-struct Level {
+// if this is needed, see `sbokena::loader::Level`.
+struct RawLevel {
   std::string name;
   std::string theme;
   Difficulty  diff;
@@ -124,7 +125,7 @@ struct Level {
   std::map<Position<>, Tile>   tiles;
   std::map<Position<>, Object> objects;
 };
-DECL_JSON(Level)
+DECL_JSON(RawLevel)
 
 #undef DECL_JSON
 

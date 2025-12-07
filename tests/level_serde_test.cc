@@ -73,7 +73,7 @@ TEST(common, tile_de) {
 }
 
 TEST(common, level_ser) {
-  const json j = Level {
+  const json j = RawLevel {
     .name  = "test level",
     .theme = "dev",
     .diff  = Difficulty::Unknown,
@@ -131,7 +131,7 @@ TEST(common, level_de) {
     "index of DirBox in Object changed"
   );
 
-  const json  j = json::parse(R"(
+  const json     j = json::parse(R"(
     {
       "name": "test level 2",
       "theme": "jungle",
@@ -146,7 +146,7 @@ TEST(common, level_de) {
       ]
     }
   )"sv);
-  const Level l = j.get<Level>();
+  const RawLevel l = j.get<RawLevel>();
 
   ASSERT_EQ(l.name, "test level 2"sv);
   ASSERT_EQ(l.theme, "jungle"sv);

@@ -161,7 +161,7 @@ void to_json(json &j, const Object &t) {
 
 // ===== level =====
 
-void from_json(const json &j, Level &l) {
+void from_json(const json &j, RawLevel &l) {
   j.at("name").get_to(l.name);
   j.at("theme").get_to(l.theme);
   j.at("diff").get_to(l.diff);
@@ -179,7 +179,7 @@ void from_json(const json &j, Level &l) {
     l.objects.insert(pobject);
 }
 
-void to_json(json &j, const Level &l) {
+void to_json(json &j, const RawLevel &l) {
   j = json::object({
     {"name", l.name},
     {"theme", l.theme},
