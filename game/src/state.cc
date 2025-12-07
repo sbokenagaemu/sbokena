@@ -206,6 +206,21 @@ static constexpr std::optional<StepResult> move_object(
   return std::nullopt;
 }
 
+// query current points.
+usize points_query(
+  const std::vector<Position<>>      &goals,
+  const std::map<Position<>, Object> &objects
+) {
+  Player player;
+  return std::ranges::count_if(
+    goals.begin(), goals.end(), [objects, player](Position<> p) {
+      return !std::holds_alternative<Player>(
+        (find_object(objects, p)).value_or(player)
+      );
+    }
+  );
+}
+
 StepResult State::step(const Direction &input) noexcept {
   Position<> player_from = find_player(this->objects);
 
@@ -218,8 +233,14 @@ StepResult State::step(const Direction &input) noexcept {
     player_from,
     player_from.move(input)
   );
-  // res == nullopt meaning that positions moved successfully
-  return res.value_or(StepResult::Ok);
+  // return res if there is any invalid move.
+  if (res)
+    return res.value();
+  else if (this->goal.size() > 0
+           && points_query(this->goal, this->objects) == goal.size())
+    return StepResult::LevelComplete;
+  else
+    return StepResult::Ok;
 }
 
 } // namespace sbokena::game::state
