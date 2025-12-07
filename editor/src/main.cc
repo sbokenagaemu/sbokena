@@ -1,5 +1,8 @@
 #ifndef RAYGUI_IMPLEMENTATION
 #define RAYGUI_IMPLEMENTATION
+#include <Vector2.hpp>
+
+#include "position.hh"
 #endif
 
 #include <Color.hpp>
@@ -45,7 +48,7 @@ raylib::Vector2 mouse_position;
 raylib::Vector2 mouse_start_position;
 raylib::Vector2 grid_offset              = {0, 0};
 raylib::Vector2 selected_tile_position   = {0, 0};
-raylib::Vector2 selected_grid_tile_index = {0, 0};
+Position<>      selected_grid_tile_index = {0, 0};
 bool            is_selection_shown       = false;
 
 TileType   currently_selected_tile_type = TileType::Roof;
@@ -147,10 +150,12 @@ int main() {
           tile_index(mouse_position, grid_offset, current_tile_size);
 
         std::cout << "yes" << std::endl;
-
-        selected_tile_position = grid_offset.Add(
-          selected_grid_tile_index.Scale(current_tile_size)
-        );
+        selected_tile_position = (raylib::Vector2) {
+          grid_offset.GetX()
+            + selected_grid_tile_index.x * current_tile_size,
+          grid_offset.GetY()
+            + selected_grid_tile_index.y * current_tile_size
+        };
 
         is_selection_shown = true;
       }
@@ -330,7 +335,8 @@ int main() {
       view_control_button_height
     };
     if (GuiButton(rotate_button, "Rotate")) {
-      if (is_selection_shown && !is_currently_placing) {}
+      if (is_selection_shown && !is_currently_placing)
+        level_.get_tile_at();
     }
 
     // Zoom out button
