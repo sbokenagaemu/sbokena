@@ -262,9 +262,8 @@ int main() {
       taskbar_button_size,
       taskbar_button_size
     };
-    if (GuiButton(reset_button, "Reset")) {
-      // TODO
-    }
+    if (GuiButton(reset_button, "Reset"))
+      level_.reset();
 
     // Theme Dropdown menu
     const Rectangle dropdown_theme = {
