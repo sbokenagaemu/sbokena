@@ -26,14 +26,9 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include <nlohmann/json.hpp>
-
-#include "level.hh"
 #include "object.hh"
 #include "position.hh"
 #include "tile.hh"
-
-using nlohmann::json;
 
 using sbokena::position::Position;
 using namespace sbokena::editor::tile;
@@ -41,7 +36,6 @@ using namespace sbokena::editor::object;
 using sbokena::editor::tile::null_id; // 0x00
 
 namespace sbokena::editor::level {
-using CommonLevel = sbokena::level::RawLevel;
 
 // enum for the difficulty.
 enum class Difficulty { Unknown, Easy, Medium, Hard };
@@ -316,7 +310,4 @@ private:
   // TODO: a grid stucture storing the skins of every
   // position. map<position, image-related-id>
 };
-
-// TODO: convert to LoadedLevel json implementations here
-
 } // namespace sbokena::editor::level
