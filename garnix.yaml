@@ -1,7 +1,7 @@
 builds:
   include:
-    # only check formatting once
-    - checks.x86_64-linux.format
+    # only run pre-commit hooks once
+    - checks.x86_64-linux.pre-commit
     # run test suite on all systems
     # checks OK -> packages OK
     - checks.*.sbokena
