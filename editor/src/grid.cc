@@ -1,5 +1,7 @@
 #include "grid.hh"
 
+using namespace sbokena::position;
+
 // checks whether a position is in the the specified area
 bool is_inside(
   raylib::Vector2 pos, raylib::Vector2 min, raylib::Vector2 max
@@ -13,7 +15,7 @@ bool is_inside(
   return true;
 }
 
-// calculates the the new grid offset based on the resized grid
+// returns the the new grid offset based on the resized grid
 raylib::Vector2 refactored_grid_offset(
   raylib::Vector2 offset_pos, raylib::Vector2 point_pos, float scale
 ) {
@@ -30,9 +32,10 @@ grid_end(raylib::Vector2 offset_pos, float tile_size) {
   };
 }
 
-raylib::Vector2
+// returns the index of the tile that has the specific position
+Position<>
 tile_index(raylib::Vector2 pos, raylib::Vector2 offset, float size) {
-  float x = floorf((pos.GetX() - offset.GetX()) / size);
-  float y = floorf((pos.GetY() - offset.GetY()) / size);
+  unsigned int x = floorf((pos.GetX() - offset.GetX()) / size);
+  unsigned int y = floorf((pos.GetY() - offset.GetY()) / size);
   return {x, y};
 }

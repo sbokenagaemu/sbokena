@@ -3,6 +3,9 @@
 #pragma once
 
 #include <Window.hpp>
+#include <position.hh>
+
+using namespace sbokena::position;
 
 // checks whether a position is in the the specified area
 bool is_inside(
@@ -18,5 +21,5 @@ raylib::Vector2 refactored_grid_offset(
 raylib::Vector2 grid_end(raylib::Vector2 offset_pos, float tile_size);
 
 // returns the index of the tile that has the specific position
-raylib::Vector2
+Position<>
 tile_index(raylib::Vector2 pos, raylib::Vector2 offset, float size);
