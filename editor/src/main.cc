@@ -12,24 +12,61 @@
 
 using namespace sbokena::types;
 using namespace sbokena::editor::level;
+using namespace sbokena::editor::tile;
 
 // for testing purposes
 #include <iostream>
 
-constexpr u32 taskbar_button_size         = 40;
-constexpr u32 tile_picker_padding         = 10;
-constexpr u32 tile_picker_box_size        = 80;
-constexpr u32 tile_picker_box_padding     = 25;
-constexpr u32 tile_picker_space_inbetween = 20;
-constexpr u32 view_control_padding        = 25;
-constexpr u32 view_control_button_width   = 60;
-constexpr u32 view_control_button_height  = 50;
-constexpr u32 dropdown_width              = 100;
-constexpr u32 grid_view_min_height        = 45;
+constexpr u32 taskbar_button_size          = 40;
+constexpr u32 tile_picker_padding          = 10;
+constexpr u32 tile_picker_box_size         = 80;
+constexpr u32 tile_picker_box_padding      = 25;
+constexpr u32 tile_picker_space_inbetween  = 20;
+constexpr u32 view_control_space_inbetween = 20;
+constexpr u32 view_control_button_width    = 60;
+constexpr u32 view_control_button_height   = 50;
+constexpr u32 dropdown_width               = 100;
+constexpr u32 grid_view_min_height         = 45;
+constexpr u32 view_control_padding         = tile_picker_padding + 5;
 // also the minimum width of the grid-view
 constexpr u32 tile_picker_width = 250;
-constexpr f32 min_width         = 550;
-constexpr f32 min_height        = 470;
+constexpr u32 tile_first_col_x =
+  tile_picker_padding + tile_picker_box_padding;
+constexpr u32 tile_picker_delta =
+  tile_picker_box_size + tile_picker_space_inbetween;
+constexpr f32 min_width  = 550;
+constexpr f32 min_height = 530;
+
+const char     *options_theme     = "Theme #1;Theme #2;Theme #3";
+int             active_theme      = 0;
+bool            edit_mode_theme   = false;
+f32             current_tile_size = 64;
+raylib::Vector2 mouse_position;
+raylib::Vector2 mouse_start_position;
+raylib::Vector2 grid_offset              = {0, 0};
+raylib::Vector2 selected_tile_position   = {0, 0};
+raylib::Vector2 selected_grid_tile_index = {0, 0};
+bool            is_selection_shown       = false;
+
+TileType   currently_selected_tile_type = TileType::Roof;
+ObjectType currently_selected_object_type;
+bool       is_currently_placing           = true;
+Rectangle  currently_selected_outline_rec = {
+  tile_first_col_x,
+  tile_picker_box_padding,
+  tile_picker_box_size,
+  tile_picker_box_size
+};
+
+void switch_selection(Rectangle rec) {
+  currently_selected_outline_rec = {
+    rec.x - 5,
+    rec.y - 5,
+    tile_picker_box_size + 10,
+    tile_picker_box_size + 10
+  };
+  is_currently_placing = true;
+}
 
 int main() {
   Level         level_ = Level("default");
@@ -44,17 +81,6 @@ int main() {
   bool exit = false;
 
   SetWindowMinSize(min_width, min_height);
-
-  const char     *options_theme     = "Theme #1;Theme #2;Theme #3";
-  int             active_theme      = 0;
-  bool            edit_mode_theme   = false;
-  f32             current_tile_size = 64;
-  raylib::Vector2 mouse_position;
-  raylib::Vector2 mouse_start_position;
-  raylib::Vector2 grid_offset              = {0, 0};
-  raylib::Vector2 selected_tile_position   = {0, 0};
-  raylib::Vector2 selected_grid_tile_index = {0, 0};
-  bool            is_selection_shown       = false;
 
   while (!window.ShouldClose() && !exit) {
     window.BeginDrawing();
@@ -183,24 +209,14 @@ int main() {
     };
     DrawRectangleRec(taskbar_line, raylib::Color::Black());
 
-    // view_control_line_1
-    const Rectangle view_control_line_1 = {
-      tile_picker_padding + view_control_button_width,
-      current_window_height - view_control_button_height,
-      view_control_padding,
-      view_control_button_height
+    // view_control_rec
+    const Rectangle view_control_rec = {
+      tile_picker_padding,
+      current_window_height - (2 * view_control_button_height + 10),
+      tile_picker_width - 2 * tile_picker_padding,
+      2 * view_control_button_height + 10
     };
-    DrawRectangleRec(view_control_line_1, raylib::Color::Black());
-
-    // view_control_line_2
-    const Rectangle view_control_line_2 = {
-      tile_picker_padding + view_control_padding
-        + (2 * view_control_button_width),
-      current_window_height - view_control_button_height,
-      view_control_padding,
-      view_control_button_height
-    };
-    DrawRectangleRec(view_control_line_2, raylib::Color::Black());
+    DrawRectangleRec(view_control_rec, raylib::Color::Black());
 
     // BUTTONS
     // Exit button
@@ -283,9 +299,9 @@ int main() {
     }
     */
 
-    // Zoom in button (?)
+    // Zoom in button
     const Rectangle zoom_in_button = {
-      tile_picker_padding,
+      view_control_padding,
       current_window_height - view_control_button_height,
       view_control_button_width,
       view_control_button_height
@@ -304,7 +320,7 @@ int main() {
 
     // Rotate button
     const Rectangle rotate_button = {
-      (tile_picker_padding + view_control_padding)
+      (view_control_padding + view_control_space_inbetween)
         + view_control_button_width,
       current_window_height - view_control_button_height,
       view_control_button_width,
@@ -314,9 +330,9 @@ int main() {
       // TODO
     }
 
-    // Zoom out button (?)
+    // Zoom out button
     const Rectangle zoom_out_button = {
-      (tile_picker_padding + 2 * view_control_padding)
+      (view_control_padding + 2 * view_control_space_inbetween)
         + (2 * view_control_button_width),
       current_window_height - view_control_button_height,
       view_control_button_width,
@@ -334,7 +350,151 @@ int main() {
       }
     }
 
+    // Link button
+    const Rectangle link_button = {
+      view_control_padding,
+      current_window_height - 2 * view_control_button_height - 5,
+      view_control_button_width,
+      view_control_button_height
+    };
+    if (GuiButton(link_button, "Link")) {
+      // TODO
+    }
+
+    // Deselect button
+    const Rectangle deselect_button = {
+      (view_control_padding + view_control_space_inbetween)
+        + view_control_button_width,
+      current_window_height - 2 * view_control_button_height - 5,
+      view_control_button_width,
+      view_control_button_height
+    };
+    if (GuiButton(deselect_button, "Deselect"))
+      is_currently_placing = false;
+
+    // Switch button (?)
+    const Rectangle switch_button = {
+      (view_control_padding + 2 * view_control_space_inbetween)
+        + (2 * view_control_button_width),
+      current_window_height - 2 * view_control_button_height - 5,
+      view_control_button_width,
+      view_control_button_height
+    };
+    if (GuiButton(switch_button, "Switch")) {
+      // TODO
+    }
+
     // TILES
+    // Selection outline
+    if (is_currently_placing) {
+      DrawRectangleRec(
+        currently_selected_outline_rec, raylib::Color::Beige()
+      );
+    }
+
+    // Floor tile
+    const Rectangle floor_tile = {
+      tile_first_col_x,
+      tile_picker_box_padding,
+      tile_picker_box_size,
+      tile_picker_box_size
+    };
+    if (GuiButton(floor_tile, "")) {
+      currently_selected_tile_type = TileType::Floor;
+      switch_selection(floor_tile);
+    }
+    DrawRectangleRec(floor_tile, raylib::Color::Red());
+
+    // Roof tile
+    const Rectangle roof_tile = {
+      tile_first_col_x + tile_picker_delta,
+      tile_picker_box_padding,
+      tile_picker_box_size,
+      tile_picker_box_size
+    };
+    if (GuiButton(roof_tile, "")) {
+      currently_selected_tile_type = TileType::Roof;
+      switch_selection(roof_tile);
+    }
+    DrawRectangleRec(roof_tile, raylib::Color::Red());
+
+    // Player tile
+    const Rectangle player_tile = {
+      tile_first_col_x,
+      tile_picker_box_padding + tile_picker_delta,
+      tile_picker_box_size,
+      tile_picker_box_size
+    };
+    if (GuiButton(player_tile, "")) {
+      currently_selected_object_type = ObjectType::Player;
+      switch_selection(player_tile);
+    }
+    DrawRectangleRec(player_tile, raylib::Color::Red());
+
+    // Goal tile
+    const Rectangle goal_tile = {
+      tile_first_col_x + tile_picker_delta,
+      tile_picker_box_padding + tile_picker_delta,
+      tile_picker_box_size,
+      tile_picker_box_size
+    };
+    if (GuiButton(goal_tile, "")) {
+      currently_selected_tile_type = TileType::Goal;
+      switch_selection(goal_tile);
+    }
+    DrawRectangleRec(goal_tile, raylib::Color::Red());
+
+    // Button tile
+    const Rectangle button_tile = {
+      tile_first_col_x,
+      tile_picker_box_padding + tile_picker_delta * 2,
+      tile_picker_box_size,
+      tile_picker_box_size
+    };
+    if (GuiButton(button_tile, "")) {
+      currently_selected_tile_type = TileType::Button;
+      switch_selection(button_tile);
+    }
+    DrawRectangleRec(button_tile, raylib::Color::Red());
+
+    // Door tile
+    const Rectangle door_tile = {
+      tile_first_col_x + tile_picker_delta,
+      tile_picker_box_padding + tile_picker_delta * 2,
+      tile_picker_box_size,
+      tile_picker_box_size
+    };
+    if (GuiButton(door_tile, "")) {
+      currently_selected_tile_type = TileType::Door;
+      switch_selection(door_tile);
+    }
+    DrawRectangleRec(door_tile, raylib::Color::Red());
+
+    // Portal tile
+    const Rectangle portal_tile = {
+      tile_first_col_x,
+      tile_picker_box_padding + tile_picker_delta * 3,
+      tile_picker_box_size,
+      tile_picker_box_size
+    };
+    if (GuiButton(portal_tile, "")) {
+      currently_selected_tile_type = TileType::Portal;
+      switch_selection(portal_tile);
+    }
+    DrawRectangleRec(portal_tile, raylib::Color::Red());
+
+    // Box tile
+    const Rectangle box_tile = {
+      tile_first_col_x + tile_picker_delta,
+      tile_picker_box_padding + tile_picker_delta * 3,
+      tile_picker_box_size,
+      tile_picker_box_size
+    };
+    if (GuiButton(box_tile, "")) {
+      currently_selected_object_type = ObjectType::Box;
+      switch_selection(box_tile);
+    }
+    DrawRectangleRec(box_tile, raylib::Color::Red());
 
     window.EndDrawing();
   }
