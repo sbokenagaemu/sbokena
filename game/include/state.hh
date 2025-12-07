@@ -23,7 +23,7 @@ enum struct StepResult {
   Ok,
   LevelComplete,
   // invalid movements
-  StepOnWall,
+  HitWall,
   SlamOnDoor,
   InvalidDirection,
   PushTwoObjects,

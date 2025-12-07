@@ -74,11 +74,11 @@ static bool is_door_open(
 
 // check if user steps in to DirFloor/Portal in the correct
 // direction.
-static bool is_valid_dir(const Tile &tile, const Direction &step) {
+static bool is_valid_dir(const Tile &tile, const Direction &dir) {
   if (std::holds_alternative<DirFloor>(tile))
-    return std::get<DirFloor>(tile).dir == step;
+    return std::get<DirFloor>(tile).dir == dir;
   if (std::holds_alternative<Portal>(tile))
-    return std::get<Portal>(tile).in_dir == step;
+    return std::get<Portal>(tile).in_dir == dir;
   // if not either DirFloor or Portal, the direction is always true
   return true;
 }
