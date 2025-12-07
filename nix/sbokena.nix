@@ -162,6 +162,7 @@ in
       ]
       ++ lib.optionals finalAttrs.doCheck [
         (lib.cmakeBool "BUILD_TESTS" true)
+        (lib.cmakeBool "LLVM_COVERAGE" true)
       ]
       ++ lib.optionals isLinux [
         (lib.cmakeBool "GLFW_BUILD_WAYLAND" enableWayland')
@@ -187,6 +188,12 @@ in
         --test-dir build/tests \
         --output-on-failure \
         --timeout 1
+      llvm-profdata merge \
+        $(fd profraw build/tests/cov) \
+        -o build/tests/cov/cov.profdata
+      llvm-cov report \
+        build/tests/tests \
+        -instr-profile build/tests/cov/cov.profdata
     '';
 
     installPhase = ''
