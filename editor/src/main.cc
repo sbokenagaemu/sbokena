@@ -22,6 +22,7 @@ using namespace sbokena::editor::tile;
 // for testing purposes
 #include <iostream>
 
+constexpr u32 thickness_coef               = 12;
 constexpr u32 taskbar_button_size          = 40;
 constexpr u32 tile_picker_padding          = 10;
 constexpr u32 tile_picker_box_size         = 80;
@@ -52,6 +53,7 @@ raylib::Vector2 grid_offset              = {0, 0};
 raylib::Vector2 selected_tile_position   = {0, 0};
 Position<>      selected_grid_tile_index = {0, 0};
 bool            is_selection_shown       = false;
+bool            is_link_active           = false;
 
 TileType   currently_selected_tile_type = TileType::Roof;
 ObjectType currently_selected_object_type;
@@ -62,6 +64,9 @@ Rectangle  currently_selected_outline_rec = {
   tile_picker_box_size,
   tile_picker_box_size
 };
+
+float     thickness = 0;
+Rectangle link_selection;
 
 void switch_selection(Rectangle rec) {
   currently_selected_outline_rec = {
@@ -151,7 +156,7 @@ int main() {
         selected_grid_tile_index =
           tile_index(mouse_position, grid_offset, current_tile_size);
 
-        std::cout << "yes" << std::endl;
+        std::cout << "Tile_selected" << std::endl;
         selected_tile_position = raylib::Vector2 {
           grid_offset.GetX()
             + selected_grid_tile_index.x * current_tile_size,
@@ -160,6 +165,11 @@ int main() {
         };
 
         is_selection_shown = true;
+
+        if (is_link_active) {
+          std::cout << "Tiles linked" << std::endl;
+          is_link_active = false;
+        }
       }
     }
 
@@ -167,7 +177,7 @@ int main() {
     if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
       is_selection_shown = false;
 
-    // showing the selection
+    // showing the grid tile selection
     if (is_selection_shown) {
       const Rectangle grid_selection = {
         selected_tile_position.GetX(),
@@ -177,6 +187,13 @@ int main() {
       };
       DrawRectangleRec(
         grid_selection, Fade(raylib::Color::Gray(), 0.5)
+      );
+    }
+
+    // showing the link selection
+    if (is_link_active) {
+      DrawRectangleLinesEx(
+        link_selection, thickness, raylib::Color::DarkPurple()
       );
     }
 
@@ -390,8 +407,15 @@ int main() {
       view_control_button_height
     };
     if (GuiButton(link_button, "Link")) {
-      // TODO
-    }
+      thickness      = current_tile_size / thickness_coef;
+      link_selection = {
+        selected_tile_position.GetX() - (thickness / 2),
+        selected_tile_position.GetY() - (thickness / 2),
+        current_tile_size + thickness,
+        current_tile_size + thickness
+      };
+      is_link_active = true;
+    };
 
     // Deselect button
     const Rectangle deselect_button = {
@@ -530,5 +554,6 @@ int main() {
 
     window.EndDrawing();
   }
+
   return 0;
 }
