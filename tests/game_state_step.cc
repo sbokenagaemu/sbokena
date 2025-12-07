@@ -36,11 +36,11 @@ TEST(game, state_walk_normal) {
   ASSERT_FALSE(st.objects.contains({.x = 2, .y = 1}));
 
   // step right, hit wall
-  ASSERT_EQ(st.step(Direction::Right), StepResult::StepOnWall);
+  ASSERT_EQ(st.step(Direction::Right), StepResult::HitWall);
   std::get<Player>(st.objects.at({.x = 3, .y = 1}));
 
   // step up, hit wall
-  ASSERT_EQ(st.step(Direction::Up), StepResult::StepOnWall);
+  ASSERT_EQ(st.step(Direction::Up), StepResult::HitWall);
   std::get<Player>(st.objects.at({.x = 3, .y = 1}));
 }
 
@@ -72,7 +72,7 @@ TEST(game, state_walk_dirfloor) {
   std::get<Player>(st.objects.at({.x = 3, .y = 1}));
 
   // step right, hit the Wall
-  ASSERT_EQ(st.step(Direction::Right), StepResult::StepOnWall);
+  ASSERT_EQ(st.step(Direction::Right), StepResult::HitWall);
   std::get<Player>(st.objects.at({.x = 3, .y = 1}));
 }
 
@@ -101,7 +101,7 @@ TEST(game, state_push_normal) {
   std::get<Box>(st.objects.at({.x = 3, .y = 1}));
 
   // step right, push box on wall
-  ASSERT_EQ(st.step(Direction::Right), StepResult::StepOnWall);
+  ASSERT_EQ(st.step(Direction::Right), StepResult::HitWall);
   std::get<Player>(st.objects.at({.x = 2, .y = 1}));
   std::get<Box>(st.objects.at({.x = 3, .y = 1}));
 
@@ -139,7 +139,7 @@ TEST(game, state_push_dirbox) {
   ASSERT_FALSE(st.objects.contains({.x = 1, .y = 1}));
 
   // step right, push box on wall
-  ASSERT_EQ(st.step(Direction::Right), StepResult::StepOnWall);
+  ASSERT_EQ(st.step(Direction::Right), StepResult::HitWall);
   std::get<Player>(st.objects.at({.x = 2, .y = 1}));
   std::get<DirBox>(st.objects.at({.x = 3, .y = 1}));
 
