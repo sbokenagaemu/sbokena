@@ -15,3 +15,7 @@
 /**/CMakeCache.txt
 /**/Makefile
 /**/result
+
+# editor settings
+/.vscode/
+!/.vscode/launch.json
