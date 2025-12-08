@@ -487,7 +487,7 @@ int main() {
       tile_picker_box_size,
       tile_picker_box_size
     };
-    if (GuiButton(floor_tile, "")) {
+    if (GuiButton(floor_tile, "Floor")) {
       currently_selected_tile_type = TileType::Floor;
       switch_selection(floor_tile);
     }
@@ -500,7 +500,7 @@ int main() {
       tile_picker_box_size,
       tile_picker_box_size
     };
-    if (GuiButton(roof_tile, "")) {
+    if (GuiButton(roof_tile, "Roof")) {
       currently_selected_tile_type = TileType::Roof;
       switch_selection(roof_tile);
     }
@@ -513,7 +513,7 @@ int main() {
       tile_picker_box_size,
       tile_picker_box_size
     };
-    if (GuiButton(player_tile, "")) {
+    if (GuiButton(player_tile, "Player")) {
       currently_selected_object_type = ObjectType::Player;
       switch_selection(player_tile);
     }
@@ -526,7 +526,7 @@ int main() {
       tile_picker_box_size,
       tile_picker_box_size
     };
-    if (GuiButton(goal_tile, "")) {
+    if (GuiButton(goal_tile, "Goal")) {
       currently_selected_tile_type = TileType::Goal;
       switch_selection(goal_tile);
     }
@@ -539,7 +539,7 @@ int main() {
       tile_picker_box_size,
       tile_picker_box_size
     };
-    if (GuiButton(button_tile, "")) {
+    if (GuiButton(button_tile, "Button")) {
       currently_selected_tile_type = TileType::Button;
       switch_selection(button_tile);
     }
@@ -552,7 +552,7 @@ int main() {
       tile_picker_box_size,
       tile_picker_box_size
     };
-    if (GuiButton(door_tile, "")) {
+    if (GuiButton(door_tile, "Door")) {
       currently_selected_tile_type = TileType::Door;
       switch_selection(door_tile);
     }
@@ -565,7 +565,7 @@ int main() {
       tile_picker_box_size,
       tile_picker_box_size
     };
-    if (GuiButton(portal_tile, "")) {
+    if (GuiButton(portal_tile, "Portal")) {
       currently_selected_tile_type = TileType::Portal;
       switch_selection(portal_tile);
     }
@@ -578,7 +578,7 @@ int main() {
       tile_picker_box_size,
       tile_picker_box_size
     };
-    if (GuiButton(box_tile, "")) {
+    if (GuiButton(box_tile, "Box")) {
       currently_selected_object_type = ObjectType::Box;
       switch_selection(box_tile);
     }
