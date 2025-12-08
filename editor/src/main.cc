@@ -1,9 +1,5 @@
 #ifndef RAYGUI_IMPLEMENTATION
 #define RAYGUI_IMPLEMENTATION
-#include <Vector2.hpp>
-
-#include "object.hh"
-#include "position.hh"
 #include "tile.hh"
 #endif
 
@@ -53,6 +49,7 @@ raylib::Vector2 grid_offset              = {0, 0};
 raylib::Vector2 selected_tile_position   = {0, 0};
 Position<>      selected_grid_tile_index = {0, 0};
 bool            is_selection_shown       = false;
+Position<>      link_selection_index     = {0, 0};
 bool            is_link_active           = false;
 
 TileType   currently_selected_tile_type = TileType::Roof;
@@ -167,7 +164,41 @@ int main() {
         is_selection_shown = true;
 
         if (is_link_active) {
-          std::cout << "Tiles linked" << std::endl;
+          // tiles
+          Tile *first_tile = level_.get_tile_at(link_selection_index);
+          Tile *second_tile =
+            level_.get_tile_at(selected_grid_tile_index);
+          if (first_tile && second_tile) {
+            // linking 2 portals together
+            if (Portal *first = dynamic_cast<Portal *>(first_tile)) {
+              if (Portal *second =
+                    dynamic_cast<Portal *>(second_tile)) {
+                level_.link_portals(
+                  first->get_id(), second->get_id()
+                );
+                std::cout << "Portals linked" << std::endl;
+              }
+            }
+            // linking a button to a door
+            if (Button *first = dynamic_cast<Button *>(first_tile)) {
+              if (Door *second = dynamic_cast<Door *>(second_tile)) {
+                level_.link_door_button(
+                  second->get_id(), first->get_id()
+                );
+                std::cout << "Button to Door linked" << std::endl;
+              }
+            }
+            // linking a door to a button
+            if (Door *first = dynamic_cast<Door *>(first_tile)) {
+              if (Button *second =
+                    dynamic_cast<Button *>(second_tile)) {
+                level_.link_door_button(
+                  first->get_id(), second->get_id()
+                );
+                std::cout << "Door to Button linked" << std::endl;
+              }
+            }
+          }
           is_link_active = false;
         }
       }
@@ -407,8 +438,9 @@ int main() {
       view_control_button_height
     };
     if (GuiButton(link_button, "Link")) {
-      thickness      = current_tile_size / thickness_coef;
-      link_selection = {
+      thickness            = current_tile_size / thickness_coef;
+      link_selection_index = selected_grid_tile_index;
+      link_selection       = {
         selected_tile_position.GetX() - (thickness / 2),
         selected_tile_position.GetY() - (thickness / 2),
         current_tile_size + thickness,
