@@ -52,6 +52,7 @@ bool            is_selection_shown       = false;
 Position<>      link_selection_index     = {0, 0};
 bool            is_link_active           = false;
 
+bool       is_placing_tiles             = true;
 TileType   currently_selected_tile_type = TileType::Roof;
 ObjectType currently_selected_object_type;
 bool       is_currently_placing           = false;
@@ -65,13 +66,14 @@ Rectangle  currently_selected_outline_rec = {
 float     thickness = 0;
 Rectangle link_selection;
 
-void switch_selection(Rectangle rec) {
+void switch_selection(Rectangle rec, bool is_tile) {
   currently_selected_outline_rec = {
     rec.x - 5,
     rec.y - 5,
     tile_picker_box_size + 10,
     tile_picker_box_size + 10
   };
+  is_placing_tiles     = is_tile;
   is_currently_placing = true;
   is_selection_shown   = false;
 }
@@ -135,8 +137,7 @@ int main() {
     }
 
     // tile selection
-    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)
-        && !is_currently_placing) {
+    if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
       // checks whether:
       // 1) the mouse is inside the window's grid part
       // 2) the mouse is inside the actual grid
@@ -153,53 +154,76 @@ int main() {
         selected_grid_tile_index =
           tile_index(mouse_position, grid_offset, current_tile_size);
 
-        std::cout << "Tile_selected" << std::endl;
-        selected_tile_position = raylib::Vector2 {
-          grid_offset.GetX()
-            + selected_grid_tile_index.x * current_tile_size,
-          grid_offset.GetY()
-            + selected_grid_tile_index.y * current_tile_size
-        };
+        if (is_currently_placing) {
+          if (is_placing_tiles) {
+            std::cout << "Tile placed" << std::endl;
+            level_.remove_tile(
+              level_.get_tile_at(selected_grid_tile_index)->get_id()
+            );
+            level_.create_tile(
+              currently_selected_tile_type, selected_grid_tile_index
+            );
 
-        is_selection_shown = true;
-
-        if (is_link_active) {
-          // tiles
-          Tile *first_tile = level_.get_tile_at(link_selection_index);
-          Tile *second_tile =
-            level_.get_tile_at(selected_grid_tile_index);
-          if (first_tile && second_tile) {
-            // linking 2 portals together
-            if (Portal *first = dynamic_cast<Portal *>(first_tile)) {
-              if (Portal *second =
-                    dynamic_cast<Portal *>(second_tile)) {
-                level_.link_portals(
-                  first->get_id(), second->get_id()
-                );
-                std::cout << "Portals linked" << std::endl;
-              }
-            }
-            // linking a button to a door
-            if (Button *first = dynamic_cast<Button *>(first_tile)) {
-              if (Door *second = dynamic_cast<Door *>(second_tile)) {
-                level_.link_door_button(
-                  second->get_id(), first->get_id()
-                );
-                std::cout << "Button to Door linked" << std::endl;
-              }
-            }
-            // linking a door to a button
-            if (Door *first = dynamic_cast<Door *>(first_tile)) {
-              if (Button *second =
-                    dynamic_cast<Button *>(second_tile)) {
-                level_.link_door_button(
-                  first->get_id(), second->get_id()
-                );
-                std::cout << "Door to Button linked" << std::endl;
-              }
-            }
+          } else {
+            std::cout << "Object placed" << std::endl;
+            level_.remove_object(
+              level_.get_object_at(selected_grid_tile_index)->get_id()
+            );
+            level_.add_object(
+              currently_selected_object_type, selected_grid_tile_index
+            );
           }
-          is_link_active = false;
+        } else {
+          std::cout << "Tile selected" << std::endl;
+          selected_tile_position = raylib::Vector2 {
+            grid_offset.GetX()
+              + selected_grid_tile_index.x * current_tile_size,
+            grid_offset.GetY()
+              + selected_grid_tile_index.y * current_tile_size
+          };
+          is_selection_shown = true;
+          if (is_link_active) {
+            // tiles
+            Tile *first_tile =
+              level_.get_tile_at(link_selection_index);
+            Tile *second_tile =
+              level_.get_tile_at(selected_grid_tile_index);
+            if (first_tile && second_tile) {
+              // linking 2 portals together
+              if (Portal *first =
+                    dynamic_cast<Portal *>(first_tile)) {
+                if (Portal *second =
+                      dynamic_cast<Portal *>(second_tile)) {
+                  level_.link_portals(
+                    first->get_id(), second->get_id()
+                  );
+                  std::cout << "Portals linked" << std::endl;
+                }
+              }
+              // linking a button to a door
+              if (Button *first =
+                    dynamic_cast<Button *>(first_tile)) {
+                if (Door *second =
+                      dynamic_cast<Door *>(second_tile)) {
+                  level_.link_door_button(
+                    second->get_id(), first->get_id()
+                  );
+                  std::cout << "Button to Door linked" << std::endl;
+                }
+              }
+              // linking a door to a button
+              if (Door *first = dynamic_cast<Door *>(first_tile)) {
+                if (Button *second =
+                      dynamic_cast<Button *>(second_tile)) {
+                  level_.link_door_button(
+                    first->get_id(), second->get_id()
+                  );
+                  std::cout << "Door to Button linked" << std::endl;
+                }
+              }
+            }
+            is_link_active = false;
+          }
         }
       }
     }
@@ -489,9 +513,9 @@ int main() {
     };
     if (GuiButton(floor_tile, "Floor")) {
       currently_selected_tile_type = TileType::Floor;
-      switch_selection(floor_tile);
+      switch_selection(floor_tile, true);
     }
-    DrawRectangleRec(floor_tile, raylib::Color::Red());
+    // DrawRectangleRec(floor_tile, raylib::Color::Red());
 
     // Roof tile
     const Rectangle roof_tile = {
@@ -502,22 +526,22 @@ int main() {
     };
     if (GuiButton(roof_tile, "Roof")) {
       currently_selected_tile_type = TileType::Roof;
-      switch_selection(roof_tile);
+      switch_selection(roof_tile, true);
     }
-    DrawRectangleRec(roof_tile, raylib::Color::Red());
+    // DrawRectangleRec(roof_tile, raylib::Color::Red());
 
     // Player tile
-    const Rectangle player_tile = {
+    const Rectangle player_object = {
       tile_first_col_x,
       tile_picker_box_padding + tile_picker_delta,
       tile_picker_box_size,
       tile_picker_box_size
     };
-    if (GuiButton(player_tile, "Player")) {
+    if (GuiButton(player_object, "Player")) {
       currently_selected_object_type = ObjectType::Player;
-      switch_selection(player_tile);
+      switch_selection(player_object, false);
     }
-    DrawRectangleRec(player_tile, raylib::Color::Red());
+    // DrawRectangleRec(player_tile, raylib::Color::Red());
 
     // Goal tile
     const Rectangle goal_tile = {
@@ -528,9 +552,9 @@ int main() {
     };
     if (GuiButton(goal_tile, "Goal")) {
       currently_selected_tile_type = TileType::Goal;
-      switch_selection(goal_tile);
+      switch_selection(goal_tile, true);
     }
-    DrawRectangleRec(goal_tile, raylib::Color::Red());
+    // DrawRectangleRec(goal_tile, raylib::Color::Red());
 
     // Button tile
     const Rectangle button_tile = {
@@ -541,9 +565,9 @@ int main() {
     };
     if (GuiButton(button_tile, "Button")) {
       currently_selected_tile_type = TileType::Button;
-      switch_selection(button_tile);
+      switch_selection(button_tile, true);
     }
-    DrawRectangleRec(button_tile, raylib::Color::Red());
+    // DrawRectangleRec(button_tile, raylib::Color::Red());
 
     // Door tile
     const Rectangle door_tile = {
@@ -554,9 +578,9 @@ int main() {
     };
     if (GuiButton(door_tile, "Door")) {
       currently_selected_tile_type = TileType::Door;
-      switch_selection(door_tile);
+      switch_selection(door_tile, true);
     }
-    DrawRectangleRec(door_tile, raylib::Color::Red());
+    // DrawRectangleRec(door_tile, raylib::Color::Red());
 
     // Portal tile
     const Rectangle portal_tile = {
@@ -567,22 +591,22 @@ int main() {
     };
     if (GuiButton(portal_tile, "Portal")) {
       currently_selected_tile_type = TileType::Portal;
-      switch_selection(portal_tile);
+      switch_selection(portal_tile, true);
     }
-    DrawRectangleRec(portal_tile, raylib::Color::Red());
+    // DrawRectangleRec(portal_tile, raylib::Color::Red());
 
     // Box tile
-    const Rectangle box_tile = {
+    const Rectangle box_object = {
       tile_first_col_x + tile_picker_delta,
       tile_picker_box_padding + tile_picker_delta * 3,
       tile_picker_box_size,
       tile_picker_box_size
     };
-    if (GuiButton(box_tile, "Box")) {
+    if (GuiButton(box_object, "Box")) {
       currently_selected_object_type = ObjectType::Box;
-      switch_selection(box_tile);
+      switch_selection(box_object, false);
     }
-    DrawRectangleRec(box_tile, raylib::Color::Red());
+    // DrawRectangleRec(box_tile, raylib::Color::Red());
 
     window.EndDrawing();
   }
