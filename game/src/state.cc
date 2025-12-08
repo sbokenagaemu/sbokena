@@ -16,12 +16,11 @@ namespace sbokena::game::state {
 // find player position in objects map.
 static constexpr Position<>
 find_player(const std::map<Position<>, Object> &objects) {
-  auto iter =
-    std::find_if(objects.begin(), objects.end(), [](const auto &p) {
-      return std::holds_alternative<Player>(p.second);
-    });
-
-  return iter->first;
+  return std::find_if(
+           objects.begin(), objects.end(), [](const auto &p) {
+             return std::holds_alternative<Player>(p.second);
+           }
+  )->first;
 }
 
 // given position, return tile at that position.
@@ -31,8 +30,7 @@ static constexpr std::optional<Tile> find_tile(
   auto tile_iter = tiles.find(pos);
   if (tile_iter == tiles.end())
     return std::nullopt;
-  auto &[_, tile] = *tile_iter;
-  return std::optional<Tile>(tile);
+  return {tile_iter->second};
 }
 
 // given position, return object at that position.
@@ -42,8 +40,7 @@ static constexpr std::optional<Object> find_object(
   auto obj_iter = objects.find(pos);
   if (obj_iter == objects.end())
     return std::nullopt;
-  auto &[_, obj] = *obj_iter;
-  return std::optional<Object>(obj);
+  return {obj_iter->second};
 }
 
 // update the position of object in the map.
@@ -53,11 +50,12 @@ static void update_position(
   std::map<Position<>, Object> &objects
 ) {
   assert_throw(
-    objects.contains(from), std::logic_error {"position not exist"}
+    objects.contains(from),
+    std::logic_error {"no object at this position"}
   );
-  auto handler  = objects.extract(from);
-  handler.key() = to;
-  objects.insert(std::move(handler));
+  auto handle  = objects.extract(from);
+  handle.key() = to;
+  objects.insert(std::move(handle));
 }
 
 // check if a door is opened, aka. one of its corresponding button is
@@ -69,7 +67,7 @@ static bool is_door_open(
 ) {
   const auto &[_, buttons] = doors.at(id);
   return std::any_of(
-    buttons.begin(), buttons.end(), [&](const auto pos) {
+    buttons.begin(), buttons.end(), [&](const auto &pos) {
       return objects.contains(pos);
     }
   );
@@ -92,7 +90,7 @@ static bool is_valid_dir(const DirBox &box, const Direction &step) {
 
 // return both exit position from Portal and direction of exit.
 static std::pair<Position<>, Direction> get_portal_exit(
-  const Position<>                           portal_from,
+  const Position<>                          &portal_from,
   const u32                                  id,
   const std::map<Position<>, Tile>          &tiles,
   const std::unordered_map<u32, PortalPair> &portals
@@ -100,7 +98,7 @@ static std::pair<Position<>, Direction> get_portal_exit(
   auto portal_iter = portals.find(id);
   assert_throw(
     portal_iter != portals.end(),
-    std::logic_error {"Portal not found"}
+    std::logic_error {"portal not found"}
   );
   auto       portal_pair = portal_iter->second;
   Position<> portal_to;
@@ -110,10 +108,10 @@ static std::pair<Position<>, Direction> get_portal_exit(
     portal_to = portal_pair.first;
   Tile      portal_to_ = find_tile(tiles, portal_to).value();
   Direction out_dir    = -std::get<Portal>(portal_to_).in_dir;
-  return std::pair(portal_to.move(out_dir), out_dir);
+  return {portal_to.move(out_dir), out_dir};
 }
 
-// call recursively if push box or through Portal.
+// update object's position if possible. else return the error.
 static constexpr std::optional<StepResult> move_object(
   const Direction                            dir,
   const std::map<Position<>, Tile>          &tiles,
@@ -128,11 +126,9 @@ static constexpr std::optional<StepResult> move_object(
   // on exit event: check if current tile is DirFloor.
   Tile from_tile = tiles.at(from);
 
-  // only check when exit DirFloor and not through Portal.
-  if (std::holds_alternative<DirFloor>(from_tile)
-      && from.move(dir) == to)
-    if (!is_valid_dir(from_tile, dir))
-      return StepResult::InvalidDirection;
+  // check validity of exit.
+  if (!is_valid_dir(from_tile, dir))
+    return StepResult::InvalidDirection;
 
   // find destination tile.
   auto to_tile_ = find_tile(tiles, to);
@@ -154,9 +150,10 @@ static constexpr std::optional<StepResult> move_object(
         return StepResult::InvalidDirection;
 
       // return if not okay, else continue to moving self.
-      if (auto res = move_object(
-            dir, tiles, objects, doors, portals, to, to.move(dir)
-          ))
+      auto res = move_object(
+        dir, tiles, objects, doors, portals, to, to.move(dir)
+      );
+      if (res)
         return res;
     } else
       // self is Box, cannot push anything.
@@ -175,10 +172,9 @@ static constexpr std::optional<StepResult> move_object(
   }
   case index_of<Tile, DirFloor>(): {
     // if not from Portal, must check direction.
-    if (from.move(dir) == to) {
+    if (from.move(dir) == to)
       if (!is_valid_dir(from_tile, dir))
         return StepResult::InvalidDirection;
-    }
     update_position(from, to, objects);
     break;
   }
@@ -186,7 +182,7 @@ static constexpr std::optional<StepResult> move_object(
     if (!is_door_open(
           std::get<Door>(to_tile).door_id, doors, objects
         ))
-      return std::optional<StepResult>(StepResult::SlamOnDoor);
+      return {StepResult::SlamOnDoor};
     update_position(from, to, objects);
     break;
   }
@@ -199,9 +195,10 @@ static constexpr std::optional<StepResult> move_object(
     );
 
     // call move_object on position exiting Portal.
-    if (auto res_port = move_object(
-          out_dir, tiles, objects, doors, portals, from, p_exit
-        ))
+    auto res_port = move_object(
+      out_dir, tiles, objects, doors, portals, from, p_exit
+    );
+    if (res_port)
       return res_port;
   }
   }
@@ -213,12 +210,12 @@ usize points_query(
   const std::vector<Position<>>      &goals,
   const std::map<Position<>, Object> &objects
 ) {
-  Player player;
   return std::ranges::count_if(
-    goals.begin(), goals.end(), [objects, player](Position<> p) {
-      return !std::holds_alternative<Player>(
-        (find_object(objects, p)).value_or(player)
-      );
+    goals.begin(), goals.end(), [objects](Position<> p) {
+      auto r = (find_object(objects, p));
+      if (r)
+        return !std::holds_alternative<Player>(r.value());
+      return false;
     }
   );
 }
