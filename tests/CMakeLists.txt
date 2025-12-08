@@ -42,6 +42,12 @@ if (BUILD_TESTS)
       PRIVATE
         -fprofile-instr-generate
     )
+
+    target_compile_options(libgame
+      PRIVATE
+        -fprofile-instr-generate
+        -fcoverage-mapping
+    )   
   endif ()
 
   include(GoogleTest)
