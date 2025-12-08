@@ -28,6 +28,8 @@ struct Position {
     return {y, x};
   }
 
+  // position after moving in direction dir from current position.
+  [[nodiscard("move does not modify `this`")]]
   constexpr Position move(const Direction &dir) const noexcept {
     switch (dir) {
     case Direction::Up:
@@ -83,8 +85,7 @@ struct Position {
     return !(*this == rhs);
   }
 
-  // lexicographical less-than compare this position to
-  // another.
+  // lexicographical less-than compare this position to another.
   constexpr bool operator<(const Position<T> &rhs) const noexcept {
     return x < rhs.x || (x == rhs.x && y < rhs.y);
   }
