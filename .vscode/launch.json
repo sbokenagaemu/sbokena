@@ -1,0 +1,29 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "debug tests",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceRoot}/build/tests/tests",
+      "args": [],
+      "cwd": "${workspaceRoot}"
+    },
+    {
+      "name": "debug game",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceRoot}/build/game/game",
+      "args": [],
+      "cwd": "${workspaceRoot}"
+    },
+    {
+      "name": "debug editor",
+      "type": "lldb",
+      "request": "launch",
+      "program": "${workspaceRoot}/build/editor/editor",
+      "args": [],
+      "cwd": "${workspaceRoot}"
+    },
+  ]
+}
