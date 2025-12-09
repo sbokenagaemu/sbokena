@@ -1,6 +1,5 @@
 #ifndef RAYGUI_IMPLEMENTATION
 #define RAYGUI_IMPLEMENTATION
-#include "tile.hh"
 #endif
 
 #include <Color.hpp>
@@ -63,36 +62,18 @@ Rectangle  currently_selected_outline_rec = {
 
 float     thickness = 0;
 Rectangle link_selection;
-bool      same_index = false;
 
-enum class Selected_layer { None, Object, Tile };
-Selected_layer layer = Selected_layer::None;
 enum class Edit_Mode { Place, Select, Link, Switch };
 Edit_Mode mode = Edit_Mode::Select;
 
-raylib::Color generate_color(Selected_layer state) {
-  switch (state) {
-  case Selected_layer::None:
-    return raylib::Color::Black();
-  case Selected_layer::Object:
-    return raylib::Color::Gray();
-  case Selected_layer::Tile:
-    return raylib::Color::Gold();
-  }
-}
+// will be implemented later in editor_level
+void replace_tile(Position<> pos, TileType new_tile) {
+  std::cout << "replaced a tile" << std::endl;
+};
 
-void advance_layer(Selected_layer &state) {
-  switch (state) {
-  case Selected_layer::None:
-    state = Selected_layer::Object;
-    break;
-  case Selected_layer::Object:
-    state = Selected_layer::Tile;
-    break;
-  case Selected_layer::Tile:
-    state = Selected_layer::Object;
-    break;
-  }
+// will be implemented later in editor_level
+void replace_object(Position<> pos, ObjectType new_tile) {
+  std::cout << "replaced an object" << std::endl;
 }
 
 void switch_selection(Rectangle rec, bool is_tile) {
@@ -180,12 +161,8 @@ int main() {
             grid_offset,
             grid_end(grid_offset, current_tile_size)
           )) {
-        Position<> next_selected_grid_tile_index =
+        selected_grid_tile_index =
           tile_index(mouse_position, grid_offset, current_tile_size);
-        if (next_selected_grid_tile_index == selected_grid_tile_index)
-          same_index = true;
-        else
-          same_index = false;
 
         if (mode == Edit_Mode::Place) {
           if (is_placing_tiles) {
@@ -227,18 +204,14 @@ int main() {
           }
         } else if (mode == Edit_Mode::Select) {
           std::cout << "Tile selected" << std::endl;
-          raylib::Vector2 next_selected_tile_position =
-            raylib::Vector2 {
-              grid_offset.GetX()
-                + selected_grid_tile_index.x * current_tile_size,
-              grid_offset.GetY()
-                + selected_grid_tile_index.y * current_tile_size
-            };
+          selected_tile_position = raylib::Vector2 {
+            grid_offset.GetX()
+              + selected_grid_tile_index.x * current_tile_size,
+            grid_offset.GetY()
+              + selected_grid_tile_index.y * current_tile_size
+          };
 
-          if (same_index)
-            advance_layer(layer);
-          selected_tile_position = next_selected_tile_position;
-          is_selection_shown     = true;
+          is_selection_shown = true;
 
         } else if (mode == Edit_Mode::Link) {
           Tile *first_tile = level_.get_tile_at(link_selection_index);
@@ -278,6 +251,40 @@ int main() {
             }
           }
           mode = Edit_Mode::Select;
+        } else if (mode == Edit_Mode::Switch) {
+          mode = Edit_Mode::Select;
+
+          Object *obj =
+            level_.get_object_at(selected_grid_tile_index);
+          if (!obj)
+            break;
+          switch (obj->get_type()) {
+          case ObjectType::Box:
+            replace_object(
+              selected_grid_tile_index, ObjectType::OneDirBox
+            );
+            break;
+          case ObjectType::OneDirBox:
+            replace_object(selected_grid_tile_index, ObjectType::Box);
+            break;
+          default:
+            break;
+          }
+
+          Tile *tile = level_.get_tile_at(selected_grid_tile_index);
+          if (!tile)
+            break;
+          switch (tile->get_type()) {
+          case TileType::Floor:
+            replace_tile(selected_grid_tile_index, TileType::OneDir);
+            break;
+
+          case TileType::OneDir:
+            replace_tile(selected_grid_tile_index, TileType::Floor);
+            break;
+          default:
+            break;
+          }
         }
       }
     }
@@ -295,7 +302,7 @@ int main() {
         current_tile_size
       };
       DrawRectangleRec(
-        grid_selection, Fade(generate_color(layer), 0.5)
+        grid_selection, Fade(raylib::Color::Gray(), 0.5)
       );
     }
 
