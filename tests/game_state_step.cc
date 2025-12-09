@@ -13,7 +13,7 @@ TEST(game, state_walk_normal) {
   // █████
   // █ p █
   // █████
-  State st = {
+  RawState st = {
     .goals = {},
     .tiles =
       {{{.x = 1, .y = 1}, {Floor {}}},
@@ -48,7 +48,7 @@ TEST(game, state_walk_dirfloor) {
   // █████
   // █ p→█
   // █████
-  State st = {
+  RawState st = {
     .goals = {},
     .tiles =
       {{{.x = 1, .y = 1}, {Floor {}}},
@@ -80,7 +80,7 @@ TEST(game, state_dirfloor_invalid_dir) {
   // █████
   // █ p→█
   // █████
-  State st = {
+  RawState st = {
     .goals = {},
     .tiles =
       {{{.x = 1, .y = 1}, {Floor {}}},
@@ -99,7 +99,7 @@ TEST(game, state_push_normal) {
   // █████
   // █p☐ █
   // █████
-  State st = {
+  RawState st = {
     .goals = {},
     .tiles =
       {{{.x = 1, .y = 1}, {Floor {}}},
@@ -137,7 +137,7 @@ TEST(game, state_push_dirbox) {
   // █████
   // █p͔͔͕͕˃ █
   // █████
-  State st = {
+  RawState st = {
     .goals = {},
     .tiles =
       {{{.x = 1, .y = 1}, {Floor {}}},
@@ -170,7 +170,7 @@ TEST(game, state_push_dirbox) {
   // █████
   // █p͔͔͕͕˄ █
   // █████
-  State st_op = {
+  RawState st_op = {
     .goals = {},
     .tiles =
       {{{.x = 1, .y = 1}, {Floor {}}},
@@ -195,7 +195,7 @@ TEST(game, state_door_button) {
   // █████
   // █p͔͔͕͕bd█
   // █████
-  State st = {
+  RawState st = {
     .goals = {},
     .tiles =
       {{{.x = 1, .y = 1}, {Floor {}}},
@@ -236,7 +236,7 @@ TEST(game, state_door_button) {
   // █████
   // █p͔͔͕͕db█
   // █████
-  State st1 = {
+  RawState st1 = {
     .goals = {},
     .tiles =
       {{{.x = 1, .y = 1}, {Floor {}}},
@@ -258,7 +258,7 @@ TEST(game, state_door_button_box) {
   // ███████
   // █p☐bd █
   // ███████
-  State st1 = {
+  RawState st1 = {
     .goals = {},
     .tiles =
       {
@@ -307,7 +307,7 @@ TEST(game, state_walk_portal) {
   // ███████
   // █p┤ ├ █
   // ███████
-  State st1 = {
+  RawState st1 = {
     .goals = {},
     .tiles =
       {
@@ -345,7 +345,7 @@ TEST(game, state_walk_portal) {
   // ███████
   // █ ┤p├ █
   // ███████
-  State st2 = {
+  RawState st2 = {
     .goals = {},
     .tiles =
       {
@@ -381,7 +381,7 @@ TEST(game, state_walk_portal) {
   // ████████
   // █p┤├┤├ █
   // ████████
-  State st3 = {
+  RawState st3 = {
     .goals = {},
     .tiles =
       {
@@ -430,7 +430,7 @@ TEST(game, state_walk_portal) {
   // ████████
   // █p┤├┬├ █
   // ████████
-  State st4 = {
+  RawState st4 = {
     .goals = {},
     .tiles =
       {
@@ -475,7 +475,7 @@ TEST(game, state_walk_portal) {
   // ███████
   // █ ├p┤ █
   // ███████
-  State st5 = {
+  RawState st5 = {
     .goals = {},
     .tiles =
       {
@@ -511,7 +511,7 @@ TEST(game, state_walk_portal) {
   // ███████
   // █p┤├┤├█
   // ███████
-  State st6 = {
+  RawState st6 = {
     .goals = {},
     .tiles =
       {
@@ -560,7 +560,7 @@ TEST(game, state_push_portal) {
   // ████████
   // █p☐┤├  █
   // ████████
-  State st1 = {
+  RawState st1 = {
     .goals = {},
     .tiles =
       {
@@ -610,7 +610,7 @@ TEST(game, state_push_portal) {
   // ████████
   // █p☐┤ ┤ █
   // ████████
-  State st2 = {
+  RawState st2 = {
     .goals = {},
     .tiles =
       {
@@ -658,7 +658,7 @@ TEST(game, state_push_portal) {
   // ██████
   // █p☐┤├█
   // ██████
-  State st3 = {
+  RawState st3 = {
     .goals = {},
     .tiles =
       {
@@ -695,7 +695,7 @@ TEST(game, dirfloor_portal) {
   // ███████
   // █p→┤├↓█
   // ███████
-  State st1 = {
+  RawState st1 = {
     .goals = {},
     .tiles =
       {
@@ -739,7 +739,7 @@ TEST(game, dirfloor_portal) {
   // ███████
   // █p☐┤├↓█
   // ███████
-  State st2 = {
+  RawState st2 = {
     .goals = {},
     .tiles =
       {
@@ -784,7 +784,7 @@ TEST(game, goals) {
   // ███████
   // █p☐┤├g█
   // ███████
-  State st1 = {
+  RawState st1 = {
     .goals = {{.x = 5, .y = 1}},
     .tiles =
       {
@@ -827,7 +827,7 @@ TEST(game, general_game) {
   // █d  ┬ █
   // █g  →g█
   // ███████
-  State st1 = {
+  RawState st1 = {
     .goals = {{.x = 1, .y = 4}, {.x = 5, .y = 4}},
     .tiles =
       {
@@ -913,7 +913,7 @@ TEST(game, state_case_1) {
   // █p☐┤█
   // █████
 
-  State st1 = {
+  RawState st1 = {
     .goals = {{.x = 1, .y = 4}, {.x = 5, .y = 4}},
     .tiles =
       {

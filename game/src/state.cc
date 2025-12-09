@@ -12,7 +12,20 @@ using namespace sbokena::utils;
 
 namespace sbokena::game::state {
 
-Position<> State::find_player() const {
+State::State(const Level &level)
+  : state_ {
+      .goals   = level.goals(),
+      .tiles   = level.tiles(),
+      .objects = level.objects(),
+      .doors   = level.doors(),
+      .portals = level.portals()
+    } {}
+
+const RawState &State::inner() const noexcept {
+  return state_;
+}
+
+Position<> RawState::find_player() const {
   const auto iter =
     std::find_if(objects.begin(), objects.end(), [](const auto &p) {
       return std::holds_alternative<Player>(p.second);
@@ -20,14 +33,15 @@ Position<> State::find_player() const {
   return iter->first;
 }
 
-std::optional<Object> State::find_object(const Position<> pos) const {
+std::optional<Object>
+RawState::find_object(const Position<> pos) const {
   const auto iter = objects.find(pos);
   if (iter == objects.end())
     return std::nullopt;
   return {iter->second};
 }
 
-std::optional<Tile> State::find_tile(const Position<> pos) const {
+std::optional<Tile> RawState::find_tile(const Position<> pos) const {
   const auto iter = tiles.find(pos);
   if (iter == tiles.end())
     return std::nullopt;
@@ -35,7 +49,7 @@ std::optional<Tile> State::find_tile(const Position<> pos) const {
 }
 
 std::pair<Position<>, Direction>
-State::get_portal_exit(Position<> portal_from, u32 id) const {
+RawState::get_portal_exit(Position<> portal_from, u32 id) const {
   auto portal_iter = portals.find(id);
   assert_throw(
     portal_iter != portals.end(),
@@ -50,7 +64,7 @@ State::get_portal_exit(Position<> portal_from, u32 id) const {
   return {portal_to.move(out_dir), out_dir};
 }
 
-usize State::points_query() const {
+usize RawState::points_query() const {
   return std::ranges::count_if(
     goals.begin(), goals.end(), [&](Position<> p) {
       auto r = (find_object(p));
@@ -61,7 +75,7 @@ usize State::points_query() const {
   );
 }
 
-bool State::is_door_open(const u32 id) const {
+bool RawState::is_door_open(const u32 id) const {
   const auto &[_, buttons] = doors.at(id);
   return std::any_of(
     buttons.begin(), buttons.end(), [&](const auto &pos) {
@@ -70,7 +84,7 @@ bool State::is_door_open(const u32 id) const {
   );
 }
 
-bool State::is_valid_dir(const Tile &tile, Direction dir) const {
+bool RawState::is_valid_dir(const Tile &tile, Direction dir) const {
   if (std::holds_alternative<DirFloor>(tile))
     return std::get<DirFloor>(tile).dir == dir;
   if (std::holds_alternative<Portal>(tile))
@@ -79,13 +93,13 @@ bool State::is_valid_dir(const Tile &tile, Direction dir) const {
   return true;
 }
 
-bool State::is_valid_dir(const Object &box, Direction step) const {
+bool RawState::is_valid_dir(const Object &box, Direction step) const {
   if (std::holds_alternative<DirBox>(box))
     return std::get<DirBox>(box).dir == step;
   return true;
 }
 
-void State::update_position(
+void RawState::update_position(
   const Position<> from, const Position<> to
 ) {
   assert_throw(
@@ -98,7 +112,7 @@ void State::update_position(
 }
 
 std::optional<StepResult>
-State::move_object(Direction dir, Position<> from, Position<> to) {
+RawState::move_object(Direction dir, Position<> from, Position<> to) {
   const Object self = objects.at(from);
 
   // on exit event: check if current tile is DirFloor.
@@ -174,7 +188,7 @@ State::move_object(Direction dir, Position<> from, Position<> to) {
   return std::nullopt;
 }
 
-StepResult State::step(const Direction &input) {
+StepResult RawState::step(const Direction &input) {
   Position<> player_from = find_player();
 
   const auto res =
