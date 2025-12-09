@@ -60,6 +60,7 @@ void StartMenuScene::draw() const {
 UpdateResult StartMenuScene::update(Input) {
   const usize screen_w = GetScreenWidth();
   const usize screen_h = GetScreenHeight();
+  const Font  font     = GuiGetFont();
 
   // size of 1 button in view
   const Vector2 view_btn_size {
@@ -73,6 +74,31 @@ UpdateResult StartMenuScene::update(Input) {
   };
   const Vector2 view_size = view_btn_size * Vector2 {.x = 1, .y = 3};
   const Vector2 view_pos  = view_center - view_size / 2;
+
+  // ===== draw messages =====
+
+  const f64     msg_dur = 3;
+  const Vector2 msg_pos {
+    .x = 50,
+    .y = 50,
+  };
+  const f32   msg_font_size = 32;
+  const f32   msg_spacing   = 8;
+  const Color msg_color     = YELLOW;
+
+  if (show_failed_load) {
+    if (GetTime() - show_failed_load.value() <= msg_dur)
+      DrawTextEx(
+        font,
+        "level load failed",
+        msg_pos,
+        msg_font_size,
+        msg_spacing,
+        msg_color
+      );
+    else
+      show_failed_load.reset();
+  }
 
   // ===== draw buttons =====
 
@@ -119,12 +145,11 @@ UpdateResult StartMenuScene::update(Input) {
       const RawLevel     raw_level = json::parse(buf.str());
       const Theme<Image> theme {raw_level.name, path.parent_path()};
       const Level<Image> level {raw_level, theme};
-    } catch (std::exception &) {
-      // TODO: show error messages to the user
-      // (can probably be console logs, tbh)
+    } catch (std::exception &ex) {
+      std::println("level load failed: {}", ex.what());
+      show_failed_load = GetTime();
       return UpdateOk {};
     }
-
     // TODO: transition to gameplay
     std::println("loaded level {}", path.c_str());
     return UpdateOk {};
