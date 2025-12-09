@@ -2,11 +2,17 @@
 
 #pragma once
 
+#include <optional>
+
 #include "scene.hh"
+#include "types.hh"
+
+using namespace sbokena::types;
 
 namespace sbokena::game::scene {
 
-struct StartMenuScene : Scene {
+class StartMenuScene : public Scene {
+public:
   StartMenuScene()                                  = default;
   StartMenuScene(const StartMenuScene &)            = delete;
   StartMenuScene &operator=(const StartMenuScene &) = delete;
@@ -16,6 +22,9 @@ struct StartMenuScene : Scene {
 
   void         draw() const override;
   UpdateResult update(Input) override;
+
+private:
+  std::optional<f64> show_failed_load = std::nullopt;
 };
 
 }; // namespace sbokena::game::scene
