@@ -8,12 +8,15 @@
 #include <raylib.h>
 #include <raymath.h>
 
+#include "direction.hh"
 #include "loader.hh"
 #include "scene.hh"
 #include "state.hh"
 
 using namespace std::string_view_literals;
 
+using sbokena::direction::Direction;
+using sbokena::game::state::StepResult;
 using sbokena::loader::Level;
 
 namespace sbokena::game::scene {
@@ -31,22 +34,39 @@ void GameplayScene::draw() const {
 }
 
 UpdateResult GameplayScene::update(Input in) {
+  const auto step = [&](Direction dir) -> UpdateResult {
+    switch (state.step(dir)) {
+    case StepResult::Ok:
+      ++moves;
+      break;
+    case StepResult::LevelComplete:
+      // TODO: transition to level completion scene
+      return UpdateOk {};
+
+    // TODO: play animations
+    case StepResult::HitWall:
+    case StepResult::InvalidDirection:
+    case StepResult::PushTwoObjects:
+    case StepResult::PushYourself:
+    case StepResult::SlamOnDoor:
+      break;
+    }
+
+    return UpdateOk {};
+  };
+
   switch (in) {
   case Input::INPUT_UP:
-    state.step(Direction::Up);
-    ++moves;
+    step(Direction::Up);
     break;
   case Input::INPUT_DOWN:
-    state.step(Direction::Down);
-    ++moves;
+    step(Direction::Down);
     break;
   case Input::INPUT_LEFT:
-    state.step(Direction::Left);
-    ++moves;
+    step(Direction::Left);
     break;
   case Input::INPUT_RIGHT:
-    state.step(Direction::Right);
-    ++moves;
+    step(Direction::Right);
     break;
 
   case Input::INPUT_MENU:
