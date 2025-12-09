@@ -1,5 +1,9 @@
 #ifndef RAYGUI_IMPLEMENTATION
 #define RAYGUI_IMPLEMENTATION
+#include <cstddef>
+
+#include "object.hh"
+#include "position.hh"
 #endif
 
 #include <Color.hpp>
@@ -74,6 +78,40 @@ void replace_tile(Position<> pos, TileType new_tile) {
 // will be implemented later in editor_level
 void replace_object(Position<> pos, ObjectType new_tile) {
   std::cout << "replaced an object" << std::endl;
+}
+
+// switches between directional and normal objects (Boxes)
+void switch_object(Level &lvl, Position<> pos) {
+  ObjectType type = lvl.get_object_at(pos)->get_type();
+  switch (type) {
+  case ObjectType::Box: {
+    replace_object(pos, ObjectType::OneDirBox);
+    break;
+  }
+  case ObjectType::OneDirBox: {
+    replace_object(pos, ObjectType::Box);
+    break;
+  }
+  default:
+    break;
+  }
+}
+
+// switches between directional and normal tiles (Floors)
+void switch_tile(Level &lvl, Position<> pos) {
+  TileType type = lvl.get_tile_at(pos)->get_type();
+  switch (type) {
+  case TileType::Floor: {
+    replace_tile(pos, TileType::OneDir);
+    break;
+  }
+  case TileType::OneDir: {
+    replace_tile(pos, TileType::Floor);
+    break;
+  }
+  default:
+    break;
+  }
 }
 
 void switch_selection(Rectangle rec, bool is_tile) {
@@ -232,40 +270,10 @@ int main() {
           break;
         }
         case (Edit_Mode::Switch): {
+          // these will be later be more precise
+          switch_tile(level_, selected_grid_tile_index);
+          switch_object(level_, selected_grid_tile_index);
           mode = Edit_Mode::Select;
-
-          Object *obj =
-            level_.get_object_at(selected_grid_tile_index);
-          if (!obj)
-            break;
-          switch (obj->get_type()) {
-          case ObjectType::Box:
-            replace_object(
-              selected_grid_tile_index, ObjectType::OneDirBox
-            );
-            break;
-          case ObjectType::OneDirBox:
-            replace_object(selected_grid_tile_index, ObjectType::Box);
-            break;
-          default:
-            break;
-          }
-
-          Tile *tile = level_.get_tile_at(selected_grid_tile_index);
-          if (!tile)
-            break;
-          switch (tile->get_type()) {
-          case TileType::Floor:
-            replace_tile(selected_grid_tile_index, TileType::OneDir);
-            break;
-
-          case TileType::OneDir:
-            replace_tile(selected_grid_tile_index, TileType::Floor);
-            break;
-          default:
-            break;
-          }
-          break;
         }
         }
       }
