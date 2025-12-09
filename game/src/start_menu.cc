@@ -79,19 +79,19 @@ UpdateResult StartMenuScene::update(Input) {
   const Rectangle play_bounds = {
     .x      = view_pos.x,
     .y      = view_pos.y,
-    .width  = view_btn_size.x * 0.9f,
+    .width  = view_btn_size.x,
     .height = view_btn_size.y * 0.9f,
   };
   const Rectangle load_bounds = {
     .x      = view_pos.x,
     .y      = view_pos.y + view_btn_size.y,
-    .width  = view_btn_size.x * 0.9f,
+    .width  = view_btn_size.x,
     .height = view_btn_size.y * 0.9f,
   };
   const Rectangle quit_bounds = {
     .x      = view_pos.x,
     .y      = view_pos.y + 2 * view_btn_size.y,
-    .width  = view_btn_size.x * 0.9f,
+    .width  = view_btn_size.x,
     .height = view_btn_size.y * 0.9f,
   };
 
