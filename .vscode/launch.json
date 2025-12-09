@@ -25,5 +25,30 @@
       "args": [],
       "cwd": "${workspaceRoot}"
     },
+
+    {
+      "name": "debug tests (nvim)",
+      "type": "codelldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/tests/tests",
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "debug game (nvim)",
+      "type": "codelldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/game/game",
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "debug editor (nvim)",
+      "type": "codelldb",
+      "request": "launch",
+      "program": "${workspaceFolder}/build/editor/editor",
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    }
   ]
 }
