@@ -50,7 +50,7 @@ struct RawState {
   //
   // otherwise, the world state has not changed, and the return value
   // can be used to determine the reason.
-  StepResult step(const Direction &input);
+  StepResult step(Direction);
 
   // query current points.
   usize points_query() const;
@@ -59,10 +59,10 @@ struct RawState {
   Position<> find_player() const;
 
   // given position, return object at that position.
-  std::optional<Object> find_object(Position<> pos) const;
+  std::optional<Object> find_object(Position<>) const;
 
   // given position, return tile at that position.
-  std::optional<Tile> find_tile(Position<> pos) const;
+  std::optional<Tile> find_tile(Position<>) const;
 
   // return both exit position from Portal and direction of exit.
   std::pair<Position<>, Direction>
@@ -109,6 +109,9 @@ public:
   State(State &&)                 = delete;
   State &operator=(State &&)      = delete;
   ~State()                        = default;
+
+  // forward to `RawState::step`.
+  StepResult step(Direction);
 
   // the inner `RawState`.
   const RawState &inner() const noexcept;
