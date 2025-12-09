@@ -11,6 +11,7 @@
 #include <raylib.h>
 #include <raymath.h>
 
+#include "gameplay.hh"
 #include "level.hh"
 #include "loader.hh"
 #include "scene.hh"
@@ -142,17 +143,18 @@ UpdateResult StartMenuScene::update(Input) {
       std::stringstream buf;
       buf << file.rdbuf();
 
-      const RawLevel     raw_level = json::parse(buf.str());
-      const Theme<Image> theme {raw_level.name, path.parent_path()};
-      const Level<Image> level {raw_level, theme};
+      const RawLevel       raw_level = json::parse(buf.str());
+      const Theme<Texture> theme {raw_level.theme, path};
+      const Level<Texture> level {raw_level, theme};
+
+      return UpdateTransition {
+        .next = std::unique_ptr<Scene> {new GameplayScene {level}},
+      };
     } catch (std::exception &ex) {
       std::println("level load failed: {}", ex.what());
       show_failed_load = GetTime();
       return UpdateOk {};
     }
-    // TODO: transition to gameplay
-    std::println("loaded level {}", path.c_str());
-    return UpdateOk {};
   }
 
   if (quit)
