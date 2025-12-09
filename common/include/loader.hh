@@ -413,13 +413,18 @@ public:
         //   it's a duplicate (error)
         const auto &door = std::get<level::Door>(tile);
         const auto  iter = doors_.find(door.door_id);
-        if (iter != doors_.end()) {
-          assert_throw(
-            iter->second.first == POS_MAX<>, InvalidLevelException {}
-          );
-          iter->second.first = pos;
+
+        // door not there
+        if (iter == doors_.end()) {
+          doors_.insert({door.door_id, {pos, {}}});
           break;
         }
+
+        // door is there
+        assert_throw(
+          iter->second.first == POS_MAX<>, InvalidLevelException {}
+        );
+        iter->second.first = pos;
         break;
       }
       case index_of<level::Tile, level::Portal>(): {
