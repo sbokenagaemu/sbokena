@@ -458,8 +458,8 @@ public:
   Level()                         = delete;
   Level(const Level &)            = default;
   Level &operator=(const Level &) = default;
-  Level(Level &&)                 = default;
-  Level &operator=(Level &&)      = default;
+  Level(Level &&)                 = delete;
+  Level &operator=(Level &&)      = delete;
   ~Level()                        = default;
 
   template <typename T>
