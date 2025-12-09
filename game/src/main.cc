@@ -26,21 +26,28 @@ constexpr std::string_view TITLE = "sbokena"sv;
 
 constexpr u32 SCREEN_W_DEFAULT    = 800;
 constexpr u32 SCREEN_H_DEFAULT    = 600;
+constexpr u32 SCREEN_W_MAX        = 3840;
+constexpr u32 SCREEN_H_MAX        = 2160;
 constexpr u32 RAYGUI_TEXT_SIZE    = 30;
 constexpr u32 RAYGUI_TEXT_SPACING = 4;
 
 i32 main() {
   // ===== initialize raylib =====
+
   SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
   InitWindow(SCREEN_W_DEFAULT, SCREEN_H_DEFAULT, TITLE.data());
-  SetWindowMinSize(SCREEN_W_DEFAULT, SCREEN_H_DEFAULT);
   Deferred _ {CloseWindow};
 
+  SetWindowMinSize(SCREEN_W_DEFAULT, SCREEN_H_DEFAULT);
+  SetWindowMaxSize(SCREEN_W_MAX, SCREEN_H_MAX);
+
   // ===== initialize raygui =====
+
   GuiSetStyle(DEFAULT, TEXT_SIZE, RAYGUI_TEXT_SIZE);
   GuiSetStyle(DEFAULT, TEXT_SPACING, RAYGUI_TEXT_SPACING);
 
   // ===== initialize nfd =====
+
   NFD::Guard _nfd;
 
   // ===== main loop =====
