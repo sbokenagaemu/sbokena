@@ -37,17 +37,18 @@ using Objects    = std::map<Position<>, Object>;
 using Tiles      = std::map<Position<>, Tile>;
 using Portals    = std::unordered_map<u32, PortalPair>;
 using Doors      = std::unordered_map<u32, DoorSet>;
+using Goals      = std::vector<Position<>>;
 
 // the state machine.
 struct State {
-  const std::vector<Position<>>    goals;
-  const std::map<Position<>, Tile> tiles;
-  std::map<Position<>, Object>     objects;
+  const Goals goals;
+  const Tiles tiles;
+  Objects     objects;
 
   // doors and buttons grouped by id
-  const std::unordered_map<u32, DoorSet> doors;
+  const Doors doors;
   // portals grouped by id
-  const std::unordered_map<u32, PortalPair> portals;
+  const Portals portals;
 
   // try to advance the world state by one step, using an input.
   //
