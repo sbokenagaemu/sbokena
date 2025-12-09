@@ -425,6 +425,7 @@ public:
         // "uncount" #box
         // if it's 0 at the end, the level is valid
         --boxes;
+        goals_.insert(pos);
         break;
       }
       }
@@ -465,7 +466,7 @@ public:
     requires Resource<T> && Sprite<T>
   Level(const Level<T> &);
 
-  // commit a Level<Image> to a Level<Texture>
+  // commit a Level<Image> to a Level<Texture>.
   template <>
   Level<Texture>(const Level<Image> &level)
     : name_ {level.name_},
@@ -510,6 +511,11 @@ public:
   // map from id to set of portals.
   const Portals &portals() const noexcept {
     return portals_;
+  }
+
+  // set of goals in the level.
+  const Goals &goals() const noexcept {
+    return goals_;
   }
 
   // position of player.
