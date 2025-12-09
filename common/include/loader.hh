@@ -42,26 +42,6 @@ Res load_res(const fs::path &path);
 template <typename Res>
 void unload_res(Res &&res);
 
-template <>
-Image load_res<Image>(const fs::path &path) {
-  return LoadImage(path.c_str());
-}
-
-template <>
-Texture load_res<Texture>(const fs::path &path) {
-  return LoadTexture(path.c_str());
-}
-
-template <>
-void unload_res<Image>(Image &&img) {
-  UnloadImage(img);
-}
-
-template <>
-void unload_res<Texture>(Texture &&tex) {
-  UnloadTexture(tex);
-}
-
 // clang-format off
 
 // a loadable and once-unloadable resource.
@@ -146,14 +126,7 @@ private:
 
 // an exception thrown when constructing a `Theme`.
 struct ThemeLoadException : std::runtime_error {
-  ThemeLoadException(std::string_view name, const fs::path &path)
-    : std::runtime_error {std::format(
-        "failed to load theme \"{}\" from search root \"{}\"",
-        name,
-        path.c_str()
-      )},
-      name {name},
-      path {path} {}
+  ThemeLoadException(std::string_view name, const fs::path &path);
 
   const std::string name;
   const fs::path    path;
@@ -161,8 +134,7 @@ struct ThemeLoadException : std::runtime_error {
 
 // an exception thrown when validating a `Level`.
 struct InvalidLevelException : std::runtime_error {
-  InvalidLevelException()
-    : std::runtime_error {"invalid level data"} {}
+  InvalidLevelException();
 };
 
 // a loaded and validated theme for in-memory use.
