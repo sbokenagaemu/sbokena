@@ -21,6 +21,10 @@ State::State(const Level &level)
       .portals = level.portals()
     } {}
 
+StepResult State::step(Direction dir) {
+  return state_.step(dir);
+}
+
 const RawState &State::inner() const noexcept {
   return state_;
 }
@@ -188,7 +192,7 @@ RawState::move_object(Direction dir, Position<> from, Position<> to) {
   return std::nullopt;
 }
 
-StepResult RawState::step(const Direction &input) {
+StepResult RawState::step(Direction input) {
   Position<> player_from = find_player();
 
   const auto res =
