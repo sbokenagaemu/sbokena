@@ -330,6 +330,12 @@ public:
     Position<>  // position of 2nd portal
     >;
 
+  using Goals   = std::set<Position<>>;
+  using Objects = std::map<Position<>, level::Object>;
+  using Tiles   = std::map<Position<>, level::Tile>;
+  using Doors   = std::unordered_map<u32, DoorSet>;
+  using Portals = std::unordered_map<u32, PortalSet>;
+
   // validate a `RawLevel`, and take in a `Theme`.
   //
   // this constructor is parameterized, i.e. you can pass in a
@@ -486,24 +492,23 @@ public:
     return diff_;
   }
 
-  // map from position to tile.
-  const std::map<Position<>, level::Tile> &tiles() const noexcept {
+  // map from position to tiles.
+  const Tiles &tiles() const noexcept {
     return tiles_;
   }
 
-  // map from position to tile.
-  const std::map<Position<>, level::Object> &
-  objects() const noexcept {
+  // map from position to objects.
+  const Objects &objects() const noexcept {
     return objects_;
   };
 
   // map from id to set of a door and buttons.
-  const std::unordered_map<u32, DoorSet> &doors() const noexcept {
+  const Doors &doors() const noexcept {
     return doors_;
   }
 
   // map from id to set of portals.
-  const std::unordered_map<u32, PortalSet> &portals() const noexcept {
+  const Portals &portals() const noexcept {
     return portals_;
   }
 
@@ -517,11 +522,13 @@ private:
   Theme<S>          theme_;
   level::Difficulty diff_;
 
-  std::map<Position<>, level::Tile>   tiles_;
-  std::map<Position<>, level::Object> objects_;
+  Tiles   tiles_;
+  Objects objects_;
 
-  std::unordered_map<u32, DoorSet>   doors_;
-  std::unordered_map<u32, PortalSet> portals_;
+  Doors   doors_;
+  Portals portals_;
+
+  Goals goals_;
 
   Position<> player_;
 
