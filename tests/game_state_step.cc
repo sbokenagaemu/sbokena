@@ -14,7 +14,7 @@ TEST(game, state_walk_normal) {
   // █ p █
   // █████
   State st = {
-    .goal = {},
+    .goals = {},
     .tiles =
       {{{.x = 1, .y = 1}, {Floor {}}},
        {{.x = 2, .y = 1}, {Floor {}}},
@@ -49,7 +49,7 @@ TEST(game, state_walk_dirfloor) {
   // █ p→█
   // █████
   State st = {
-    .goal = {},
+    .goals = {},
     .tiles =
       {{{.x = 1, .y = 1}, {Floor {}}},
        {{.x = 2, .y = 1}, {Floor {}}},
@@ -76,12 +76,31 @@ TEST(game, state_walk_dirfloor) {
   std::get<Player>(st.objects.at({.x = 3, .y = 1}));
 }
 
+TEST(game, state_dirfloor_invalid_dir) {
+  // █████
+  // █ p→█
+  // █████
+  State st = {
+    .goals = {},
+    .tiles =
+      {{{.x = 1, .y = 1}, {Floor {}}},
+       {{.x = 2, .y = 1}, {Floor {}}},
+       {{.x = 3, .y = 1}, {DirFloor {.dir = Direction::Down}}}},
+    .objects = {{{.x = 2, .y = 1}, {Player {}}}},
+    .doors   = {},
+    .portals = {},
+  };
+
+  ASSERT_EQ(st.step(Direction::Right), StepResult::InvalidDirection);
+  std::get<Player>(st.objects.at({.x = 2, .y = 1}));
+}
+
 TEST(game, state_push_normal) {
   // █████
   // █p☐ █
   // █████
   State st = {
-    .goal = {},
+    .goals = {},
     .tiles =
       {{{.x = 1, .y = 1}, {Floor {}}},
        {{.x = 2, .y = 1}, {Floor {}}},
@@ -119,7 +138,7 @@ TEST(game, state_push_dirbox) {
   // █p͔͔͕͕˃ █
   // █████
   State st = {
-    .goal = {},
+    .goals = {},
     .tiles =
       {{{.x = 1, .y = 1}, {Floor {}}},
        {{.x = 2, .y = 1}, {Floor {}}},
@@ -152,7 +171,7 @@ TEST(game, state_push_dirbox) {
   // █p͔͔͕͕˄ █
   // █████
   State st_op = {
-    .goal = {},
+    .goals = {},
     .tiles =
       {{{.x = 1, .y = 1}, {Floor {}}},
        {{.x = 2, .y = 1}, {Floor {}}},
@@ -177,7 +196,7 @@ TEST(game, state_door_button) {
   // █p͔͔͕͕bd█
   // █████
   State st = {
-    .goal = {},
+    .goals = {},
     .tiles =
       {{{.x = 1, .y = 1}, {Floor {}}},
        {{.x = 2, .y = 1}, {Button {.door_id = 1}}},
@@ -218,7 +237,7 @@ TEST(game, state_door_button) {
   // █p͔͔͕͕db█
   // █████
   State st1 = {
-    .goal = {},
+    .goals = {},
     .tiles =
       {{{.x = 1, .y = 1}, {Floor {}}},
        {{.x = 2, .y = 1}, {Door {.door_id = 1}}},
@@ -240,7 +259,7 @@ TEST(game, state_door_button_box) {
   // █p☐bd █
   // ███████
   State st1 = {
-    .goal = {},
+    .goals = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -289,7 +308,7 @@ TEST(game, state_walk_portal) {
   // █p┤ ├ █
   // ███████
   State st1 = {
-    .goal = {},
+    .goals = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -327,7 +346,7 @@ TEST(game, state_walk_portal) {
   // █ ┤p├ █
   // ███████
   State st2 = {
-    .goal = {},
+    .goals = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -363,7 +382,7 @@ TEST(game, state_walk_portal) {
   // █p┤├┤├ █
   // ████████
   State st3 = {
-    .goal = {},
+    .goals = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -412,7 +431,7 @@ TEST(game, state_walk_portal) {
   // █p┤├┬├ █
   // ████████
   State st4 = {
-    .goal = {},
+    .goals = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -457,7 +476,7 @@ TEST(game, state_walk_portal) {
   // █ ├p┤ █
   // ███████
   State st5 = {
-    .goal = {},
+    .goals = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -493,7 +512,7 @@ TEST(game, state_walk_portal) {
   // █p┤├┤├█
   // ███████
   State st6 = {
-    .goal = {},
+    .goals = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -542,7 +561,7 @@ TEST(game, state_push_portal) {
   // █p☐┤├  █
   // ████████
   State st1 = {
-    .goal = {},
+    .goals = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -592,7 +611,7 @@ TEST(game, state_push_portal) {
   // █p☐┤ ┤ █
   // ████████
   State st2 = {
-    .goal = {},
+    .goals = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -640,7 +659,7 @@ TEST(game, state_push_portal) {
   // █p☐┤├█
   // ██████
   State st3 = {
-    .goal = {},
+    .goals = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -677,7 +696,7 @@ TEST(game, dirfloor_portal) {
   // █p→┤├↓█
   // ███████
   State st1 = {
-    .goal = {},
+    .goals = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -721,7 +740,7 @@ TEST(game, dirfloor_portal) {
   // █p☐┤├↓█
   // ███████
   State st2 = {
-    .goal = {},
+    .goals = {},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -761,12 +780,12 @@ TEST(game, dirfloor_portal) {
   std::get<DirBox>(st2.objects.at({.x = 5, .y = 1}));
 }
 
-TEST(game, goal) {
+TEST(game, goals) {
   // ███████
   // █p☐┤├g█
   // ███████
   State st1 = {
-    .goal = {{.x = 5, .y = 1}},
+    .goals = {{.x = 5, .y = 1}},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -809,7 +828,7 @@ TEST(game, general_game) {
   // █g  →g█
   // ███████
   State st1 = {
-    .goal = {{.x = 1, .y = 4}, {.x = 5, .y = 4}},
+    .goals = {{.x = 1, .y = 4}, {.x = 5, .y = 4}},
     .tiles =
       {
         {{.x = 1, .y = 1}, {Floor {}}},
@@ -895,7 +914,7 @@ TEST(game, state_case_1) {
   // █████
 
   State st1 = {
-    .goal = {{.x = 1, .y = 4}, {.x = 5, .y = 4}},
+    .goals = {{.x = 1, .y = 4}, {.x = 5, .y = 4}},
     .tiles =
       {
         {{.x = 1, .y = 1},
