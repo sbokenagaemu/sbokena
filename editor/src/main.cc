@@ -63,9 +63,37 @@ Rectangle  currently_selected_outline_rec = {
 
 float     thickness = 0;
 Rectangle link_selection;
+bool      same_index = false;
 
+enum class Selected_layer { None, Object, Tile };
+Selected_layer layer = Selected_layer::None;
 enum class Edit_Mode { Place, Select, Link, Switch };
 Edit_Mode mode = Edit_Mode::Select;
+
+raylib::Color generate_color(Selected_layer state) {
+  switch (state) {
+  case Selected_layer::None:
+    return raylib::Color::Black();
+  case Selected_layer::Object:
+    return raylib::Color::Gray();
+  case Selected_layer::Tile:
+    return raylib::Color::Gold();
+  }
+}
+
+void advance_layer(Selected_layer &state) {
+  switch (state) {
+  case Selected_layer::None:
+    state = Selected_layer::Object;
+    break;
+  case Selected_layer::Object:
+    state = Selected_layer::Tile;
+    break;
+  case Selected_layer::Tile:
+    state = Selected_layer::Object;
+    break;
+  }
+}
 
 void switch_selection(Rectangle rec, bool is_tile) {
   currently_selected_outline_rec = {
@@ -152,8 +180,13 @@ int main() {
             grid_offset,
             grid_end(grid_offset, current_tile_size)
           )) {
-        selected_grid_tile_index =
+        Position<> next_selected_grid_tile_index =
           tile_index(mouse_position, grid_offset, current_tile_size);
+        if (next_selected_grid_tile_index == selected_grid_tile_index)
+          same_index = true;
+        else
+          same_index = false;
+
         if (mode == Edit_Mode::Place) {
           if (is_placing_tiles) {
             if (level_.has_tile_at(selected_grid_tile_index)) {
@@ -194,13 +227,19 @@ int main() {
           }
         } else if (mode == Edit_Mode::Select) {
           std::cout << "Tile selected" << std::endl;
-          selected_tile_position = raylib::Vector2 {
-            grid_offset.GetX()
-              + selected_grid_tile_index.x * current_tile_size,
-            grid_offset.GetY()
-              + selected_grid_tile_index.y * current_tile_size
-          };
-          is_selection_shown = true;
+          raylib::Vector2 next_selected_tile_position =
+            raylib::Vector2 {
+              grid_offset.GetX()
+                + selected_grid_tile_index.x * current_tile_size,
+              grid_offset.GetY()
+                + selected_grid_tile_index.y * current_tile_size
+            };
+
+          if (same_index)
+            advance_layer(layer);
+          selected_tile_position = next_selected_tile_position;
+          is_selection_shown     = true;
+
         } else if (mode == Edit_Mode::Link) {
           Tile *first_tile = level_.get_tile_at(link_selection_index);
           Tile *second_tile =
@@ -256,7 +295,7 @@ int main() {
         current_tile_size
       };
       DrawRectangleRec(
-        grid_selection, Fade(raylib::Color::Gray(), 0.5)
+        grid_selection, Fade(generate_color(layer), 0.5)
       );
     }
 
