@@ -40,6 +40,7 @@ i32 main() {
 
   SetWindowMinSize(SCREEN_W_DEFAULT, SCREEN_H_DEFAULT);
   SetWindowMaxSize(SCREEN_W_MAX, SCREEN_H_MAX);
+  SetExitKey(KEY_NULL);
 
   // ===== initialize raygui =====
 
