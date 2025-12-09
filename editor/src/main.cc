@@ -163,46 +163,23 @@ int main() {
           )) {
         selected_grid_tile_index =
           tile_index(mouse_position, grid_offset, current_tile_size);
-
-        if (mode == Edit_Mode::Place) {
+        switch (mode) {
+        case (Edit_Mode::Place): {
           if (is_placing_tiles) {
-            if (level_.has_tile_at(selected_grid_tile_index)) {
-              // unlinking the deleted tile
-              Tile *existing_tile =
-                level_.get_tile_at(selected_grid_tile_index);
-              if (Portal *portal =
-                    dynamic_cast<Portal *>(existing_tile)) {
-                level_.unlink_portal(portal->get_id());
-              } else if (Door *door =
-                           dynamic_cast<Door *>(existing_tile)) {
-                level_.unlink_door(door->get_id());
-              } else if (Button *button =
-                           dynamic_cast<Button *>(existing_tile)) {
-                level_.unlink_button(button->get_id());
-              }
-              std::cout << "Link severed" << std::endl;
-
-              level_.remove_tile(
-                level_.get_tile_at(selected_grid_tile_index)->get_id()
-              );
-              std::cout << "Tile deleted" << std::endl;
-            }
-
-            level_.create_tile(
-              currently_selected_tile_type, selected_grid_tile_index
+            replace_tile(
+              selected_grid_tile_index, currently_selected_tile_type
             );
             std::cout << "Tile placed" << std::endl;
 
           } else {
+            replace_object(
+              selected_grid_tile_index, currently_selected_object_type
+            );
             std::cout << "Object placed" << std::endl;
-            level_.remove_object(
-              level_.get_object_at(selected_grid_tile_index)->get_id()
-            );
-            level_.add_object(
-              currently_selected_object_type, selected_grid_tile_index
-            );
           }
-        } else if (mode == Edit_Mode::Select) {
+          break;
+        }
+        case (Edit_Mode::Select): {
           std::cout << "Tile selected" << std::endl;
           selected_tile_position = raylib::Vector2 {
             grid_offset.GetX()
@@ -212,8 +189,9 @@ int main() {
           };
 
           is_selection_shown = true;
-
-        } else if (mode == Edit_Mode::Link) {
+          break;
+        }
+        case (Edit_Mode::Link): {
           Tile *first_tile = level_.get_tile_at(link_selection_index);
           Tile *second_tile =
             level_.get_tile_at(selected_grid_tile_index);
@@ -251,7 +229,9 @@ int main() {
             }
           }
           mode = Edit_Mode::Select;
-        } else if (mode == Edit_Mode::Switch) {
+          break;
+        }
+        case (Edit_Mode::Switch): {
           mode = Edit_Mode::Select;
 
           Object *obj =
@@ -285,6 +265,8 @@ int main() {
           default:
             break;
           }
+          break;
+        }
         }
       }
     }
@@ -670,6 +652,5 @@ int main() {
 
     window.EndDrawing();
   }
-
   return 0;
 }
