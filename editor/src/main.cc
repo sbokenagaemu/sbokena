@@ -50,12 +50,10 @@ raylib::Vector2 selected_tile_position   = {0, 0};
 Position<>      selected_grid_tile_index = {0, 0};
 bool            is_selection_shown       = false;
 Position<>      link_selection_index     = {0, 0};
-bool            is_link_active           = false;
 
 bool       is_placing_tiles             = true;
 TileType   currently_selected_tile_type = TileType::Roof;
 ObjectType currently_selected_object_type;
-bool       is_currently_placing           = false;
 Rectangle  currently_selected_outline_rec = {
   tile_first_col_x,
   tile_picker_box_padding,
@@ -66,6 +64,9 @@ Rectangle  currently_selected_outline_rec = {
 float     thickness = 0;
 Rectangle link_selection;
 
+enum class Edit_Mode { Place, Select, Link, Switch };
+Edit_Mode mode = Edit_Mode::Select;
+
 void switch_selection(Rectangle rec, bool is_tile) {
   currently_selected_outline_rec = {
     rec.x - 5,
@@ -73,9 +74,9 @@ void switch_selection(Rectangle rec, bool is_tile) {
     tile_picker_box_size + 10,
     tile_picker_box_size + 10
   };
-  is_placing_tiles     = is_tile;
-  is_currently_placing = true;
-  is_selection_shown   = false;
+  is_placing_tiles   = is_tile;
+  is_selection_shown = false;
+  mode               = Edit_Mode::Place;
 }
 
 int main() {
@@ -153,16 +154,34 @@ int main() {
           )) {
         selected_grid_tile_index =
           tile_index(mouse_position, grid_offset, current_tile_size);
-
-        if (is_currently_placing) {
+        if (mode == Edit_Mode::Place) {
           if (is_placing_tiles) {
-            std::cout << "Tile placed" << std::endl;
-            level_.remove_tile(
-              level_.get_tile_at(selected_grid_tile_index)->get_id()
-            );
+            if (level_.has_tile_at(selected_grid_tile_index)) {
+              // unlinking the deleted tile
+              Tile *existing_tile =
+                level_.get_tile_at(selected_grid_tile_index);
+              if (Portal *portal =
+                    dynamic_cast<Portal *>(existing_tile)) {
+                level_.unlink_portal(portal->get_id());
+              } else if (Door *door =
+                           dynamic_cast<Door *>(existing_tile)) {
+                level_.unlink_door(door->get_id());
+              } else if (Button *button =
+                           dynamic_cast<Button *>(existing_tile)) {
+                level_.unlink_button(button->get_id());
+              }
+              std::cout << "Link severed" << std::endl;
+
+              level_.remove_tile(
+                level_.get_tile_at(selected_grid_tile_index)->get_id()
+              );
+              std::cout << "Tile deleted" << std::endl;
+            }
+
             level_.create_tile(
               currently_selected_tile_type, selected_grid_tile_index
             );
+            std::cout << "Tile placed" << std::endl;
 
           } else {
             std::cout << "Object placed" << std::endl;
@@ -173,7 +192,7 @@ int main() {
               currently_selected_object_type, selected_grid_tile_index
             );
           }
-        } else {
+        } else if (mode == Edit_Mode::Select) {
           std::cout << "Tile selected" << std::endl;
           selected_tile_position = raylib::Vector2 {
             grid_offset.GetX()
@@ -182,48 +201,44 @@ int main() {
               + selected_grid_tile_index.y * current_tile_size
           };
           is_selection_shown = true;
-          if (is_link_active) {
-            // tiles
-            Tile *first_tile =
-              level_.get_tile_at(link_selection_index);
-            Tile *second_tile =
-              level_.get_tile_at(selected_grid_tile_index);
-            if (first_tile && second_tile) {
-              // linking 2 portals together
-              if (Portal *first =
-                    dynamic_cast<Portal *>(first_tile)) {
-                if (Portal *second =
-                      dynamic_cast<Portal *>(second_tile)) {
-                  level_.link_portals(
-                    first->get_id(), second->get_id()
-                  );
-                  std::cout << "Portals linked" << std::endl;
-                }
-              }
-              // linking a button to a door
-              if (Button *first =
-                    dynamic_cast<Button *>(first_tile)) {
-                if (Door *second =
-                      dynamic_cast<Door *>(second_tile)) {
-                  level_.link_door_button(
-                    second->get_id(), first->get_id()
-                  );
-                  std::cout << "Button to Door linked" << std::endl;
-                }
-              }
-              // linking a door to a button
-              if (Door *first = dynamic_cast<Door *>(first_tile)) {
-                if (Button *second =
-                      dynamic_cast<Button *>(second_tile)) {
-                  level_.link_door_button(
-                    first->get_id(), second->get_id()
-                  );
-                  std::cout << "Door to Button linked" << std::endl;
-                }
+        } else if (mode == Edit_Mode::Link) {
+          Tile *first_tile = level_.get_tile_at(link_selection_index);
+          Tile *second_tile =
+            level_.get_tile_at(selected_grid_tile_index);
+          if (first_tile && second_tile) {
+            // linking 2 portals together
+            if (Portal *first = dynamic_cast<Portal *>(first_tile)) {
+              if (Portal *second =
+                    dynamic_cast<Portal *>(second_tile)) {
+                level_.link_portals(
+                  first->get_id(), second->get_id()
+                );
+                std::cout << "Portals linked" << std::endl;
               }
             }
-            is_link_active = false;
+
+            // linking a button to a door
+            if (Button *first = dynamic_cast<Button *>(first_tile)) {
+              if (Door *second = dynamic_cast<Door *>(second_tile)) {
+                level_.link_door_button(
+                  second->get_id(), first->get_id()
+                );
+                std::cout << "Button to Door linked" << std::endl;
+              }
+            }
+
+            // linking a door to a button
+            if (Door *first = dynamic_cast<Door *>(first_tile)) {
+              if (Button *second =
+                    dynamic_cast<Button *>(second_tile)) {
+                level_.link_door_button(
+                  first->get_id(), second->get_id()
+                );
+                std::cout << "Door to Button linked" << std::endl;
+              }
+            }
           }
+          mode = Edit_Mode::Select;
         }
       }
     }
@@ -246,7 +261,7 @@ int main() {
     }
 
     // showing the link selection
-    if (is_link_active) {
+    if (mode == Edit_Mode::Link) {
       DrawRectangleLinesEx(
         link_selection, thickness, raylib::Color::DarkPurple()
       );
@@ -412,7 +427,7 @@ int main() {
       view_control_button_height
     };
     if (GuiButton(rotate_button, "Rotate")) {
-      if (is_selection_shown && !is_currently_placing) {
+      if (is_selection_shown && (mode != Edit_Mode::Place)) {
         Tile *tile_ = level_.get_tile_at(selected_grid_tile_index);
         if (tile_) {
           if (OneDir *one_dir_ = dynamic_cast<OneDir *>(tile_))
@@ -470,7 +485,7 @@ int main() {
         current_tile_size + thickness,
         current_tile_size + thickness
       };
-      is_link_active = true;
+      mode = Edit_Mode::Link;
     };
 
     // Deselect button
@@ -482,7 +497,7 @@ int main() {
       view_control_button_height
     };
     if (GuiButton(deselect_button, "Deselect"))
-      is_currently_placing = false;
+      mode = Edit_Mode::Select;
 
     // Switch button (?)
     const Rectangle switch_button = {
@@ -492,13 +507,12 @@ int main() {
       view_control_button_width,
       view_control_button_height
     };
-    if (GuiButton(switch_button, "Switch")) {
-      // TODO
-    }
+    if (GuiButton(switch_button, "Switch"))
+      mode = Edit_Mode::Switch;
 
     // TILES
     // Selection outline
-    if (is_currently_placing) {
+    if (mode == Edit_Mode::Place) {
       DrawRectangleRec(
         currently_selected_outline_rec, raylib::Color::Beige()
       );
