@@ -1,141 +1,90 @@
-#ifndef RAYGUI_IMPLEMENTATION
-#define RAYGUI_IMPLEMENTATION
-#endif
-
-#include <print>
-#include <string>
+#include <cstdlib>
+#include <memory>
+#include <string_view>
 
 #include <nfd.h>
-#include <raygui.h>
 #include <raylib.h>
 #include <raymath.h>
 
+#include "scene.hh"
+#include "start_menu.hh"
 #include "types.hh"
 #include "utils.hh"
 
+#ifndef RAYGUI_IMPLEMENTATION
+#define RAYGUI_IMPLEMENTATION
+#endif
+#include <raygui.h>
+
+using namespace std::string_view_literals;
+
 using namespace sbokena::types;
 using namespace sbokena::utils;
+using namespace sbokena::game::scene;
 
-// initial window parameters
-constexpr usize       INIT_WIDTH  = 800;
-constexpr usize       INIT_HEIGHT = 600;
-constexpr std::string INIT_TITLE  = "sbokena";
+constexpr std::string_view TITLE = "sbokena"sv;
 
-int main() {
+constexpr u32 SCREEN_W_DEFAULT    = 800;
+constexpr u32 SCREEN_H_DEFAULT    = 600;
+constexpr u32 RAYGUI_TEXT_SIZE    = 30;
+constexpr u32 RAYGUI_TEXT_SPACING = 4;
+
+i32 main() {
+  // ===== initialize raylib =====
   SetConfigFlags(FLAG_WINDOW_RESIZABLE | FLAG_VSYNC_HINT);
-  InitWindow(INIT_WIDTH, INIT_HEIGHT, INIT_TITLE.c_str());
-  SetWindowMinSize(INIT_WIDTH, INIT_HEIGHT);
+  InitWindow(SCREEN_W_DEFAULT, SCREEN_H_DEFAULT, TITLE.data());
+  SetWindowMinSize(SCREEN_W_DEFAULT, SCREEN_H_DEFAULT);
   Deferred _ {CloseWindow};
 
-  NFD::Guard nfd;
+  // ===== initialize raygui =====
+  GuiSetStyle(DEFAULT, TEXT_SIZE, RAYGUI_TEXT_SIZE);
+  GuiSetStyle(DEFAULT, TEXT_SPACING, RAYGUI_TEXT_SPACING);
 
-  GuiSetStyle(DEFAULT, TEXT_SIZE, 30);
-  GuiSetStyle(DEFAULT, TEXT_SPACING, 4);
+  // ===== initialize nfd =====
+  NFD::Guard _nfd;
 
-  // show file open failed message
-  bool show_file_open_failed = false;
+  // ===== main loop =====
+
+  std::unique_ptr<Scene> cur {new StartMenuScene {}};
+  std::unique_ptr<Scene> next {nullptr};
 
   while (!WindowShouldClose()) {
+    // ===== draw phase =====
+
     BeginDrawing();
     Deferred _ {EndDrawing};
+    cur->draw();
 
-    const usize window_width  = GetScreenWidth();
-    const usize window_height = GetScreenHeight();
-    Vector2     window_size   = {
-      static_cast<f32>(window_width), static_cast<f32>(window_height)
-    };
+    // ===== input phase =====
 
-    // size and position of title
-    Vector2 title_size =
-      MeasureTextEx(GuiGetFont(), "sbokena", 60, 10);
-    Vector2 title_pos = {
-      window_width / 2 - title_size.x / 2,
-      static_cast<f32>(window_height / 5)
-    };
+    const auto  key   = GetKeyPressed();
+    const auto  btn   = GetGamepadButtonPressed();
+    const Input input = from_queues(key, btn);
 
-    // size and position of the view containing buttons
-    Vector2 view_size = {180, 300};
-    Vector2 view_pos =
-      (window_size - view_size) / 2 + Vector2 {0, 100};
+    // ===== update phase =====
 
-    // size of buttons
-    Vector2 btn_size = {180, 90};
-
-    // size of file open failed message box
-    Vector2 message_size = {300, 60};
-
-    Rectangle exit_btn = {
-      .x      = static_cast<f32>(window_width) - 20,
-      .y      = 0,
-      .width  = 20,
-      .height = 20,
-    };
-    Rectangle start_btn = {
-      .x      = view_pos.x,
-      .y      = view_pos.y,
-      .width  = btn_size.x,
-      .height = btn_size.y,
-    };
-    Rectangle custom_btn = {
-      .x      = view_pos.x,
-      .y      = view_pos.y + btn_size.y + 10,
-      .width  = btn_size.x,
-      .height = btn_size.y,
-    };
-    Rectangle setting_btn = {
-      .x      = view_pos.x,
-      .y      = view_pos.y + 2 * btn_size.y + 20,
-      .width  = btn_size.x,
-      .height = btn_size.y,
-    };
-    Rectangle message_box = {
-      .x      = (window_width - message_size.x) / 2,
-      .y      = window_height - message_size.y,
-      .width  = message_size.x,
-      .height = message_size.y,
-    };
-
-    ClearBackground(VIOLET);
-
-    // title
-    DrawTextEx(GuiGetFont(), "sbokena", title_pos, 60, 10, BLUE);
-
-    // start button
-    GuiButton(start_btn, "play");
-
-    // custom button
-    // if pressed, file dialog open
-    // if no file is chosen, display a message for 3.5s
-    f64 start_message;
-    if (GuiButton(custom_btn, "custom")) {
-      const auto path = open_file_dialog().value_or("");
-      if (path.empty()) {
-        show_file_open_failed = true;
-        // record time of first message display
-        start_message = GetTime();
-      } else {
-        std::println("{}", path.c_str());
-      }
-    }
-
-    // display file open failed message
-    if (show_file_open_failed) {
-      GuiDrawText(
-        "Fail to load file", message_box, TEXT_ALIGN_CENTER, RED
-      );
-      if (GetTime() - start_message >= 3.5)
-        show_file_open_failed = false;
-    }
-
-    // setting button
-    GuiButton(setting_btn, "settings");
-
-    // exit button
-    bool state =
-      GuiButton(exit_btn, GuiIconText(ICON_CROSS_SMALL, NULL));
-    if (state)
+    UpdateResult res = cur->update(input);
+    switch (res.index()) {
+    // scene doesn't want to transition
+    case index_of<UpdateResult, UpdateOk>():
       break;
-  }
 
-  return 0;
+    // scene wants to transition, do so after drawing
+    // store the next scene into a temporary pointer
+    case index_of<UpdateResult, UpdateTransition>(): {
+      UpdateTransition &trans = std::get<UpdateTransition>(res);
+      next.swap(trans.next);
+      break;
+    }
+
+    // scene wants to close the game, just return from main
+    case index_of<UpdateResult, UpdateClose>():
+      return EXIT_SUCCESS;
+    }
+
+    // ===== transition phase =====
+
+    if (next)
+      cur = std::move(next);
+  }
 }
