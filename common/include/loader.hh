@@ -483,8 +483,61 @@ public:
   Level &operator=(Level &&)      = default;
   ~Level()                        = default;
 
+  template <typename T>
+    requires Resource<T> && Sprite<T>
+  Level(const Level<T> &);
+
+  // commit a Level<Image> to a Level<Texture>
+  template <>
+  Level<Texture>(const Level<Image> &level)
+    : name_ {level.name_},
+      theme_ {level.theme_},
+      diff_ {level.diff_},
+      tiles_ {level.tiles_},
+      objects_ {level.objects_},
+      doors_ {level.doors_},
+      portals_ {level.portals_},
+      player_ {level.player_} {}
+
+  // name of the level.
   std::string_view name() const noexcept {
     return name_;
+  }
+
+  // name of the theme.
+  const Theme<S> &theme() const noexcept {
+    return theme_;
+  }
+
+  // difficulty of the level.
+  level::Difficulty diff() const noexcept {
+    return diff_;
+  }
+
+  // map from position to tile.
+  const std::map<Position<>, level::Tile> &tiles() const noexcept {
+    return tiles_;
+  }
+
+  // map from position to tile.
+  const std::map<Position<>, level::Object> &
+  objects() const noexcept {
+    return objects_;
+  };
+
+  // map from id to set of a door and buttons.
+  const std::unordered_map<u32, DoorSet> &doors() const noexcept {
+    return doors_;
+  }
+
+  // map from id to set of portals.
+  const std::unordered_map<u32, PortalSet> &portals() const noexcept {
+    return portals_;
+  }
+
+  // position of player.
+  Position<> player() const noexcept {
+    return player_;
   }
 
 private:
@@ -499,6 +552,10 @@ private:
   std::unordered_map<u32, PortalSet> portals_;
 
   Position<> player_;
+
+  template <typename T>
+    requires Resource<T> && Sprite<T>
+  friend class Level;
 };
 
 }; // namespace sbokena::loader
