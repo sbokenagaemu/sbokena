@@ -68,23 +68,18 @@ constexpr size_t index_of() {
     return index_of<V, T, I + 1>();
 }
 
-// "exception" concept
-template <typename T>
-concept Exception = std::constructible_from<T, const char *>;
-
-// clang-format off
-
-// assert a predicate, or throw an exception.
-template <Exception E = std::logic_error>
-constexpr void assert_throw(
-  bool pred,
-  const E &ex = E {"assertion failed"}
-) {
+// assert a predicate, or throw a value.
+template <typename Throwable>
+constexpr void assert_throw(bool pred, const Throwable &ex) {
   if (!pred)
     throw ex;
 }
 
-// clang-format on
+// assert a predicate, or throw a `std::logic_error`.
+constexpr void assert_throw(bool pred) {
+  if (!pred)
+    throw std::logic_error {"assertion failed"};
+}
 
 // ===== file UI =====
 
