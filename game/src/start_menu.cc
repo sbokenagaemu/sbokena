@@ -1,5 +1,6 @@
 #include "start_menu.hh"
 
+#include <algorithm>
 #include <exception>
 #include <fstream>
 #include <print>
@@ -62,8 +63,8 @@ UpdateResult StartMenuScene::update(Input) {
 
   // size of 1 button in view
   const Vector2 view_btn_size {
-    .x = 180,
-    .y = 100,
+    .x = std::min(300.0f, static_cast<f32>(screen_w) / 6),
+    .y = std::min(160.0f, static_cast<f32>(screen_h) / 8),
   };
 
   const Vector2 view_center {
