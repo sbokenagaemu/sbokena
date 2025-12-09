@@ -2,10 +2,7 @@
 
 #pragma once
 
-#include <map>
-#include <unordered_map>
 #include <utility>
-#include <vector>
 
 #include "direction.hh"
 #include "level.hh"
@@ -30,14 +27,6 @@ enum struct StepResult {
   PushYourself
 };
 
-// pair of position of door and its corresponding buttons' position
-using DoorSet    = std::pair<Position<>, std::vector<Position<>>>;
-using PortalPair = std::pair<Position<>, Position<>>;
-using Objects    = std::map<Position<>, Object>;
-using Tiles      = std::map<Position<>, Tile>;
-using Portals    = std::unordered_map<u32, PortalPair>;
-using Doors      = std::unordered_map<u32, DoorSet>;
-using Goals      = std::vector<Position<>>;
 
 // the state machine.
 struct State {
