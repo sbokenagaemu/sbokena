@@ -1,7 +1,7 @@
 {
   "diff": "Unknown",
   "name": "test level",
-  "theme": "Woodland",
+  "theme": "dev",
   "objects": [
     [
       {
@@ -27,7 +27,7 @@
         "y": 2
       },
       {
-        "dir": 1,
+        "dir": "Down",
         "type": 2
       }
     ]
@@ -68,7 +68,7 @@
       },
       {
         "portal_id": 1,
-        "in_dir": 3,
+        "in_dir": "Right",
         "type": 3
       }
     ],
@@ -161,7 +161,7 @@
       },
       {
         "portal_id": 1,
-        "in_dir": 0,
+        "in_dir": "Up",
         "type": 3
       }
     ],
@@ -207,7 +207,7 @@
         "y": 4
       },
       {
-        "dir": 3,
+        "dir": "Right",
         "type": 4
       }
     ],
