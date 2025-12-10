@@ -67,9 +67,8 @@
 
         When a _Player_ successfully moves an _Object_, the order of events is:
         1. Run the enter event for _Object_ on $T''$.
-        2. Run the exit event for _Object_ on $T'$.
-        3. Run the enter event for _Player_ on $T'$.
-        4. RUn the exit event for _Player_ on $T$.
+        2. Run the enter event for _Player_ on $T'$.
+        3. Run the exit event for _Player_ on $T$.
 
         Should the _Player_ fails to move for multiple reasons, the failure
     order shall be as follows:

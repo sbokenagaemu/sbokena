@@ -171,8 +171,10 @@ RawState::move_object(Direction dir, Position<> from, Position<> to) {
     break;
   case index_of<Tile, Door>(): {
     const Door &door = std::get<Door>(to_tile);
-    if (!is_door_open(door.door_id))
-      return {StepResult::SlamOnDoor};
+    // if door is not opened and there's no object under door to be
+    // pushed, slam on door.
+    if (!is_door_open(door.door_id) && !to_object_)
+      return StepResult::SlamOnDoor;
     update_position(from, to);
     break;
   }

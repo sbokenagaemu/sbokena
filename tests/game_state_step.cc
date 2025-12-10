@@ -303,6 +303,65 @@ TEST(game, state_door_button_box) {
   std::get<Box>(st1.objects.at({.x = 5, .y = 1}));
 }
 
+TEST(game, state_door_btn_player) {
+  // █████████
+  // █ ☐p☐d  █
+  // █████████
+  RawState st = {
+    .goals = {},
+    .tiles =
+      {
+        {{.x = 1, .y = 1}, {Floor {}}},
+        {{.x = 2, .y = 1}, {Button {.door_id = 1}}},
+        {{.x = 3, .y = 1}, {Floor {}}},
+        {{.x = 4, .y = 1}, {Floor {}}},
+        {{.x = 5, .y = 1}, {Door {.door_id = 1}}},
+        {{.x = 6, .y = 1}, {Floor {}}},
+        {{.x = 7, .y = 1}, {Floor {}}},
+      },
+    .objects =
+      {
+        {{.x = 3, .y = 1}, {Player {}}},
+        {{.x = 2, .y = 1}, {Box {}}},
+        {{.x = 4, .y = 1}, {Box {}}},
+
+      },
+    .doors   = {{1, {{5, 1}, {{2, 1}}}}},
+    .portals = {},
+  };
+
+  // █████████
+  // █ ☐ p☐  █
+  // █████████
+  // push box on under opened door
+  ASSERT_EQ(st.step(Direction::Right), StepResult::Ok);
+  std::get<Player>(st.objects.at({.x = 4, .y = 1}));
+  std::get<Box>(st.objects.at({.x = 5, .y = 1}));
+  std::get<Box>(st.objects.at({.x = 2, .y = 1}));
+
+  // █████████
+  // █☐p  ☐  █
+  // █████████
+  // push box off button
+  ASSERT_EQ(st.step(Direction::Left), StepResult::Ok);
+  ASSERT_EQ(st.step(Direction::Left), StepResult::Ok);
+  std::get<Player>(st.objects.at({.x = 2, .y = 1}));
+  std::get<Box>(st.objects.at({.x = 5, .y = 1}));
+  std::get<Box>(st.objects.at({.x = 1, .y = 1}));
+
+  // █████████
+  // █☐b  p☐ █
+  // █████████
+  // push box off open door, stand under closed door
+  ASSERT_EQ(st.step(Direction::Right), StepResult::Ok);
+  ASSERT_EQ(st.step(Direction::Right), StepResult::Ok);
+  ASSERT_EQ(st.step(Direction::Right), StepResult::Ok);
+  std::get<Player>(st.objects.at({.x = 5, .y = 1}));
+  std::get<Box>(st.objects.at({.x = 6, .y = 1}));
+  std::get<Box>(st.objects.at({.x = 1, .y = 1}));
+  ASSERT_FALSE(st.objects.contains({.x = 4, .y = 1}));
+}
+
 TEST(game, state_walk_portal) {
   // ███████
   // █p┤ ├ █
