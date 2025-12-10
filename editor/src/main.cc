@@ -51,7 +51,6 @@ raylib::Vector2 mouse_start_position;
 raylib::Vector2 grid_offset              = {0, 0};
 raylib::Vector2 selected_tile_position   = {0, 0};
 Position<>      selected_grid_tile_index = {0, 0};
-bool            is_selection_shown       = false;
 Position<>      link_selection_index     = {0, 0};
 
 bool       is_placing_tiles             = true;
@@ -66,6 +65,26 @@ Rectangle  currently_selected_outline_rec = {
 
 float     thickness = 0;
 Rectangle link_selection;
+
+bool select_same = false;
+enum class Selecting { None, Tile, Object };
+Selecting layer = Selecting::None;
+
+void select_advance() {
+  switch (layer) {
+  case Selecting::None: {
+    layer = Selecting::Tile;
+    break;
+  }
+  case Selecting::Tile: {
+    layer = Selecting::Object;
+    break;
+  }
+  case Selecting::Object: {
+    layer = Selecting::Tile;
+  }
+  }
+}
 
 enum class Edit_Mode { Place, Select, Link, Switch };
 Edit_Mode mode = Edit_Mode::Select;
@@ -121,9 +140,9 @@ void switch_selection(Rectangle rec, bool is_tile) {
     tile_picker_box_size + 10,
     tile_picker_box_size + 10
   };
-  is_placing_tiles   = is_tile;
-  is_selection_shown = false;
-  mode               = Edit_Mode::Place;
+  is_placing_tiles = is_tile;
+  mode             = Edit_Mode::Place;
+  layer            = Selecting::None;
 }
 
 int main() {
@@ -167,23 +186,6 @@ int main() {
     if (current_window_height < min_height)
       current_window_height = min_height;
 
-    // GRID
-    for (u32 y = 0; y < 31; y++) {
-      for (u32 x = 0; x < 31; x++) {
-        const Rectangle tile = {
-          grid_offset.GetX() + current_tile_size * x,
-          grid_offset.GetY() + current_tile_size * y,
-          current_tile_size,
-          current_tile_size
-        };
-        if ((x + y) % 2)
-          color_ = raylib::Color::Black();
-        else
-          color_ = raylib::Color::White();
-        DrawRectangleRec(tile, color_);
-      }
-    }
-
     // tile selection
     if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
       // checks whether:
@@ -199,8 +201,11 @@ int main() {
             grid_offset,
             grid_end(grid_offset, current_tile_size)
           )) {
-        selected_grid_tile_index =
+        Position<> next_selected_grid_tile_index =
           tile_index(mouse_position, grid_offset, current_tile_size);
+        select_same =
+          (next_selected_grid_tile_index == selected_grid_tile_index);
+        selected_grid_tile_index = next_selected_grid_tile_index;
         switch (mode) {
         case (Edit_Mode::Place): {
           if (is_placing_tiles) {
@@ -226,7 +231,10 @@ int main() {
               + selected_grid_tile_index.y * current_tile_size
           };
 
-          is_selection_shown = true;
+          if (select_same)
+            select_advance();
+          else
+            layer = Selecting::Tile;
           break;
         }
         case (Edit_Mode::Link): {
@@ -270,31 +278,67 @@ int main() {
           break;
         }
         case (Edit_Mode::Switch): {
-          // these will be later be more precise
-          switch_tile(level_, selected_grid_tile_index);
-          switch_object(level_, selected_grid_tile_index);
           mode = Edit_Mode::Select;
+          switch (layer) {
+          case Selecting::Tile: {
+            switch_tile(level_, selected_grid_tile_index);
+            break;
+          }
+          case Selecting::Object: {
+            switch_object(level_, selected_grid_tile_index);
+            break;
+          }
+          default:
+            break;
+          }
         }
         }
       }
     }
 
-    // deselecting the tile
-    if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
-      is_selection_shown = false;
+    // GRID of Tiles
+    for (u32 y = 0; y < 31; y++) {
+      for (u32 x = 0; x < 31; x++) {
+        const Rectangle tile = {
+          grid_offset.GetX() + current_tile_size * x,
+          grid_offset.GetY() + current_tile_size * y,
+          current_tile_size,
+          current_tile_size
+        };
+        if ((x + y) % 2)
+          color_ = raylib::Color::Black();
+        else
+          color_ = raylib::Color::White();
+        DrawRectangleRec(tile, color_);
+      }
+    }
 
-    // showing the grid tile selection
-    if (is_selection_shown) {
-      const Rectangle grid_selection = {
-        selected_tile_position.GetX(),
-        selected_tile_position.GetY(),
-        current_tile_size,
-        current_tile_size
-      };
+    // selection
+    const Rectangle grid_selection = {
+      selected_tile_position.GetX(),
+      selected_tile_position.GetY(),
+      current_tile_size,
+      current_tile_size
+    };
+    // Selecting::Tile
+    if (layer == Selecting::Tile) {
       DrawRectangleRec(
         grid_selection, Fade(raylib::Color::Gray(), 0.5)
       );
     }
+
+    // GRID of Objects
+
+    // Selecting::Object
+    if (layer == Selecting::Object) {
+      DrawRectangleRec(
+        grid_selection, Fade(raylib::Color::Gray(), 0.5)
+      );
+    }
+
+    // deselecting the tile
+    if (IsMouseButtonPressed(MOUSE_BUTTON_RIGHT))
+      layer = Selecting::None;
 
     // showing the link selection
     if (mode == Edit_Mode::Link) {
@@ -463,22 +507,32 @@ int main() {
       view_control_button_height
     };
     if (GuiButton(rotate_button, "Rotate")) {
-      if (is_selection_shown && (mode != Edit_Mode::Place)) {
-        Tile *tile_ = level_.get_tile_at(selected_grid_tile_index);
-        if (tile_) {
-          if (OneDir *one_dir_ = dynamic_cast<OneDir *>(tile_))
-            one_dir_->rotate();
-          else if (Portal *portal_ = dynamic_cast<Portal *>(tile_))
-            portal_->rotate();
+      if (mode == Edit_Mode::Select) {
+        switch (layer) {
+        case Selecting::Tile: {
+          Tile *tile_ = level_.get_tile_at(selected_grid_tile_index);
+          if (tile_) {
+            if (OneDir *one_dir_ = dynamic_cast<OneDir *>(tile_))
+              one_dir_->rotate();
+            else if (Portal *portal_ = dynamic_cast<Portal *>(tile_))
+              portal_->rotate();
+          }
+          break;
         }
-        Object *object_ =
-          level_.get_object_at(selected_grid_tile_index);
-        if (object_) {
-          if (OneDirBox *one_dir_box_ =
-                dynamic_cast<OneDirBox *>(object_))
-            one_dir_box_->rotate();
+        case Selecting::Object: {
+          Object *object_ =
+            level_.get_object_at(selected_grid_tile_index);
+          if (object_) {
+            if (OneDirBox *one_dir_box_ =
+                  dynamic_cast<OneDirBox *>(object_))
+              one_dir_box_->rotate();
+          }
+          std::cout << "rotating" << std::endl;
+          break;
         }
-        std::cout << "rotating" << std::endl;
+        default:
+          break;
+        }
       }
     }
 
@@ -660,5 +714,6 @@ int main() {
 
     window.EndDrawing();
   }
+
   return 0;
 }
