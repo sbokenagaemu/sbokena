@@ -17,8 +17,9 @@ using sbokena::types::u32;
 
 namespace sbokena::editor::tile {
 
-// invalid or empty id, as id indexing starts from 0x01.
-static constexpr u32 null_id = 0x00;
+// Invalid or empty id, as id indexing starts from 0x01. Also used to
+// denote a function failing to work if asked to return an u32 id.
+static constexpr u32 NULL_ID = 0x00;
 
 // An enum containing types of tiles.
 enum class TileType {
@@ -36,11 +37,11 @@ enum class TileType {
 class Tile {
 public:
   // construct a new tile, contains no object by default.
-  // obj_id = null_id -> no id linked (id indexing starts at 0x01).
+  // obj_id = NULL_ID -> no id linked (id indexing starts at 0x01).
   explicit Tile(TileType type, u32 id)
     : type(type),
       id(id),
-      obj_id(null_id) {}
+      obj_id(NULL_ID) {}
 
   // default destructor.
   virtual ~Tile() = default;
@@ -57,7 +58,7 @@ public:
 
   // if there is an object on the tile.
   virtual bool contains_obj() const {
-    return (obj_id != null_id);
+    return (obj_id != NULL_ID);
   }
 
   // tile's object id.
@@ -72,7 +73,7 @@ public:
 
   // object goes off tile.
   virtual void remove_obj_id() {
-    obj_id = null_id;
+    obj_id = NULL_ID;
   }
 
 private:
@@ -96,7 +97,7 @@ public:
 
   // no object, no id.
   u32 get_obj_id() const override {
-    return null_id;
+    return NULL_ID;
   }
 
   // object cannot be on roof.
@@ -197,7 +198,7 @@ public:
   // is up.
   Portal(u32 id)
     : Tile(TileType::Portal, id),
-      portal_id(null_id),
+      portal_id(NULL_ID),
       dir_in(Direction::Up) {}
 
   // links the portal to another portal.
@@ -207,12 +208,12 @@ public:
 
   // unlinks the portal.
   void unlink() {
-    portal_id = null_id;
+    portal_id = NULL_ID;
   }
 
   // whether the portal is linked or not.
   bool is_linked() const {
-    return (portal_id != null_id);
+    return (portal_id != NULL_ID);
   }
 
   // the linked portal id.
@@ -357,7 +358,7 @@ private:
 class Button : public Tile {
 public:
   // constructs a new button, by default isn't linked to another door.
-  Button(u32 id) : Tile(TileType::Button, id), door_id(null_id) {}
+  Button(u32 id) : Tile(TileType::Button, id), door_id(NULL_ID) {}
 
   // links the button to a door.
   void link(u32 linked_id) {
@@ -366,12 +367,12 @@ public:
 
   // unlinks the button.
   void unlink() {
-    door_id = null_id;
+    door_id = NULL_ID;
   }
 
   // whether the button is linked or not.
   bool is_linked() const {
-    return (door_id != null_id);
+    return (door_id != NULL_ID);
   }
 
   // the linked door id.

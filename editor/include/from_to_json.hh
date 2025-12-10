@@ -7,16 +7,19 @@
 #include <nlohmann/json.hpp>
 
 #include "editor_level.hh"
+#include "loader.hh"
 #include "object.hh"
 #include "tile.hh"
 // TODO: include common/loaded_level.hh
 
 using nlohmann::json;
 using namespace sbokena::editor::level;
+using namespace sbokena::loader;
 
 // TODO: using namespace loaded_level
 
 namespace Editor = sbokena::editor;
+namespace Loaded = sbokena::loader;
 
 namespace sbokena::editor::from_to_json {
 

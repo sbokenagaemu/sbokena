@@ -3,6 +3,8 @@
 #include <memory>
 #include <unordered_map>
 
+#include "object.hh"
+#include "position.hh"
 #include "tile.hh"
 
 using namespace sbokena::position;
@@ -23,8 +25,8 @@ void Level::reset() {
   door_to_buttons.clear();
   button_to_door.clear();
   // resets the max id counters.
-  tiles.max_id   = null_id;
-  objects.max_id = null_id;
+  tiles.max_id   = NULL_ID;
+  objects.max_id = NULL_ID;
   // resets the condition.
   condition = Condition();
 }
@@ -39,7 +41,7 @@ u32 Level::create_tile(TileType type, const Position<> &pos) {
   // tile.
   auto it = pos_tiles.find(pos);
   if (it != pos_tiles.end())
-    return null_id;
+    return NULL_ID;
   // creates a new tile at the position.
   id = this->generate_tile_id();
   std::unique_ptr<Tile> tile;
@@ -70,6 +72,16 @@ u32 Level::create_tile(TileType type, const Position<> &pos) {
   pos_tiles[pos] = id;
   tiles.map[id]  = std::move(tile);
   return id;
+}
+
+// replace an old tile with a new one at a particular position.
+// however, a new id would be used for the new tile.
+u32 Level::replace_tile_at(const Position<> &pos, TileType type) {
+  // if removing the old tile fails, this function also fails.
+  if (remove_tile_at(pos) == false)
+    return NULL_ID;
+  // else remove and add a new tile normally.
+  return create_tile(type, pos);
 }
 
 // removes a tile that doesn't have an object on.
@@ -202,15 +214,15 @@ void Level::update_door_state(u32 id) {
 u32 Level::add_object(ObjectType type, const Position<> &pos) {
   // if the position contains no tile then can't add object.
   if (!has_tile_at(pos))
-    return null_id;
+    return NULL_ID;
   Tile *tile = get_tile_at(pos);
   // if the tile is a roof then can't add object.
   if (tile->get_type() == TileType::Roof)
-    return null_id;
+    return NULL_ID;
   // if the tile already contains an object then can't add
   // object.
   if (tile->contains_obj())
-    return null_id;
+    return NULL_ID;
   // else adds an object.
   u32                     id = this->generate_object_id();
   std::unique_ptr<Object> object;
@@ -240,6 +252,23 @@ u32 Level::add_object(ObjectType type, const Position<> &pos) {
   }
 
   return id;
+}
+
+// replace an old object with a new one at a particular position.
+// however, a new id would be used for the new object.
+u32 Level::replace_object_at(const Position<> &pos, ObjectType type) {
+  // if removing the old object fails, this function also fails.
+  Object *object = get_object_at(pos);
+  if (!object)
+    return NULL_ID;
+  u32 object_id = object->get_id();
+  if (object_id == NULL_ID)
+    return NULL_ID;
+  if (remove_object(object_id) == false)
+    return NULL_ID;
+  // else remove and add object normally.
+  // can still fail if the position is invalid.
+  return (add_object(type, pos));
 }
 
 // removes an object.
