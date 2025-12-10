@@ -15,6 +15,7 @@ cmake *args:
     -B build \
     -S . \
     -Wno-dev \
+    $cmakeFlags \
     {{args}}
 
 clean:
