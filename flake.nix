@@ -29,6 +29,9 @@
           pkgs.callPackage
           ./nix/sbokena.nix
           {};
+        sbokena-dev = (sbokena
+          .override {buildRelease = false;})
+          .overrideAttrs {doCheck = true;};
       in {
         # pre-commit hooks
         pre-commit = {
@@ -45,10 +48,14 @@
         devShells.default =
           pkgs.mkShell.override
           {stdenv = pkgs.clangStdenv;} {
-            inherit (sbokena) cmakeFlags env;
+            inherit
+              (sbokena-dev)
+              cmakeFlags
+              env
+              ;
 
             inputsFrom = [
-              sbokena
+              sbokena-dev
               config.pre-commit.devShell
             ];
 
@@ -78,12 +85,8 @@
             .override {enableWayland = false;};
         };
 
-        # miscellaneous checks, run with `nix flake check`
-        checks = {
-          sbokena = (sbokena
-            .override {buildRelease = false;})
-            .overrideAttrs {doCheck = true;};
-        };
+        # tests, run with `nix flake check`
+        checks.sbokena = sbokena-dev;
       };
     };
 }
