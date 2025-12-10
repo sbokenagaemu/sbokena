@@ -2,13 +2,17 @@
 
 #include <algorithm>
 #include <format>
+#include <memory>
 #include <string_view>
+#include <variant>
 
 #include <raygui.h>
 #include <raylib.h>
 #include <raymath.h>
 
 #include "direction.hh"
+#include "level.hh"
+#include "level_complete.hh"
 #include "loader.hh"
 #include "position.hh"
 #include "scene.hh"
@@ -27,7 +31,7 @@ namespace sbokena::game::scene {
 
 GameplayScene::GameplayScene(const Level<Texture> &level)
   : state {level},
-    theme {level.theme()},
+    level {level},
     min {POS_MAX<>},
     max {POS_MIN<>} {
   for (const auto &[pos, _] : state.inner().tiles) {
@@ -61,8 +65,11 @@ UpdateResult GameplayScene::update(Input in) {
       ++moves;
       break;
     case StepResult::LevelComplete:
-      // TODO: transition to level completion scene
-      return UpdateOk {};
+      return UpdateTransition {
+        .next = std::unique_ptr<Scene> {
+          new LevelCompleteScene {level, moves}
+        },
+      };
 
     // TODO: play animations
     case StepResult::HitWall:
@@ -137,8 +144,8 @@ void GameplayScene::draw_viewport() const {
     .x = static_cast<f32>(width),
     .y = static_cast<f32>(height),
   };
-  const Vector2 cell_size    = viewport_size / level_size;
-  const f32     sprite_scale = cell_size.x / theme.tile_size();
+  const Vector2 cell_size = viewport_size / level_size;
+  const f32 sprite_scale  = cell_size.x / level.theme().tile_size();
 
   using Index = decltype(Position<>::x);
   for (Index y = 0; y < height; ++y)
