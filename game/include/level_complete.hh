@@ -16,6 +16,7 @@ public:
   LevelCompleteScene &operator=(LevelCompleteScene &&)      = delete;
   ~LevelCompleteScene()                                     = default;
 
+  // create a `LevelCompleteScene` from `GameplayScene`
   LevelCompleteScene(const Level<Texture> &, u64 moves);
 
   void         draw() const override;
