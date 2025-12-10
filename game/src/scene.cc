@@ -26,12 +26,16 @@ Input from_queues(
   default:
     switch (key) {
     case KEY_W:
+    case KEY_UP:
       return Input::INPUT_UP;
     case KEY_S:
+    case KEY_DOWN:
       return Input::INPUT_DOWN;
     case KEY_A:
+    case KEY_LEFT:
       return Input::INPUT_LEFT;
     case KEY_D:
+    case KEY_RIGHT:
       return Input::INPUT_RIGHT;
     case KEY_ESCAPE:
       return Input::INPUT_MENU;
