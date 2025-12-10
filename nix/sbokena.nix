@@ -148,6 +148,11 @@ in
     src = ../.;
     strictDeps = true;
 
+    outputs = [
+      "out"
+      "res"
+    ];
+
     inherit
       nativeBuildInputs
       nativeCheckInputs
@@ -198,11 +203,18 @@ in
 
     installPhase = ''
       runHook preInstall
+
       install -Dm755 \
         build/editor/editor \
         build/game/game \
         -t $out/bin
-      cp -r themes $out
+
+      mkdir $res
+      cp -r \
+        themes \
+        levels \
+        $res
+
       runHook postInstall
     '';
 
