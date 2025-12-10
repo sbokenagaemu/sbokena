@@ -1,12 +1,13 @@
-#include "level_complete.hh"
+#include "pause.hh"
 
 #include <memory>
 #include <string>
 
-#include <nlohmann/json.hpp>
 #include <raygui.h>
 #include <raylib.h>
+#include <raymath.h>
 
+#include "gameplay.hh"
 #include "level.hh"
 #include "scene.hh"
 #include "start_menu.hh"
@@ -17,14 +18,17 @@ using sbokena::level::Difficulty;
 
 namespace sbokena::game::scene {
 
-LevelCompleteScene::LevelCompleteScene(
-  const Level<Texture> &level, u64 moves
+PauseScene::PauseScene(
+  const Level<Texture> &level,
+  u64                   moves,
+  const GameplayScene  &game_scene
 )
   : level {level},
-    moves {moves} {}
+    moves {moves},
+    gameplay_scene(game_scene) {}
 
-void LevelCompleteScene::draw() const {
-  ClearBackground(VIOLET);
+void PauseScene::draw() const {
+  ClearBackground(DARKPURPLE);
 
   const usize screen_w = GetScreenWidth();
   const usize screen_h = GetScreenHeight();
@@ -32,14 +36,13 @@ void LevelCompleteScene::draw() const {
 
   // ===== draw title =====
 
-  const std::string_view title           = "level completed!";
+  const std::string_view title           = "paused";
   const f32              title_font_size = 60;
   const f32              title_spacing   = 10;
-  const auto [title_width, _] =
-    MeasureTextEx(font, title.data(), title_font_size, title_spacing);
+  const f32 title_width = MeasureText(title.data(), title_font_size);
   const Vector2 title_pos {
     .x = screen_w / 2 - title_width / 2,
-    .y = static_cast<f32>(screen_h / 5),
+    .y = static_cast<f32>(screen_h / 4)
   };
 
   DrawTextEx(
@@ -48,7 +51,7 @@ void LevelCompleteScene::draw() const {
     title_pos,
     title_font_size,
     title_spacing,
-    YELLOW
+    WHITE
   );
 
   // ===== draw stats =====
@@ -57,7 +60,6 @@ void LevelCompleteScene::draw() const {
     std::format("level: {}", level.name());
   const std::string theme =
     std::format("theme: {}", level.theme().name());
-
   const std::string diff       = ([&]() {
     switch (level.diff()) {
     case Difficulty::Unknown:
@@ -73,9 +75,8 @@ void LevelCompleteScene::draw() const {
   const std::string difficulty = std::format("difficulty: {}", diff);
   const std::string moves_count =
     std::format("moves count: {}", std::to_string(moves));
-  const f32 info_font_size    = 24;
-  const f32 info_spacing      = 5;
-  const f32 info_line_spacing = 10;
+  const f32 info_font_size = 24;
+  const f32 info_spacing   = 5;
 
   // stats text size
   const Vector2 level_name_size = MeasureTextEx(
@@ -93,7 +94,7 @@ void LevelCompleteScene::draw() const {
   // stats position
   const f32 view_y =
     static_cast<f32>(screen_h) / 2 - 2 * level_name_size.y;
-  const f32 view_y_spacing = level_name_size.y + info_line_spacing;
+  const f32 view_y_spacing = level_name_size.y + 10;
 
   const Vector2 level_name_pos {
     .x = screen_w / 2 - level_name_size.x / 2,
@@ -144,28 +145,48 @@ void LevelCompleteScene::draw() const {
   );
 }
 
-UpdateResult LevelCompleteScene::update(Input) {
+UpdateResult PauseScene::update(Input) {
   const usize screen_w = GetScreenWidth();
   const usize screen_h = GetScreenHeight();
 
-  // size of 1 button in view
+  // size of 1 button
   const Vector2 btn_size {
     .x = std::min(450.0f, static_cast<f32>(screen_w) / 4),
     .y = std::min(200.0f, static_cast<f32>(screen_h) / 6),
   };
 
-  const Rectangle back_bounds = {
-    .x      = screen_w / 2 - btn_size.x / 2,
-    .y      = static_cast<f32>(screen_h) * 3 / 4,
+  const Vector2 view_size = btn_size * Vector2 {.x = 3, .y = 1};
+  const Vector2 view_pos  = {
+    screen_w / 2 - view_size.x / 2, static_cast<f32>(screen_h) * 3 / 4
+  };
+
+  // ===== draw buttons =====
+  const Rectangle resume_bounds = {
+    .x      = view_pos.x,
+    .y      = view_pos.y,
+    .width  = btn_size.x,
+    .height = btn_size.y
+  };
+  const Rectangle quit_bounds = {
+    .x      = view_pos.x + 2 * btn_size.x,
+    .y      = view_pos.y,
     .width  = btn_size.x,
     .height = btn_size.y
   };
 
-  const bool back = GuiButton(back_bounds, "home");
+  const bool resume = GuiButton(resume_bounds, "resume");
+  const bool quit   = GuiButton(quit_bounds, "quit");
 
-  if (back)
+  // ===== handle buttons =====
+  if (quit)
     return UpdateTransition {
       .next = std::unique_ptr<Scene> {new StartMenuScene},
+    };
+
+  if (resume)
+    return UpdateTransition {
+      .next =
+        std::unique_ptr<Scene> {new GameplayScene {gameplay_scene}},
     };
 
   return UpdateOk {};
