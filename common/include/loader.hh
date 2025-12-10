@@ -246,6 +246,7 @@ public:
       if (loaded < __SPRITES)
         goto backtrack;
 
+      tile_size_ = width;
       break;
 
     backtrack:
@@ -299,9 +300,15 @@ public:
     };
   }
 
+  // the size of the tile sprites in this theme.
+  u32 tile_size() const noexcept {
+    return tile_size_;
+  }
+
 private:
   std::shared_ptr<std::string> name_;
   std::shared_ptr<Sprites>     sprites_;
+  u32                          tile_size_;
 
   template <typename T>
     requires Resource<T> && Sprite<T>
