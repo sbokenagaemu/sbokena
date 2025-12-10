@@ -1,15 +1,21 @@
 #include "editor_level.hh"
 
+#include <filesystem>
 #include <memory>
+#include <string_view>
 #include <unordered_map>
 
+#include <raylib.h>
+
+#include "loader.hh"
 #include "object.hh"
-#include "position.hh"
 #include "tile.hh"
 
 using namespace sbokena::position;
 using namespace sbokena::editor::tile;
 using namespace sbokena::editor::object;
+
+namespace fs = std::filesystem;
 
 namespace sbokena::editor::level {
 
@@ -29,6 +35,42 @@ void Level::reset() {
   objects.max_id = NULL_ID;
   // resets the condition.
   condition = Condition();
+}
+
+// ===== themes =====
+
+namespace {
+// internal helper; tries loading assets using given theme name.
+bool try_load(
+  std::string_view name, std::unique_ptr<Theme<Texture>> &output
+) {
+  output.reset();
+  try {
+    sbokena::loader::Theme<Image> temp(name, fs::current_path());
+    output = std::make_unique<Theme<Texture>>(temp);
+    return true;
+  } catch (const sbokena::loader::ThemeLoadException) {
+    output.reset();
+    return false;
+  }
+}
+} // namespace
+
+// tries to load the assets needed for the current theme.
+// if successful, returns 1 and uses the new theme/assets.
+// else, tries to use the default theme/assets (dev).
+// returns 0 if successful, -1 if all failed.
+int Level::load_theme_assets() {
+  // if loading requested theme successful, returns 1.
+  if (try_load(theme_name, theme_assets))
+    return 1;
+  // else, try loading the default as a backup, then returns 0.
+  if (try_load(DEFAULT_THEME_NAME, theme_assets)) {
+    theme_name = DEFAULT_THEME_NAME;
+    return 0;
+  }
+  theme_assets.reset();
+  return -1;
 }
 
 // ===== tiles =====

@@ -40,6 +40,9 @@ using sbokena::position::Position;
 template <typename S>
 using Theme = sbokena::loader::Theme<S>;
 
+// default theme name used for the level.
+static constexpr std::string DEFAULT_THEME_NAME = "dev";
+
 namespace sbokena::editor::level {
 
 // enum for the difficulty.
@@ -153,7 +156,9 @@ public:
   // defaults.
   // clang-format off
   explicit Level(const std::string &name) : 
-    name(name), 
+    name(name),
+    theme_name(DEFAULT_THEME_NAME),
+    theme_assets(nullptr),
     condition(), 
     tiles(),
     objects(),
@@ -161,7 +166,10 @@ public:
     pos_objects(),
     linked_portals(),
     door_to_buttons(),
-    button_to_door() {}
+    button_to_door() 
+    {
+      load_theme_assets();
+    }
 
   // clang-format on
 
@@ -183,11 +191,6 @@ public:
     name = str;
   }
 
-  // returns theme used.
-  std::string_view get_theme() noexcept {
-    return theme;
-  }
-
   // returns level condition.
   const Condition &get_condition() const noexcept {
     return condition;
@@ -206,6 +209,30 @@ public:
   // generates a new id for a new object.
   u32 generate_object_id() {
     return objects.generate_new_id();
+  }
+
+  // ===== theme =====
+
+  // tries to load the assets needed for the current theme.
+  // if successful, returns 1 and uses the new theme/assets.
+  // else, tries to use the default theme/assets (dev).
+  // returns 0 if successful, -1 if all failed.
+  int load_theme_assets();
+
+  // returns name of theme used.
+  std::string_view get_theme_name() noexcept {
+    return theme_name;
+  }
+
+  // changes the name of theme used.
+  void change_theme(std::string &name) {
+    theme_name = name;
+    load_theme_assets();
+  }
+
+  // returns the reference to the theme assets.
+  const Theme<Texture> &get_loaded_theme() const {
+    return *theme_assets;
   }
 
   // ===== tiles =====
@@ -302,8 +329,10 @@ public:
 private:
   // the level name.
   std::string name;
-  // theme used.
-  std::string theme;
+  // name of theme used.
+  std::string theme_name;
+  // the theme assets needed; by default uses "dev".
+  std::unique_ptr<Theme<Texture>> theme_assets;
   // level difficulty, move limit, and time limit.
   Condition condition;
   // id -> tile.
@@ -320,7 +349,5 @@ private:
   std::unordered_map<u32, std::unordered_set<u32>> door_to_buttons;
   // stores button_id to door_id.
   std::unordered_map<u32, u32> button_to_door;
-  // TODO: a grid stucture storing the skins of every
-  // position. map<position, image-related-id>
 };
 } // namespace sbokena::editor::level
