@@ -45,7 +45,7 @@
         devShells.default =
           pkgs.mkShell.override
           {stdenv = pkgs.clangStdenv;} {
-            inherit (sbokena.passthru) env;
+            inherit (sbokena) cmakeFlags env;
 
             inputsFrom = [
               sbokena

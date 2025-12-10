@@ -12,6 +12,7 @@
   cmake,
   dbus,
   fd,
+  glfw,
   libffi,
   libGL,
   libxkbcommon,
@@ -89,7 +90,8 @@
 
   # run-time dependencies
   buildInputs =
-    lib.optionals isLinux [
+    [glfw]
+    ++ lib.optionals isLinux [
       dbus
       libGL
     ]
@@ -130,11 +132,6 @@
   # env-vars for the build
   env =
     vendoredSources'
-    // {
-      LD_LIBRARY_PATH =
-        lib.makeLibraryPath
-        buildInputs;
-    }
     // lib.optionalAttrs isDarwin {
       ASAN_OPTIONS = lib.concatStringsSep ":" [
         # `nlohmann_json` has a bug on macOS, i don't wanna
@@ -159,6 +156,7 @@ in
         (lib.cmakeFeature "CMAKE_BUILD_TYPE" (
           select buildRelease "Release" "Debug"
         ))
+        (lib.cmakeFeature "USE_EXTERNAL_GLFW" "ON")
       ]
       ++ lib.optionals finalAttrs.doCheck [
         (lib.cmakeBool "BUILD_TESTS" true)
