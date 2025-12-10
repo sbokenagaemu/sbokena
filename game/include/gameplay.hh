@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <optional>
+
 #include <raylib.h>
 
 #include "loader.hh"
@@ -31,13 +33,28 @@ public:
 private:
   State          state;
   Theme<Texture> theme;
-  u64            moves = 0;
+
+  Position<> min;
+  Position<> max;
+  usize      width;
+  usize      height;
+
+  u64       moves      = 0;
+  Direction player_dir = Direction::Down;
 
   // draw the game state.
   void draw_viewport() const;
 
   // draw the gameplay HUD.
   void draw_hud() const;
+
+  // get the sprite of a tile at some position.
+  // positions not in `tiles` will be shown as a `Wall`.
+  Texture tile_sprite_at(Position<>) const;
+
+  // get the sprite of an object at some position.
+  // positions not in `objects` will cause an exception.
+  std::optional<Texture> obj_sprite_at(Position<>) const;
 };
 
 } // namespace sbokena::game::scene
