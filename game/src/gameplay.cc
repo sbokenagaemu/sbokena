@@ -227,7 +227,8 @@ void GameplayScene::draw_hud() const {
   // ===== draw goal counter =====
 
   const std::string_view goal_ctr = "goals"sv;
-  const std::string      goal_cnt = std::format("{}", 0);
+  const std::string      goal_cnt =
+    std::format("{}", state.inner().points_query());
 
   const Vector2 goal_ctr_size =
     MeasureTextEx(font, goal_ctr.data(), ctr_font_size, ctr_spacing);
