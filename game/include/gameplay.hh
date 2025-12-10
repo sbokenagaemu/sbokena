@@ -18,7 +18,7 @@ namespace sbokena::game::scene {
 class GameplayScene : public Scene {
 public:
   GameplayScene()                                 = delete;
-  GameplayScene(const GameplayScene &)            = delete;
+  GameplayScene(const GameplayScene &)            = default;
   GameplayScene &operator=(const GameplayScene &) = delete;
   GameplayScene(GameplayScene &&)                 = delete;
   GameplayScene &operator=(GameplayScene &&)      = delete;
@@ -32,7 +32,7 @@ public:
 
 private:
   State          state;
-  Theme<Texture> theme;
+  Level<Texture> level;
 
   Position<> min;
   Position<> max;
