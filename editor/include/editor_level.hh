@@ -23,17 +23,22 @@
 
 #include <memory>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <unordered_set>
 
+#include "loader.hh"
 #include "object.hh"
 #include "position.hh"
 #include "tile.hh"
 
-using sbokena::position::Position;
 using namespace sbokena::editor::tile;
 using namespace sbokena::editor::object;
-using sbokena::editor::tile::null_id; // 0x00
+
+using sbokena::editor::tile::NULL_ID;
+using sbokena::position::Position;
+template <typename S>
+using Theme = sbokena::loader::Theme<S>;
 
 namespace sbokena::editor::level {
 
@@ -57,7 +62,7 @@ struct Condition {
   }
 
   // difficulty in string form.
-  std::string diff_to_string() {
+  std::string_view diff_to_string() {
     switch (difficulty) {
     case Difficulty::Easy:
       return "easy";
@@ -105,7 +110,7 @@ struct Condition {
 struct TileMap {
   // initialize an empty map and no ids (id starts from
   // 0x01).
-  TileMap() : map(), max_id(null_id) {}
+  TileMap() : map(), max_id(NULL_ID) {}
 
   ~TileMap() = default;
 
@@ -125,7 +130,7 @@ struct TileMap {
 struct ObjectMap {
   // initialize an empty map and no ids (id starts from
   // 0x01).
-  ObjectMap() : map(), max_id(null_id) {}
+  ObjectMap() : map(), max_id(NULL_ID) {}
 
   ~ObjectMap() = default;
 
@@ -151,7 +156,7 @@ public:
     name(name), 
     condition(), 
     tiles(),
-    objects(), 
+    objects(),
     pos_tiles(),
     pos_objects(),
     linked_portals(),
@@ -169,7 +174,7 @@ public:
   void reset();
 
   // returns level name.
-  const std::string &get_name() const noexcept {
+  std::string_view get_name() noexcept {
     return name;
   }
 
@@ -179,7 +184,7 @@ public:
   }
 
   // returns theme used.
-  const std::string &get_theme() const noexcept {
+  std::string_view get_theme() noexcept {
     return theme;
   }
 
@@ -208,6 +213,10 @@ public:
   // creates a new tile, takes a type and a position as
   // parameters.
   u32 create_tile(TileType type, const Position<> &pos);
+
+  // replace an old tile with a new one at a particular position.
+  // however, a new id would be used for the new tile.
+  u32 replace_tile_at(const Position<> &pos, TileType type);
 
   // removes a tile that doesn't have an object on.
   bool remove_tile(u32 id);
@@ -244,6 +253,10 @@ public:
 
   // adds an object onto an existing tile.
   u32 add_object(ObjectType type, const Position<> &pos);
+
+  // replace an old object with a new one at a particular position.
+  // however, a new id would be used for the new object.
+  u32 replace_object_at(const Position<> &pos, ObjectType type);
 
   // removes an object.
   bool remove_object(u32 id);
