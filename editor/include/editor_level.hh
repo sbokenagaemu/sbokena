@@ -36,9 +36,8 @@ using namespace sbokena::editor::tile;
 using namespace sbokena::editor::object;
 
 using sbokena::editor::tile::NULL_ID;
+using sbokena::loader::Theme;
 using sbokena::position::Position;
-template <typename S>
-using Theme = sbokena::loader::Theme<S>;
 
 // default theme name used for the level.
 static constexpr std::string DEFAULT_THEME_NAME = "dev";
@@ -217,7 +216,7 @@ public:
   // if successful, returns 1 and uses the new theme/assets.
   // else, tries to use the default theme/assets (dev).
   // returns 0 if successful, -1 if all failed.
-  int load_theme_assets();
+  u32 load_theme_assets();
 
   // returns name of theme used.
   std::string_view get_theme_name() noexcept {

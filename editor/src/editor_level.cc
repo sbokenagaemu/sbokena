@@ -60,7 +60,7 @@ bool try_load(
 // if successful, returns 1 and uses the new theme/assets.
 // else, tries to use the default theme/assets (dev).
 // returns 0 if successful, -1 if all failed.
-int Level::load_theme_assets() {
+u32 Level::load_theme_assets() {
   // if loading requested theme successful, returns 1.
   if (try_load(theme_name, theme_assets))
     return 1;
