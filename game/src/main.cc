@@ -6,6 +6,8 @@
 #include <raylib.h>
 #include <raymath.h>
 
+#include "level_complete.hh"
+#include "pause.hh"
 #include "scene.hh"
 #include "start_menu.hh"
 #include "types.hh"
@@ -53,7 +55,7 @@ i32 main() {
 
   // ===== main loop =====
 
-  std::unique_ptr<Scene> cur {new StartMenuScene {}};
+  std::unique_ptr<Scene> cur {new StartMenuScene};
   std::unique_ptr<Scene> next {nullptr};
 
   while (!WindowShouldClose()) {

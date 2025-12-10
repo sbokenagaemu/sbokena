@@ -14,6 +14,7 @@
 #include "level.hh"
 #include "level_complete.hh"
 #include "loader.hh"
+#include "pause.hh"
 #include "position.hh"
 #include "scene.hh"
 #include "state.hh"
@@ -64,6 +65,7 @@ UpdateResult GameplayScene::update(Input in) {
     case StepResult::Ok:
       ++moves;
       break;
+
     case StepResult::LevelComplete:
       return UpdateTransition {
         .next = std::unique_ptr<Scene> {
@@ -86,27 +88,29 @@ UpdateResult GameplayScene::update(Input in) {
 
   switch (in) {
   case Input::INPUT_UP:
-    step(Direction::Up);
-    break;
+    return step(Direction::Up);
   case Input::INPUT_DOWN:
-    step(Direction::Down);
-    break;
+    return step(Direction::Down);
   case Input::INPUT_LEFT:
-    step(Direction::Left);
-    break;
+    return step(Direction::Left);
   case Input::INPUT_RIGHT:
-    step(Direction::Right);
-    break;
+    return step(Direction::Right);
 
   case Input::INPUT_MENU:
   case Input::INPUT_BACK:
-    // TODO: transition to pause menu
+    return UpdateTransition {
+      .next = std::unique_ptr<Scene> {new PauseScene {
+        level,
+        moves,
+        *this,
+      }}
+    };
     break;
 
   // these don't do anything in gameplay
   case Input::INPUT_NONE:
   case Input::INPUT_ENTER:
-    break;
+    return UpdateOk {};
   }
 
   return UpdateOk {};
@@ -270,6 +274,7 @@ T select_dir(Direction dir, T up, T down, T left, T right) {
 }
 
 Texture GameplayScene::tile_sprite_at(Position<> pos) const {
+  const auto &theme   = level.theme();
   const auto &sprites = theme.sprites();
   const auto  tile    = state.inner().find_tile(pos);
 
@@ -316,6 +321,7 @@ Texture GameplayScene::tile_sprite_at(Position<> pos) const {
 
 std::optional<Texture>
 GameplayScene::obj_sprite_at(Position<> pos) const {
+  const auto &theme   = level.theme();
   const auto &sprites = theme.sprites();
   const auto  obj     = state.inner().find_object(pos);
 
