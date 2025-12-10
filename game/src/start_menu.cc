@@ -73,7 +73,7 @@ UpdateResult StartMenuScene::update(Input) {
     .x = static_cast<float>(screen_w / 2),
     .y = static_cast<float>(screen_h * 2 / 3),
   };
-  const Vector2 view_size = view_btn_size * Vector2 {.x = 1, .y = 3};
+  const Vector2 view_size = view_btn_size * Vector2 {.x = 1, .y = 2};
   const Vector2 view_pos  = view_center - view_size / 2;
 
   // ===== draw messages =====
@@ -103,34 +103,23 @@ UpdateResult StartMenuScene::update(Input) {
 
   // ===== draw buttons =====
 
-  const Rectangle play_bounds = {
+  const Rectangle load_bounds = {
     .x      = view_pos.x,
     .y      = view_pos.y,
     .width  = view_btn_size.x,
     .height = view_btn_size.y * 0.9f,
   };
-  const Rectangle load_bounds = {
+  const Rectangle quit_bounds = {
     .x      = view_pos.x,
     .y      = view_pos.y + view_btn_size.y,
     .width  = view_btn_size.x,
     .height = view_btn_size.y * 0.9f,
   };
-  const Rectangle quit_bounds = {
-    .x      = view_pos.x,
-    .y      = view_pos.y + 2 * view_btn_size.y,
-    .width  = view_btn_size.x,
-    .height = view_btn_size.y * 0.9f,
-  };
 
-  const bool play = GuiButton(play_bounds, "play");
   const bool load = GuiButton(load_bounds, "load");
   const bool quit = GuiButton(quit_bounds, "quit");
 
   // ===== handle buttons =====
-
-  if (play)
-    // TODO: transition to level select
-    return UpdateOk {};
 
   if (load) {
     const auto _path = open_file_dialog();
