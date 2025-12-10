@@ -43,7 +43,41 @@ private:
 // level.
 class Player : public Object {
 public:
-  Player(u32 id) : Object(ObjectType::Player, id) {}
+  // constructor; by default the direction is up.
+  Player(u32 id)
+    : Object(ObjectType::Player, id),
+      dir(Direction::Up) {}
+
+  // current direction of the player.
+  Direction get_dir() const {
+    return dir;
+  }
+
+  // direction the player would move next.
+  void set_dir(Direction newdir) {
+    dir = newdir;
+  }
+
+  // rotate clockwise.
+  void rotate() {
+    switch (dir) {
+    case Direction::Up:
+      dir = Direction::Right;
+      break;
+    case Direction::Right:
+      dir = Direction::Down;
+      break;
+    case Direction::Down:
+      dir = Direction::Left;
+      break;
+    case Direction::Left:
+      dir = Direction::Up;
+      break;
+    }
+  }
+
+private:
+  Direction dir;
 };
 
 // the box; place it on a button to open the door.
