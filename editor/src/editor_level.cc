@@ -6,6 +6,7 @@
 #include <optional>
 #include <string_view>
 #include <unordered_map>
+#include <vector>
 
 #include <nlohmann/json.hpp>
 #include <raylib.h>
@@ -44,6 +45,8 @@ void Level::reset() {
   objects.max_id = NULL_ID;
   // resets the condition.
   condition = Condition();
+  // resets the pair_id for portal pairs counter.
+  max_portal_pair_id = NULL_ID;
 }
 
 // ===== themes =====
@@ -210,6 +213,7 @@ std::optional<Texture> Level::object_sprite_at(Position<> pos) const {
     break;
   }
   }
+  return std::nullopt;
 }
 
 // ===== tiles =====
@@ -779,6 +783,7 @@ bool Level::is_valid() {
     default:
       break;
     }
+    it2++;
   }
   // checks if the no. boxes (unidirectional included) = no. of goals.
   u32 boxes = objects.map.size() - player;
@@ -830,6 +835,7 @@ bool Level::save_file() {
       break;
     }
     }
+    it++;
   }
 
   // convert editor objects into raw objects, put in a map.
@@ -878,6 +884,154 @@ bool Level::save_file() {
   } catch (...) {
     return false;
   }
+  return true;
+}
+
+bool Level::load_file() {
+  auto selected = sbokena::utils::open_file_dialog();
+  if (!selected.has_value())
+    return false;
+
+  fs::path load_path = selected.value();
+  if (!fs::exists(load_path))
+    return false;
+
+  json j;
+  try {
+    std::ifstream file(load_path);
+    if (!file.is_open())
+      return false;
+
+    file >> j;
+    file.close();
+  } catch (...) {
+    return false;
+  }
+
+  Common::RawLevel raw_level;
+  try {
+    from_json(j, raw_level);
+  } catch (...) {
+    return false;
+  }
+
+  reset();
+  name       = raw_level.name;
+  theme_name = raw_level.theme;
+  if (load_theme_assets() < 0)
+    return false;
+
+  Difficulty diff =
+    static_cast<Difficulty>(static_cast<int>(raw_level.diff));
+  condition.set_difficulty(diff);
+
+  struct PortalData {
+    u32       own_id;
+    u32       pair_id;
+    Direction dir;
+  };
+
+  std::vector<PortalData> portal_datas;
+
+  struct ButtonData {
+    u32 own_id;
+    u32 linked_id;
+  };
+
+  std::vector<ButtonData> button_datas;
+
+  std::unordered_map<u32, u32> raw_to_new_door_ids;
+
+  // load tiles into editor.
+  for (auto &pair : raw_level.tiles) {
+    Position<>          pos  = pair.first;
+    const Common::Tile &tile = pair.second;
+    u32                 id   = NULL_ID;
+
+    switch (tile.index()) {
+    case index_of<Common::Tile, Common::Floor>():
+      id = create_tile(TileType::Floor, pos);
+      break;
+    case index_of<Common::Tile, Common::DirFloor>(): {
+      id                   = create_tile(TileType::OneDir, pos);
+      const auto &df       = std::get<Common::DirFloor>(tile);
+      auto       *dirfloor = dynamic_cast<OneDir *>(get_tile(id));
+      dirfloor->set_dir_in(df.dir);
+      break;
+    }
+    case index_of<Common::Tile, Common::Goal>():
+      id = create_tile(TileType::Goal, pos);
+      break;
+    case index_of<Common::Tile, Common::Portal>(): {
+      id                 = create_tile(TileType::Portal, pos);
+      const auto &p      = std::get<Common::Portal>(tile);
+      auto       *portal = dynamic_cast<Portal *>(get_tile(id));
+      portal->set_dir_in(p.in_dir);
+      portal_datas.push_back({id, p.portal_id, p.in_dir});
+      break;
+    }
+    case index_of<Common::Tile, Common::Button>(): {
+      id              = create_tile(TileType::Button, pos);
+      u32 raw_door_id = std::get<Common::Button>(tile).door_id;
+      button_datas.push_back({id, raw_door_id});
+      break;
+    }
+    case index_of<Common::Tile, Common::Door>():
+      id = create_tile(TileType::Door, pos);
+      raw_to_new_door_ids[std::get<Common::Door>(tile).door_id] = id;
+      break;
+    default:
+      break;
+    }
+  }
+
+  // prevents old pair_ids from clashing with potential new pair_ids.
+  for (const auto &p : portal_datas)
+    if (p.pair_id > max_portal_pair_id)
+      max_portal_pair_id = p.pair_id;
+
+  // link the specified portal pairs.
+  for (size_t i = 0; i < portal_datas.size(); ++i) {
+    for (size_t j = i + 1; j < portal_datas.size(); ++j) {
+      if (portal_datas[i].pair_id != 0
+          && portal_datas[i].pair_id == portal_datas[j].pair_id) {
+        link_portals(portal_datas[i].own_id, portal_datas[j].own_id);
+      }
+    }
+  }
+
+  // link the specified button -> door pairs.
+  for (auto &b : button_datas)
+    if (b.linked_id != NULL_ID) {
+      u32 new_id = raw_to_new_door_ids[b.linked_id];
+      link_door_button(new_id, b.own_id);
+    }
+
+  // load objects into editor.
+  for (auto &pair : raw_level.objects) {
+    Position<>            pos = pair.first;
+    const Common::Object &o   = pair.second;
+
+    switch (o.index()) {
+    case index_of<Common::Object, Common::Player>(): {
+      u32   id     = add_object(ObjectType::Player, pos);
+      auto *player = dynamic_cast<Player *>(get_object(id));
+      player->set_dir(Direction::Up);
+      break;
+    }
+    case index_of<Common::Object, Common::Box>():
+      add_object(ObjectType::Box, pos);
+      break;
+    case index_of<Common::Object, Common::DirBox>(): {
+      u32         id     = add_object(ObjectType::OneDirBox, pos);
+      const auto &db     = std::get<Common::DirBox>(o);
+      auto       *dirbox = dynamic_cast<OneDirBox *>(get_object(id));
+      dirbox->set_dir(db.dir);
+      break;
+    }
+    }
+  }
+
   return true;
 }
 
