@@ -1,7 +1,5 @@
 #ifndef RAYGUI_IMPLEMENTATION
 #define RAYGUI_IMPLEMENTATION
-#include "object.hh"
-#include "tile.hh"
 #endif
 
 #include <Color.hpp>
