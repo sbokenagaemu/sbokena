@@ -447,9 +447,8 @@ int main() {
       taskbar_button_size,
       taskbar_button_size
     };
-    if (GuiButton(download_button, "Download")) {
-      // TODO
-    }
+    if (GuiButton(download_button, "Download"))
+      level_.save_file();
 
     // Import button
     const Rectangle import_button = {
@@ -458,9 +457,8 @@ int main() {
       taskbar_button_size,
       taskbar_button_size
     };
-    if (GuiButton(import_button, "Import")) {
-      // TODO
-    }
+    if (GuiButton(import_button, "Import"))
+      level_.load_file();
 
     // Reset button
     const Rectangle reset_button = {
