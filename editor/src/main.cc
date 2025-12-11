@@ -1,9 +1,5 @@
 #ifndef RAYGUI_IMPLEMENTATION
 #define RAYGUI_IMPLEMENTATION
-#include <cstddef>
-
-#include "object.hh"
-#include "position.hh"
 #endif
 
 #include <Color.hpp>
@@ -89,26 +85,16 @@ void select_advance() {
 enum class Edit_Mode { Place, Select, Link, Switch };
 Edit_Mode mode = Edit_Mode::Select;
 
-// will be implemented later in editor_level
-void replace_tile(Position<> pos, TileType new_tile) {
-  std::cout << "replaced a tile" << std::endl;
-};
-
-// will be implemented later in editor_level
-void replace_object(Position<> pos, ObjectType new_tile) {
-  std::cout << "replaced an object" << std::endl;
-}
-
 // switches between directional and normal objects (Boxes)
 void switch_object(Level &lvl, Position<> pos) {
   ObjectType type = lvl.get_object_at(pos)->get_type();
   switch (type) {
   case ObjectType::Box: {
-    replace_object(pos, ObjectType::OneDirBox);
+    lvl.replace_object_at(pos, ObjectType::OneDirBox);
     break;
   }
   case ObjectType::OneDirBox: {
-    replace_object(pos, ObjectType::Box);
+    lvl.replace_object_at(pos, ObjectType::Box);
     break;
   }
   default:
@@ -121,11 +107,11 @@ void switch_tile(Level &lvl, Position<> pos) {
   TileType type = lvl.get_tile_at(pos)->get_type();
   switch (type) {
   case TileType::Floor: {
-    replace_tile(pos, TileType::OneDir);
+    lvl.replace_tile_at(pos, TileType::OneDir);
     break;
   }
   case TileType::OneDir: {
-    replace_tile(pos, TileType::Floor);
+    lvl.replace_tile_at(pos, TileType::Floor);
     break;
   }
   default:
@@ -209,13 +195,13 @@ int main() {
         switch (mode) {
         case (Edit_Mode::Place): {
           if (is_placing_tiles) {
-            replace_tile(
+            level_.replace_tile_at(
               selected_grid_tile_index, currently_selected_tile_type
             );
             std::cout << "Tile placed" << std::endl;
 
           } else {
-            replace_object(
+            level_.replace_object_at(
               selected_grid_tile_index, currently_selected_object_type
             );
             std::cout << "Object placed" << std::endl;
@@ -299,17 +285,14 @@ int main() {
     // GRID of Tiles
     for (u32 y = 0; y < 31; y++) {
       for (u32 x = 0; x < 31; x++) {
-        const Rectangle tile = {
-          grid_offset.GetX() + current_tile_size * x,
-          grid_offset.GetY() + current_tile_size * y,
-          current_tile_size,
-          current_tile_size
-        };
-        if ((x + y) % 2)
-          color_ = raylib::Color::Black();
-        else
-          color_ = raylib::Color::White();
-        DrawRectangleRec(tile, color_);
+        DrawTextureEx(
+          level_.tile_sprite_at({x, y}),
+          {grid_offset.GetX() + current_tile_size * x,
+           grid_offset.GetY() + current_tile_size * y},
+          0,
+          1,
+          raylib::Color::White()
+        );
       }
     }
 
@@ -328,6 +311,21 @@ int main() {
     }
 
     // GRID of Objects
+    for (u32 y = 0; y < 31; y++) {
+      for (u32 x = 0; x < 31; x++) {
+        auto object = level_.object_sprite_at({x, y});
+        if (object.has_value()) {
+          DrawTextureEx(
+            object.value(),
+            {grid_offset.GetX() + current_tile_size * x,
+             grid_offset.GetY() + current_tile_size * y},
+            0,
+            1,
+            raylib::Color::White()
+          );
+        }
+      }
+    }
 
     // Selecting::Object
     if (layer == Selecting::Object) {
