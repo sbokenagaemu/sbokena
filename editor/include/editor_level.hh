@@ -356,6 +356,10 @@ public:
   // tries to save the level at sbokena/levels as an .sbk file.
   bool save_file();
 
+  // tries to load a .sbk file at sbokena/levels into the editor as an
+  // editor level.
+  bool load_file();
+
 private:
   // the level name.
   std::string name;
