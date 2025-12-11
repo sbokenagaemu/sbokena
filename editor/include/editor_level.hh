@@ -50,7 +50,7 @@ static constexpr std::string NULL_NAME = "";
 namespace sbokena::editor::level {
 
 // enum for the difficulty.
-enum class Difficulty { Unknown, Easy, Medium, Hard };
+enum struct Difficulty { Unknown, Easy, Medium, Hard };
 
 // contains the difficulty and, move limit, and time limit
 // of the game.
@@ -320,6 +320,15 @@ public:
 
   // ===== portal pairs =====
 
+  // used for generating portal pair ids.
+  u32 max_portal_pair_id = NULL_ID;
+
+  // returns a new portal pair id, which is the id
+  // with the max value incremented by 1.
+  u32 generate_portal_pair_id() {
+    return ++max_portal_pair_id;
+  }
+
   // links two portals together.
   bool link_portals(u32 id1, u32 id2);
 
@@ -343,6 +352,9 @@ public:
 
   // checks whether the level is valid enough to be exported.
   bool is_valid();
+
+  // tries to save the level at sbokena/levels as an .sbk file.
+  bool save_file();
 
 private:
   // the level name.

@@ -1,23 +1,30 @@
 #include "editor_level.hh"
 
 #include <filesystem>
+#include <fstream>
 #include <memory>
 #include <optional>
 #include <string_view>
 #include <unordered_map>
 
+#include <nlohmann/json.hpp>
 #include <raylib.h>
 
+#include "level.hh"
 #include "loader.hh"
 #include "object.hh"
+#include "position.hh"
 #include "tile.hh"
 #include "types.hh"
+#include "utils.hh"
 
+using nlohmann::json;
 using namespace sbokena::position;
 using namespace sbokena::editor::tile;
 using namespace sbokena::editor::object;
 
-namespace fs = std::filesystem;
+namespace Common = sbokena::level;
+namespace fs     = std::filesystem;
 
 namespace sbokena::editor::level {
 
@@ -599,6 +606,10 @@ bool Level::link_portals(u32 id1, u32 id2) {
   // links portals.
   portal1->link(id2);
   portal2->link(id1);
+  // add pair_id into both portals.
+  u32 pair_id = generate_portal_pair_id();
+  portal1->set_pair_id(pair_id);
+  portal2->set_pair_id(pair_id);
   // adds the pair in both directions into linked_portals.
   linked_portals[id1] = id2;
   linked_portals[id2] = id1;
@@ -624,6 +635,9 @@ bool Level::unlink_portal(u32 portal_id) {
   // unlinks the portals.
   portal1->unlink();
   portal2->unlink();
+  // removes the pair_id in both portals.
+  portal1->clear_pair_id();
+  portal2->clear_pair_id();
   // erases the two pairs in linked_portals.
   linked_portals.erase(portal_id);
   linked_portals.erase(other_id);
@@ -770,6 +784,100 @@ bool Level::is_valid() {
   u32 boxes = objects.map.size() - player;
   if (boxes != goals)
     return false;
+  return true;
+}
+
+// tries to save the level at sbokena/levels as an .sbk file.
+bool Level::save_file() {
+  if (!is_valid())
+    return false;
+
+  std::map<Position<>, Common::Tile>   tiles;
+  std::map<Position<>, Common::Object> objects;
+
+  // convert editor tiles into raw tiles, put in a map.
+  auto it = pos_tiles.begin();
+  while (it != pos_tiles.end()) {
+    auto       pos  = it->first;
+    const auto tile = get_tile(it->second);
+    switch (tile->get_type()) {
+    case TileType::Roof:
+      break;
+    case TileType::Floor:
+      tiles[pos] = Common::Floor {};
+      break;
+    case TileType::OneDir: {
+      const auto *onedir = dynamic_cast<OneDir *>(tile);
+      tiles[pos]         = Common::DirFloor {onedir->get_dir_in()};
+      break;
+    }
+    case TileType::Goal:
+      tiles[pos] = Common::Goal {};
+      break;
+    case TileType::Portal: {
+      const auto *portal = dynamic_cast<Portal *>(tile);
+      tiles[pos] =
+        Common::Portal {portal->get_pair_id(), portal->get_dir_in()};
+      break;
+    }
+    case TileType::Button: {
+      const auto *button = dynamic_cast<Button *>(tile);
+      tiles[pos]         = Common::Button {button->get_linked()};
+      break;
+    }
+    case TileType::Door: {
+      tiles[pos] = Common::Door {it->second};
+      break;
+    }
+    }
+  }
+
+  // convert editor objects into raw objects, put in a map.
+  auto it2 = pos_objects.begin();
+  while (it2 != pos_objects.end()) {
+    auto       pos    = it2->first;
+    const auto object = get_object(it2->second);
+    switch (object->get_type()) {
+    case ObjectType::Player:
+      objects[pos] = Common::Player {};
+      break;
+    case ObjectType::Box:
+      objects[pos] = Common::Box {};
+      break;
+    case ObjectType::OneDirBox: {
+      const auto dirbox = dynamic_cast<OneDirBox *>(object);
+      objects[pos]      = Common::DirBox {dirbox->get_dir()};
+      break;
+    }
+    }
+    it2++;
+  }
+
+  u32 diff_int            = static_cast<u32>(condition.difficulty);
+  Common::Difficulty diff = static_cast<Common::Difficulty>(diff_int);
+
+  Common::RawLevel raw_level {name, theme_name, diff, tiles, objects};
+
+  nlohmann::json j;
+  to_json(j, raw_level);
+
+  auto selected = sbokena::utils::save_file_dialog();
+  if (!selected.has_value())
+    return false;
+  fs::path save_path = selected.value();
+
+  if (save_path.extension() != ".sbk")
+    save_path.replace_extension(".sbk");
+
+  try {
+    std::ofstream file(save_path);
+    if (!file.is_open())
+      return false;
+    file << j.dump(2);
+    file.close();
+  } catch (...) {
+    return false;
+  }
   return true;
 }
 

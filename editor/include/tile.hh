@@ -199,6 +199,7 @@ public:
   Portal(u32 id)
     : Tile(TileType::Portal, id),
       portal_id(NULL_ID),
+      pair_id(NULL_ID),
       dir_in(Direction::Up) {}
 
   // links the portal to another portal.
@@ -272,8 +273,21 @@ public:
     }
   }
 
+  u32 get_pair_id() const {
+    return pair_id;
+  }
+
+  void set_pair_id(u32 id) {
+    pair_id = id;
+  }
+
+  void clear_pair_id() {
+    pair_id = NULL_ID;
+  }
+
 private:
   u32       portal_id;
+  u32       pair_id;
   Direction dir_in;
 };
 
