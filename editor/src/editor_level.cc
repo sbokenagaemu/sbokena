@@ -2,6 +2,7 @@
 
 #include <filesystem>
 #include <memory>
+#include <optional>
 #include <string_view>
 #include <unordered_map>
 
@@ -10,6 +11,7 @@
 #include "loader.hh"
 #include "object.hh"
 #include "tile.hh"
+#include "types.hh"
 
 using namespace sbokena::position;
 using namespace sbokena::editor::tile;
@@ -58,9 +60,10 @@ bool try_load(
 
 // tries to load the assets needed for the current theme.
 // if successful, returns 1 and uses the new theme/assets.
-// else, tries to use the default theme/assets (dev).
-// returns 0 if successful, -1 if all failed.
-u32 Level::load_theme_assets() {
+// else, tries to use the default theme/assets (dev), returns 0 if
+// successfull.
+// if all failed, returns -1, theme name is now NULL_NAME.
+i32 Level::load_theme_assets() {
   // if loading requested theme successful, returns 1.
   if (try_load(theme_name, theme_assets))
     return 1;
@@ -69,8 +72,129 @@ u32 Level::load_theme_assets() {
     theme_name = DEFAULT_THEME_NAME;
     return 0;
   }
+  theme_name = NULL_NAME;
   theme_assets.reset();
   return -1;
+}
+
+// fetches the tile at this position, depending on its type, returns
+// an appropriate texture.
+Texture Level::tile_sprite_at(Position<> pos) const {
+  const auto &sprites = theme_assets->sprites();
+  const auto  tile    = get_tile_at(pos);
+
+  if (!tile)
+    return *sprites[theme_assets->WALL];
+
+  switch (tile->get_type()) {
+  case TileType::Floor:
+    return *sprites[theme_assets->WALL];
+    break;
+  case TileType::Button:
+    return *sprites[theme_assets->BUTTON];
+    break;
+  case TileType::Door: {
+    const Door *door = dynamic_cast<const Door *>(tile);
+    bool        open = door->is_opened();
+    return *sprites
+      [open ? theme_assets->DOOR_OPEN : theme_assets->DOOR_CLOSED];
+    break;
+  }
+  case TileType::Portal: {
+    const Portal *portal = dynamic_cast<const Portal *>(tile);
+    Direction     dir    = portal->get_dir_in();
+    switch (dir) {
+    case Direction::Up:
+      return *sprites[theme_assets->PORTAL_N];
+      break;
+    case Direction::Down:
+      return *sprites[theme_assets->PORTAL_S];
+      break;
+    case Direction::Right:
+      return *sprites[theme_assets->PORTAL_E];
+      break;
+    case Direction::Left:
+      return *sprites[theme_assets->PORTAL_W];
+      break;
+    }
+    break;
+  }
+  case TileType::OneDir: {
+    const OneDir *onedir = dynamic_cast<const OneDir *>(tile);
+    Direction     dir    = onedir->get_dir_in();
+    switch (dir) {
+    case Direction::Up:
+      return *sprites[theme_assets->DIRFLOOR_N];
+      break;
+    case Direction::Down:
+      return *sprites[theme_assets->DIRFLOOR_S];
+      break;
+    case Direction::Right:
+      return *sprites[theme_assets->DIRFLOOR_E];
+      break;
+    case Direction::Left:
+      return *sprites[theme_assets->DIRFLOOR_W];
+    }
+    break;
+  }
+  case TileType::Goal: {
+    return *sprites[theme_assets->GOAL];
+    break;
+  }
+  default:
+    return *sprites[theme_assets->WALL];
+    break;
+  }
+}
+
+// fetches the object at this position, if it exists.
+// depending on its type, returns an appropriate texture.
+std::optional<Texture> Level::object_sprite_at(Position<> pos) const {
+  const auto &sprites = theme_assets->sprites();
+  const auto  object  = get_object_at(pos);
+
+  if (!object)
+    return std::nullopt;
+
+  switch (object->get_type()) {
+  case ObjectType::Box:
+    return *sprites[theme_assets->BOX];
+    break;
+  case ObjectType::OneDirBox: {
+    const OneDirBox *box = dynamic_cast<const OneDirBox *>(object);
+    switch (box->get_dir()) {
+    case Direction::Up:
+      return *sprites[theme_assets->DIRBOX_N];
+      break;
+    case Direction::Down:
+      return *sprites[theme_assets->DIRBOX_S];
+      break;
+    case Direction::Right:
+      return *sprites[theme_assets->DIRBOX_E];
+      break;
+    case Direction::Left:
+      return *sprites[theme_assets->DIRBOX_W];
+    }
+    break;
+  }
+  case ObjectType::Player: {
+    const Player *player = dynamic_cast<const Player *>(object);
+    switch (player->get_dir()) {
+    case Direction::Up:
+      return *sprites[theme_assets->PLAYER_N];
+      break;
+    case Direction::Down:
+      return *sprites[theme_assets->PLAYER_S];
+      break;
+    case Direction::Right:
+      return *sprites[theme_assets->PLAYER_E];
+      break;
+    case Direction::Left:
+      return *sprites[theme_assets->PLAYER_W];
+    }
+    break;
+  }
+  }
 }
 
 // ===== tiles =====
@@ -578,6 +702,66 @@ bool Level::unlink_button(u32 button_id) {
   door->unlink(button_id);
   // update door state after removing button.
   update_door_state(door_id);
+  return true;
+}
+
+// ===== json =====
+
+// checks whether the level is valid enough to be exported.
+bool Level::is_valid() {
+  // checks if the loaded texture is valid & matches the theme name.
+  if (theme_assets == nullptr || theme_name == NULL_NAME
+      || theme_name != theme_assets->name())
+    return false;
+  // checks if there is only one player.
+  u32  player = 0;
+  auto it     = objects.map.begin();
+  while (it != objects.map.end()) {
+    if (it->second->get_type() == ObjectType::Player)
+      player++;
+    it++;
+  }
+  if (player != 1)
+    return false;
+  // checks if all the doors, buttons, and portals are linked.
+  // count the number of goals.
+  u32  goals = 0;
+  auto it2   = tiles.map.begin();
+  while (it2 != tiles.map.end()) {
+    switch (it2->second->get_type()) {
+    case TileType::Door: {
+      Door *door = dynamic_cast<Door *>(it2->second.get());
+      if (!door || !door->is_linked())
+        return false;
+      break;
+    }
+    case TileType::Button: {
+      Button *button = dynamic_cast<Button *>(it2->second.get());
+      if (!button || !button->is_linked())
+        return false;
+      break;
+    }
+    case TileType::Portal: {
+      Portal *portal = dynamic_cast<Portal *>(it2->second.get());
+      if (!portal || !portal->is_linked())
+        return false;
+      break;
+    }
+    case TileType::Goal: {
+      Goal *goal = dynamic_cast<Goal *>(it2->second.get());
+      if (!goal)
+        return false;
+      goals++;
+      break;
+    }
+    default:
+      break;
+    }
+  }
+  // checks if the no. boxes (unidirectional included) = no. of goals.
+  u32 boxes = objects.map.size() - player;
+  if (boxes != goals)
+    return false;
   return true;
 }
 

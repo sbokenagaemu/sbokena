@@ -22,10 +22,13 @@
 #pragma once
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <unordered_map>
 #include <unordered_set>
+
+#include <raylib.h>
 
 #include "loader.hh"
 #include "object.hh"
@@ -41,6 +44,8 @@ using sbokena::position::Position;
 
 // default theme name used for the level.
 static constexpr std::string DEFAULT_THEME_NAME = "dev";
+// the theme name in case loading the theme failed.
+static constexpr std::string NULL_NAME = "";
 
 namespace sbokena::editor::level {
 
@@ -210,13 +215,14 @@ public:
     return objects.generate_new_id();
   }
 
-  // ===== theme =====
+  // ===== themes =====
 
   // tries to load the assets needed for the current theme.
   // if successful, returns 1 and uses the new theme/assets.
-  // else, tries to use the default theme/assets (dev).
-  // returns 0 if successful, -1 if all failed.
-  u32 load_theme_assets();
+  // else, tries to use the default theme/assets (dev), returns 0 if
+  // successfull.
+  // if all failed, returns -1, theme name is now NULL_NAME.
+  i32 load_theme_assets();
 
   // returns name of theme used.
   std::string_view get_theme_name() noexcept {
@@ -233,6 +239,14 @@ public:
   const Theme<Texture> &get_loaded_theme() const {
     return *theme_assets;
   }
+
+  // fetches the tile at this position; depending on its type,
+  // returns an appropriate texture.
+  Texture tile_sprite_at(Position<> pos) const;
+
+  // fetches the object at this position, if it exists.
+  // depending on its type, returns an appropriate texture.
+  std::optional<Texture> object_sprite_at(Position<> pos) const;
 
   // ===== tiles =====
 
@@ -324,6 +338,11 @@ public:
   // unlinks the button, which also unlinks the door from
   // that button.
   bool unlink_button(u32 button_id);
+
+  // ===== json =====
+
+  // checks whether the level is valid enough to be exported.
+  bool is_valid();
 
 private:
   // the level name.
