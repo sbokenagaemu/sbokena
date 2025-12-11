@@ -225,7 +225,7 @@ public:
   i32 load_theme_assets();
 
   // returns name of theme used.
-  std::string_view get_theme_name() noexcept {
+  std::string get_theme_name() noexcept {
     return theme_name;
   }
 

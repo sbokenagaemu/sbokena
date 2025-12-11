@@ -1,6 +1,7 @@
 #include "editor_level.hh"
 
 #include <filesystem>
+#include <iostream>
 #include <memory>
 #include <optional>
 #include <string_view>
@@ -84,11 +85,11 @@ Texture Level::tile_sprite_at(Position<> pos) const {
   const auto  tile    = get_tile_at(pos);
 
   if (!tile)
-    return *sprites[theme_assets->WALL];
+    return *sprites[theme_assets->ROOF];
 
   switch (tile->get_type()) {
   case TileType::Floor:
-    return *sprites[theme_assets->WALL];
+    return *sprites[theme_assets->FLOOR];
     break;
   case TileType::Button:
     return *sprites[theme_assets->BUTTON];
@@ -141,8 +142,16 @@ Texture Level::tile_sprite_at(Position<> pos) const {
     return *sprites[theme_assets->GOAL];
     break;
   }
+  case TileType::Roof: {
+    const Tile *tile_below = get_tile_at({pos.x, pos.y + 1});
+    if (tile_below)
+      return *sprites[theme_assets->WALL];
+    else
+      return *sprites[theme_assets->ROOF];
+    break;
+  }
   default:
-    return *sprites[theme_assets->WALL];
+    return *sprites[theme_assets->ROOF];
     break;
   }
 }
