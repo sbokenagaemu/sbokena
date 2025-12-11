@@ -1,5 +1,7 @@
 #ifndef RAYGUI_IMPLEMENTATION
 #define RAYGUI_IMPLEMENTATION
+#include "object.hh"
+#include "tile.hh"
 #endif
 
 #include <Color.hpp>
@@ -38,9 +40,9 @@ constexpr u32 tile_picker_delta =
 constexpr f32 min_width  = 550;
 constexpr f32 min_height = 530;
 
-const char     *options_theme     = "Theme #1;Theme #2;Theme #3";
-int             active_theme      = 0;
-bool            edit_mode_theme   = false;
+bool edit_mode_theme = false;
+char input[128]      = "";
+
 f32             current_tile_size = 64;
 raylib::Vector2 mouse_position;
 raylib::Vector2 mouse_start_position;
@@ -61,10 +63,30 @@ Rectangle  currently_selected_outline_rec = {
 
 float     thickness = 0;
 Rectangle link_selection;
+bool      window_exit = false;
 
 bool select_same = false;
 enum class Selecting { None, Tile, Object };
 Selecting layer = Selecting::None;
+
+void search_theme(Level &lvl, std::string &input) {
+  std::string current_name = lvl.get_theme_name();
+  lvl.change_theme(input);
+  switch (lvl.load_theme_assets()) {
+  case 1: {
+    break;
+  }
+  case 0: {
+    input = "";
+    lvl.change_theme(current_name);
+    break;
+  }
+  case -1: {
+    window_exit = true;
+    break;
+  }
+  }
+}
 
 void select_advance() {
   switch (layer) {
@@ -82,40 +104,48 @@ void select_advance() {
   }
 }
 
-enum class Edit_Mode { Place, Select, Link, Switch };
+enum class Edit_Mode { Place, Select, Link };
 Edit_Mode mode = Edit_Mode::Select;
 
 // switches between directional and normal objects (Boxes)
 void switch_object(Level &lvl, Position<> pos) {
-  ObjectType type = lvl.get_object_at(pos)->get_type();
-  switch (type) {
-  case ObjectType::Box: {
-    lvl.replace_object_at(pos, ObjectType::OneDirBox);
-    break;
-  }
-  case ObjectType::OneDirBox: {
-    lvl.replace_object_at(pos, ObjectType::Box);
-    break;
-  }
-  default:
-    break;
+  Object *obj = lvl.get_object_at(pos);
+  if (obj) {
+    ObjectType type = obj->get_type();
+
+    switch (type) {
+    case ObjectType::Box: {
+      lvl.replace_object_at(pos, ObjectType::OneDirBox);
+      break;
+    }
+    case ObjectType::OneDirBox: {
+      lvl.replace_object_at(pos, ObjectType::Box);
+      break;
+    }
+    default:
+      break;
+    }
   }
 }
 
 // switches between directional and normal tiles (Floors)
 void switch_tile(Level &lvl, Position<> pos) {
-  TileType type = lvl.get_tile_at(pos)->get_type();
-  switch (type) {
-  case TileType::Floor: {
-    lvl.replace_tile_at(pos, TileType::OneDir);
-    break;
-  }
-  case TileType::OneDir: {
-    lvl.replace_tile_at(pos, TileType::Floor);
-    break;
-  }
-  default:
-    break;
+  Tile *tile = lvl.get_tile_at(pos);
+  if (tile) {
+    TileType type = tile->get_type();
+
+    switch (type) {
+    case TileType::Floor: {
+      lvl.replace_tile_at(pos, TileType::OneDir);
+      break;
+    }
+    case TileType::OneDir: {
+      lvl.replace_tile_at(pos, TileType::Floor);
+      break;
+    }
+    default:
+      break;
+    }
   }
 }
 
@@ -132,7 +162,6 @@ void switch_selection(Rectangle rec, bool is_tile) {
 }
 
 int main() {
-  Level         level_ = Level("default");
   raylib::Color color_;
 
   raylib::Window window(
@@ -141,11 +170,16 @@ int main() {
     "Window",
     FLAG_VSYNC_HINT | FLAG_WINDOW_RESIZABLE
   );
-  bool exit = false;
 
   SetWindowMinSize(min_width, min_height);
 
-  while (!window.ShouldClose() && !exit) {
+  Level level_       = Level("default");
+  int   theme_result = level_.load_theme_assets();
+
+  if (theme_result < 0)
+    std::cerr << "Failed to load theme assets\n";
+
+  while (!window.ShouldClose() && !window_exit) {
     window.BeginDrawing();
     mouse_position = GetMousePosition();
 
@@ -195,21 +229,42 @@ int main() {
         switch (mode) {
         case (Edit_Mode::Place): {
           if (is_placing_tiles) {
-            level_.replace_tile_at(
-              selected_grid_tile_index, currently_selected_tile_type
-            );
-            std::cout << "Tile placed" << std::endl;
+            Tile *tile =
+              level_.get_tile_at(next_selected_grid_tile_index);
+            if (tile) {
+              if (currently_selected_tile_type == TileType::Roof) {
+                level_.remove_tile_at(next_selected_grid_tile_index);
+              } else {
+                level_.replace_tile_at(
+                  selected_grid_tile_index,
+                  currently_selected_tile_type
+                );
+              }
+            } else if (currently_selected_tile_type
+                       != TileType::Roof) {
+              level_.create_tile(
+                currently_selected_tile_type, selected_grid_tile_index
+              );
+            }
 
           } else {
-            level_.replace_object_at(
-              selected_grid_tile_index, currently_selected_object_type
-            );
-            std::cout << "Object placed" << std::endl;
+            Object *obj =
+              level_.get_object_at(next_selected_grid_tile_index);
+            if (obj) {
+              level_.replace_object_at(
+                selected_grid_tile_index,
+                currently_selected_object_type
+              );
+            } else {
+              level_.add_object(
+                currently_selected_object_type,
+                selected_grid_tile_index
+              );
+            }
           }
           break;
         }
         case (Edit_Mode::Select): {
-          std::cout << "Tile selected" << std::endl;
           selected_tile_position = raylib::Vector2 {
             grid_offset.GetX()
               + selected_grid_tile_index.x * current_tile_size,
@@ -235,7 +290,6 @@ int main() {
                 level_.link_portals(
                   first->get_id(), second->get_id()
                 );
-                std::cout << "Portals linked" << std::endl;
               }
             }
 
@@ -245,7 +299,6 @@ int main() {
                 level_.link_door_button(
                   second->get_id(), first->get_id()
                 );
-                std::cout << "Button to Door linked" << std::endl;
               }
             }
 
@@ -256,27 +309,11 @@ int main() {
                 level_.link_door_button(
                   first->get_id(), second->get_id()
                 );
-                std::cout << "Door to Button linked" << std::endl;
               }
             }
           }
           mode = Edit_Mode::Select;
           break;
-        }
-        case (Edit_Mode::Switch): {
-          mode = Edit_Mode::Select;
-          switch (layer) {
-          case Selecting::Tile: {
-            switch_tile(level_, selected_grid_tile_index);
-            break;
-          }
-          case Selecting::Object: {
-            switch_object(level_, selected_grid_tile_index);
-            break;
-          }
-          default:
-            break;
-          }
         }
         }
       }
@@ -290,7 +327,7 @@ int main() {
           {grid_offset.GetX() + current_tile_size * x,
            grid_offset.GetY() + current_tile_size * y},
           0,
-          1,
+          current_tile_size / 32,
           raylib::Color::White()
         );
       }
@@ -320,7 +357,7 @@ int main() {
             {grid_offset.GetX() + current_tile_size * x,
              grid_offset.GetY() + current_tile_size * y},
             0,
-            1,
+            current_tile_size / 32,
             raylib::Color::White()
           );
         }
@@ -403,7 +440,7 @@ int main() {
       taskbar_button_size
     };
     if (GuiButton(exit_button, "Exit"))
-      exit = true;
+      window_exit = true;
 
     // Download button
     const Rectangle download_button = {
@@ -434,45 +471,26 @@ int main() {
       taskbar_button_size,
       taskbar_button_size
     };
-    if (GuiButton(reset_button, "Reset"))
+    if (GuiButton(reset_button, "Reset")) {
       level_.reset();
+      theme_result = level_.load_theme_assets();
+    }
 
-    // Theme Dropdown menu
-    const Rectangle dropdown_theme = {
+    // Theme Textbox
+    const Rectangle textbox = {
       tile_picker_width + 20,
       5,
       dropdown_width,
       taskbar_button_size - 10
     };
-    if (GuiDropdownBox(
-          dropdown_theme,
-          options_theme,
-          &active_theme,
-          edit_mode_theme
-        )) {
-      edit_mode_theme = !edit_mode_theme;
+    DrawRectangleRec(textbox, raylib::Color::Black());
+    if (GuiTextBox(textbox, input, 10, edit_mode_theme))
+      edit_mode_theme = true;
+    if (edit_mode_theme && IsKeyPressed(KEY_ENTER)) {
+      std::string in = input;
+      search_theme(level_, in);
+      edit_mode_theme = false;
     }
-
-    /**
-    // Undo button (?)
-    const Rectangle undo_button = {
-      tile_picker_width, 0, taskbar_button_size, taskbar_button_size
-    };
-    if (GuiButton(undo_button, "Undo")) {
-      // TODO
-    }
-
-    // Redo button (?)
-    const Rectangle redo_button = {
-      tile_picker_width + taskbar_button_size,
-      0,
-      taskbar_button_size,
-      taskbar_button_size
-    };
-    if (GuiButton(redo_button, "Redo")) {
-      // TODO
-    }
-    */
 
     // Zoom in button
     const Rectangle zoom_in_button = {
@@ -525,7 +543,6 @@ int main() {
                   dynamic_cast<OneDirBox *>(object_))
               one_dir_box_->rotate();
           }
-          std::cout << "rotating" << std::endl;
           break;
         }
         default:
@@ -595,8 +612,21 @@ int main() {
       view_control_button_width,
       view_control_button_height
     };
-    if (GuiButton(switch_button, "Switch"))
-      mode = Edit_Mode::Switch;
+    if (GuiButton(switch_button, "Switch")) {
+      mode = Edit_Mode::Select;
+      switch (layer) {
+      case Selecting::Tile: {
+        switch_tile(level_, selected_grid_tile_index);
+        break;
+      }
+      case Selecting::Object: {
+        switch_object(level_, selected_grid_tile_index);
+        break;
+      }
+      default:
+        break;
+      }
+    }
 
     // TILES
     // Selection outline
