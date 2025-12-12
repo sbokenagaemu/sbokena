@@ -7,23 +7,40 @@ just a silly little Sokoban-style game.
 ### with Nix
 
 ```sh
-nix build -L
-# run the game
-nix run --impure github:nix-community/nixGL -- result/game/game
-# run the level editor
-nix run --impure github:nix-community/nixGL -- result/editor/editor
+nix build
+nix shell --impure github:nix-community/nixGL
+nixGL result/bin/game   # run the game
+nixGL result/bin/editor # run the editor
 ```
 
 ### without Nix
 
-install the required dependencies for your distribution:
+the Nix derivation in `nix/sbokena.nix` authoritatively describes the
+required dependencies.
 
-| Distribution | Command                                                                                                                                                                                                    |
-| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Arch Linux   | `sudo pacman -S base-devel lld cmake fd just ninja libglvnd wayland libxkbcommon wayland-protocols libx11 libxcursor libxi libxinerama libxrandr`                                                          |
-| Ubuntu       | `sudo apt install build-essential git lld cmake fd-find just ninja-build libglvnd-dev libwayland-dev libxkbcommon-dev wayland-protocols libx11-dev libxcursor-dev libxi-dev libxinerama-dev libxrandr-dev` |
+as of 2025/12/12, these dependencies are:
 
-and build the game:
+- `clang`
+- `cmake`
+- `dbus`
+- `fd`
+- `just`
+- `libffi`
+- `libGL` / `libglvnd`
+- `libX11` (X11)
+- `libXcursor` (X11)
+- `libxkbcommon` (Wayland)
+- `libXi` (X11)
+- `libXinerama` (X11)
+- `libXrandr` (X11)
+- `lld`
+- `ninja`
+- `parallel`
+- `pkg-config` (Wayland)
+- `wayland` (Wayland)
+- `wayland-scanner` (Wayland)
+
+once these dependencies are installed
 
 ```sh
 just build -DCMAKE_BUILD_TYPE=Release
@@ -31,9 +48,10 @@ build/game/game # run the game
 build/editor/editor # run the level editor
 ```
 
-if you want a Wayland-only build, you should also pass
-`-DGLFW_BUILD_WAYLAND=1` and `-DGLFW_BUILD_X11=0`, and vice
-versa for X11-only builds _(why.)_
+Wayland and X11 support are controlled with the CMake feature flags
+`GLFW_BUILD_WAYLAND` and `GLFW_BUILD_X11`. these flags are ignored if
+`USE_EXTERNAL_GLFW` is set to `ON` or `IF_POSSIBLE` with a
+system-installed copy of `libglfw`.
 
 ## hacking
 
@@ -48,15 +66,21 @@ GPU driver into `/run/opengl-driver`, or use `nixGL`
 (recommended):
 
 ```sh
-nix profile add --impure github:nix-community/nixGL
+nix profile install --impure github:nix-community/nixGL
 ```
 
 after which you can run the built binaries with
 
 ```sh
-nixGL result/game/game # run the game
-nixGL result/editor/editor # run the level editor
+just build          # build the game
+just test           # run the tests
+just cov-report     # show a test coverage report
+build/game/game     # run the game
+build/editor/editor # run the level editor
 ```
+
+all these commands should be prefixed with `nixGL` if you're using the
+Nix shell on non-NixOS.
 
 remember to also read the
 [contributors' guide](./docs/CONTRIBUTING.md).
