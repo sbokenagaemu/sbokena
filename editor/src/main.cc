@@ -440,25 +440,25 @@ int main() {
     if (GuiButton(exit_button, "Exit"))
       window_exit = true;
 
-    // Download button
-    const Rectangle download_button = {
+    // Load/Import button
+    const Rectangle load_button = {
       current_window_width - (2 * taskbar_button_size),
       0,
       taskbar_button_size,
       taskbar_button_size
     };
-    if (GuiButton(download_button, "Download"))
-      level_.save_file();
+    if (GuiButton(load_button, "Load"))
+      level_.load_file();
 
-    // Import button
-    const Rectangle import_button = {
+    // Save/Export button
+    const Rectangle save_button = {
       current_window_width - (3 * taskbar_button_size),
       0,
       taskbar_button_size,
       taskbar_button_size
     };
-    if (GuiButton(import_button, "Import"))
-      level_.load_file();
+    if (GuiButton(save_button, "Save"))
+      level_.save_file();
 
     // Reset button
     const Rectangle reset_button = {
