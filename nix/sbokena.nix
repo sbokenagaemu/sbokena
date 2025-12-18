@@ -39,6 +39,7 @@
     nlohmann-json-src = fetchgit {
       url = "https://github.com/nlohmann/json";
       tag = "v3.12.0";
+      hash = "sha256-cECvDOLxgX7Q9R3IE86Hj9JJUxraDQvhoyPDF03B2CY=";
     };
     raylib-src = fetchgit {
       url = "https://github.com/raysan5/raylib";
