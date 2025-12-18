@@ -29,6 +29,7 @@
     googletest-src = fetchgit {
       url = "https://github.com/google/googletest";
       tag = "v1.17.0";
+      hash = "sha256-HIHMxAUR4bjmFLoltJeIAVSulVQ6kVuIT2Ku+lwAx/4=";
     };
     nfd-src = fetchgit {
       url = "https://github.com/btzy/nativefiledialog-extended";
