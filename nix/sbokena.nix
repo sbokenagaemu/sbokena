@@ -34,6 +34,7 @@
     nfd-src = fetchgit {
       url = "https://github.com/btzy/nativefiledialog-extended";
       tag = "v1.2.1";
+      hash = "sha256-GwT42lMZAAKSJpUJE6MYOpSLKUD5o9nSe9lcsoeXgJY=";
     };
     nlohmann-json-src = fetchgit {
       url = "https://github.com/nlohmann/json";
