@@ -28,28 +28,27 @@
   vendoredSources = {
     googletest-src = fetchgit {
       url = "https://github.com/google/googletest";
-      ref = "v1.17.0";
-      rev = "52eb8108c5bdec04579160ae17225d66034bd723";
+      tag = "v1.17.0";
     };
     nfd-src = fetchgit {
       url = "https://github.com/btzy/nativefiledialog-extended";
-      rev = "86d5f2005fe1c00747348a12070fec493ea2407e";
+      tag = "v1.2.1";
     };
     nlohmann-json-src = fetchgit {
       url = "https://github.com/nlohmann/json";
-      rev = "55f93686c01528224f448c19128836e7df245f72";
+      tag = "v3.12.0";
     };
     raylib-src = fetchgit {
       url = "https://github.com/raysan5/raylib";
-      rev = "c1ab645ca298a2801097931d1079b10ff7eb9df8";
+      tag = "5.5";
     };
     raylib-cpp-src = fetchgit {
       url = "https://github.com/RobLoach/raylib-cpp";
-      rev = "6d9d02cd242e8a4f78b6f971afcf992fb7a417dd";
+      tag = "v5.5.0";
     };
     raygui-src = fetchgit {
       url = "https://github.com/raysan5/raygui";
-      rev = "25c8c65a6e5f0f4d4b564a0343861898c6f2778b";
+      tag = "4.0";
     };
   };
 
