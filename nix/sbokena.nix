@@ -49,6 +49,7 @@
     raygui-src = fetchgit {
       url = "https://github.com/raysan5/raygui";
       tag = "4.0";
+      hash = "sha256-1qnChZYsb0e5LnPhvs6a/R5Ammgj2HWFNe9625sBRo8=";
     };
   };
 
