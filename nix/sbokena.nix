@@ -49,6 +49,7 @@
     raylib-cpp-src = fetchgit {
       url = "https://github.com/RobLoach/raylib-cpp";
       tag = "v5.5.0";
+      hash = "sha256-2hXkMxbbBUfuOgcbDSnfhDImQsYjnnqzNY0o1NHDQVo=";
     };
     raygui-src = fetchgit {
       url = "https://github.com/raysan5/raygui";
