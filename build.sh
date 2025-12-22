@@ -1,0 +1,1 @@
+sudo nix --extra-experimental-features nix-command build -L --extra-experimental-features flakes
