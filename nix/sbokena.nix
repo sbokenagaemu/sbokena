@@ -5,6 +5,7 @@
   enableX11 ? true,
   # nixpkgs
   lib,
+  fetchgit,
   clangStdenv,
   llvmPackages,
   xorg,
@@ -25,30 +26,35 @@
 }: let
   # sources of vendored external libraries
   vendoredSources = {
-    googletest-src = builtins.fetchGit {
+    googletest-src = fetchgit {
       url = "https://github.com/google/googletest";
-      ref = "v1.17.0";
-      rev = "52eb8108c5bdec04579160ae17225d66034bd723";
+      tag = "v1.17.0";
+      hash = "sha256-HIHMxAUR4bjmFLoltJeIAVSulVQ6kVuIT2Ku+lwAx/4=";
     };
-    nfd-src = builtins.fetchGit {
+    nfd-src = fetchgit {
       url = "https://github.com/btzy/nativefiledialog-extended";
-      rev = "86d5f2005fe1c00747348a12070fec493ea2407e";
+      tag = "v1.2.1";
+      hash = "sha256-GwT42lMZAAKSJpUJE6MYOpSLKUD5o9nSe9lcsoeXgJY=";
     };
-    nlohmann-json-src = builtins.fetchGit {
+    nlohmann-json-src = fetchgit {
       url = "https://github.com/nlohmann/json";
-      rev = "55f93686c01528224f448c19128836e7df245f72";
+      tag = "v3.12.0";
+      hash = "sha256-cECvDOLxgX7Q9R3IE86Hj9JJUxraDQvhoyPDF03B2CY=";
     };
-    raylib-src = builtins.fetchGit {
+    raylib-src = fetchgit {
       url = "https://github.com/raysan5/raylib";
-      rev = "c1ab645ca298a2801097931d1079b10ff7eb9df8";
+      tag = "5.5";
+      hash = "sha256-J99i4z4JF7d6mJNuJIB0rHNDhXJ5AEkG0eBvvuBLHrY=";
     };
-    raylib-cpp-src = builtins.fetchGit {
+    raylib-cpp-src = fetchgit {
       url = "https://github.com/RobLoach/raylib-cpp";
-      rev = "6d9d02cd242e8a4f78b6f971afcf992fb7a417dd";
+      tag = "v5.5.0";
+      hash = "sha256-2hXkMxbbBUfuOgcbDSnfhDImQsYjnnqzNY0o1NHDQVo=";
     };
-    raygui-src = builtins.fetchGit {
+    raygui-src = fetchgit {
       url = "https://github.com/raysan5/raygui";
-      rev = "25c8c65a6e5f0f4d4b564a0343861898c6f2778b";
+      tag = "4.0";
+      hash = "sha256-1qnChZYsb0e5LnPhvs6a/R5Ammgj2HWFNe9625sBRo8=";
     };
   };
 
