@@ -20,7 +20,6 @@
       ];
 
       perSystem = {
-        self',
         config,
         pkgs,
         ...
@@ -40,6 +39,8 @@
           settings.hooks = {
             alejandra.enable = true;
             clang-format.enable = true;
+            deadnix.enable = true;
+            statix.enable = true;
           };
         };
 
