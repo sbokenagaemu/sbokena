@@ -8,6 +8,7 @@
   fetchgit,
   llvmPackages,
   overrideCC,
+  stdenvNoCC,
   xorg,
   # dependencies
   cmake,
@@ -57,17 +58,21 @@
     };
   };
 
-  llvmStdenv =
-    overrideCC llvmPackages.stdenv
-    (llvmPackages.stdenv.cc.override {
-      inherit (llvmPackages) bintools;
-    });
-
-  inherit (llvmStdenv) isDarwin isLinux;
+  inherit (stdenvNoCC) isDarwin isLinux;
   select = pred: t: f:
     if pred
     then t
     else f;
+
+  llvmStdenv =
+    select isLinux
+    # use LLD on Linux
+    (overrideCC llvmPackages.stdenv
+      (llvmPackages.stdenv.cc.override {
+        inherit (llvmPackages) bintools;
+      }))
+    # use the system linker otherwise
+    llvmPackages.stdenv;
 
   # only enable Wayland, XDG Portals and X11 on Linux
   enableWayland' = select isLinux enableWayland false;
