@@ -19,8 +19,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # macOS version requirements
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  # `std::to_chars` is in 13.3 and up
-  set(CMAKE_OSX_DEPLOYMENT_TARGET 13.3)
+  set(CMAKE_OSX_DEPLOYMENT_TARGET 14.0)
 endif ()
 
 # set default build type
