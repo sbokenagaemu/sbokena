@@ -37,9 +37,6 @@ if (ipo_supported)
   set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELWITHDEBINFO ON)
 endif ()
 
-# enable LLD for all targets
-add_link_options(-fuse-ld=lld)
-
 # raylib LTO/IPO needs this
 set(CMAKE_POLICY_DEFAULT_CMP0069 NEW)
 # raylib wayland needs this

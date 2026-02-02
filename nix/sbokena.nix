@@ -6,8 +6,8 @@
   # nixpkgs
   lib,
   fetchgit,
-  clangStdenv,
   llvmPackages,
+  overrideCC,
   xorg,
   # dependencies
   cmake,
@@ -22,7 +22,6 @@
   pkg-config,
   wayland,
   wayland-scanner,
-  ...
 }: let
   # sources of vendored external libraries
   vendoredSources = {
@@ -58,11 +57,13 @@
     };
   };
 
-  inherit
-    (clangStdenv)
-    isDarwin
-    isLinux
-    ;
+  llvmStdenv =
+    overrideCC llvmPackages.stdenv
+    (llvmPackages.stdenv.cc.override {
+      inherit (llvmPackages) bintools;
+    });
+
+  inherit (llvmStdenv) isDarwin isLinux;
   select = pred: t: f:
     if pred
     then t
@@ -75,8 +76,6 @@
   # build-time dependencies
   nativeBuildInputs =
     [
-      llvmPackages.bintools
-      llvmPackages.clang-tools
       cmake
       fd
       ninja
@@ -146,7 +145,7 @@
       ];
     };
 in
-  clangStdenv.mkDerivation (finalAttrs: {
+  llvmStdenv.mkDerivation (finalAttrs: {
     name = "sbokena";
     src = ../.;
     strictDeps = true;
@@ -225,6 +224,8 @@ in
     # set env-vars for the build
     inherit env;
 
-    # passthru env-vars for shell
-    passthru.env = env;
+    # pass env-vars and stdenv
+    passthru = {
+      inherit env llvmStdenv;
+    };
   })

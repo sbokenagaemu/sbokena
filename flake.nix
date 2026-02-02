@@ -47,8 +47,9 @@
         # default dev shell, activated by `nix develop`
         # manually or by `direnv` automatically
         devShells.default =
-          pkgs.mkShell.override
-          {stdenv = pkgs.clangStdenv;} {
+          pkgs.mkShell.override {
+            stdenv = sbokena-dev.passthru.llvmStdenv;
+          } {
             inherit
               (sbokena-dev)
               cmakeFlags
