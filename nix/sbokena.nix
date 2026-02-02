@@ -93,6 +93,7 @@
 
   # check-time dependencies
   nativeCheckInputs = [
+    llvmPackages.bintools
     llvmPackages.clang-tools
     cmake
     parallel
